@@ -15,6 +15,26 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
+// GetID returns the user ID (implements Resource interface)
+func (u *User) GetID() interface{} {
+	return u.ID
+}
+
+// GetCreatedAt returns the creation time (implements Resource interface)
+func (u *User) GetCreatedAt() time.Time {
+	return u.CreatedAt
+}
+
+// GetUpdatedAt returns the last update time (implements Resource interface)
+func (u *User) GetUpdatedAt() time.Time {
+	return u.UpdatedAt
+}
+
+// SetUpdatedAt sets the last update time (implements Resource interface)
+func (u *User) SetUpdatedAt(t time.Time) {
+	u.UpdatedAt = t
+}
+
 // CreateUserRequest represents the request to create a user
 type CreateUserRequest struct {
 	Username  string `json:"username" binding:"required"`

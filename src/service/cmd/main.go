@@ -11,25 +11,45 @@ import (
 	"time"
 
 	"katharos/service/internal/api"
+	"katharos/service/internal/app"
 	"katharos/service/internal/config"
-	"katharos/service/internal/service"
+	"sharedmodule/logging"
 )
 
 func main() {
 	// Load configuration
 	cfg := config.LoadConfig()
 
-	// Initialize services
-	userService := service.NewUserService()
+	// Initialize logger
+	loggerConfig := &logging.LoggerConfig{
+		Level:          logging.InfoLevel,
+		FileName:       "/tmp/katharos-service.log",
+		LoggerName:     "katharos-service",
+		ComponentName:  "main",
+		ServiceName:    "katharos-service",
+		MaxAge:         30,
+		MaxBackups:     10,
+		MaxSize:        100,
+		IsLogRotatable: false,
+	}
 
-	// Initialize handlers
-	handler := api.NewHandler(userService)
+	logger, err := logging.NewLogger(loggerConfig)
+	if err != nil {
+		log.Fatalf("Failed to create logger: %v", err)
+	}
+	defer logger.Close()
+
+	// Create application instance
+	application := app.NewApplication(cfg, logger)
+
+	// Initialize handlers (without user service for now)
+	handler := api.NewHandler()
 
 	// Setup HTTP mux
 	mux := setupRouter(handler)
 
 	// Start server
-	startServer(mux, cfg)
+	startServer(mux, cfg, application)
 }
 
 func setupRouter(handler *api.Handler) *http.ServeMux {
@@ -41,7 +61,9 @@ func setupRouter(handler *api.Handler) *http.ServeMux {
 	return mux
 }
 
-func startServer(mux *http.ServeMux, cfg *config.Config) {
+func startServer(mux *http.ServeMux, cfg *config.Config, application *app.Application) {
+	logger := application.Logger()
+
 	// Create server
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port),
@@ -52,9 +74,9 @@ func startServer(mux *http.ServeMux, cfg *config.Config) {
 
 	// Start server in a goroutine
 	go func() {
-		log.Printf("Starting server on %s:%d", cfg.Server.Host, cfg.Server.Port)
+		logger.Infof("Starting server on %s:%d", cfg.Server.Host, cfg.Server.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Failed to start server: %v", err)
+			logger.Fatalf("Failed to start server: %v", err)
 		}
 	}()
 
@@ -62,15 +84,22 @@ func startServer(mux *http.ServeMux, cfg *config.Config) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down server...")
+
+	logger.Info("Shutting down server...")
 
 	// Give outstanding requests a 30-second deadline to complete
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
+	// Shutdown the server
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		logger.Errorf("Server forced to shutdown: %v", err)
 	}
 
-	log.Println("Server exited")
+	// Shutdown the application
+	if err := application.Shutdown(); err != nil {
+		logger.Errorf("Application shutdown error: %v", err)
+	}
+
+	logger.Info("Server exited")
 }

@@ -9,6 +9,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Test constants
+const (
+	usernameShortMessage = "Username too short"
+	emailRequiredMessage = "Email is required"
+)
+
 func TestNewSuccessResponse(t *testing.T) {
 	data := map[string]string{"key": "value"}
 	message := "Operation successful"
@@ -76,31 +82,31 @@ func TestValidationErrors(t *testing.T) {
 	assert.Equal(t, "no validation errors", ve.Error())
 
 	// Add an error
-	ve.Add("username", "ab", "Username too short", "MIN_LENGTH")
+	ve.Add("username", "ab", usernameShortMessage, "MIN_LENGTH")
 
 	assert.True(t, ve.HasErrors())
 	assert.Len(t, ve.Errors, 1)
 	assert.Equal(t, "username", ve.Errors[0].Field)
 	assert.Equal(t, "ab", ve.Errors[0].Value)
-	assert.Equal(t, "Username too short", ve.Errors[0].Message)
+	assert.Equal(t, usernameShortMessage, ve.Errors[0].Message)
 	assert.Equal(t, "MIN_LENGTH", ve.Errors[0].Code)
 
 	// Add another error
-	ve.Add("email", "", "Email is required", "REQUIRED")
+	ve.Add("email", "", emailRequiredMessage, "REQUIRED")
 
 	assert.True(t, ve.HasErrors())
 	assert.Len(t, ve.Errors, 2)
 
 	// Error string should be JSON array of messages
 	errorStr := ve.Error()
-	assert.Contains(t, errorStr, "Username too short")
-	assert.Contains(t, errorStr, "Email is required")
+	assert.Contains(t, errorStr, usernameShortMessage)
+	assert.Contains(t, errorStr, emailRequiredMessage)
 }
 
 func TestValidationErrorsJSON(t *testing.T) {
 	ve := NewValidationErrors()
-	ve.Add("username", "ab", "Username too short", "MIN_LENGTH")
-	ve.Add("email", "", "Email is required", "REQUIRED")
+	ve.Add("username", "ab", usernameShortMessage, "MIN_LENGTH")
+	ve.Add("email", "", emailRequiredMessage, "REQUIRED")
 
 	// Should be able to marshal to JSON
 	jsonBytes, err := json.Marshal(ve)

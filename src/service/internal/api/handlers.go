@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"katharos/service/internal/models"
-	"katharos/service/internal/service"
 )
 
 // Error message constants
@@ -24,6 +24,8 @@ const (
 	ErrMissingSearchQuery    = "Missing search query"
 	ErrSearchFailed          = "Search failed"
 	ErrMethodNotAllowed      = "Method not allowed"
+	ErrUsernameExists        = "username already exists"
+	ErrEmailExists           = "email already exists"
 )
 
 // Success message constants
@@ -37,16 +39,19 @@ const (
 	MsgStatsRetrieved  = "Statistics retrieved successfully"
 )
 
+// API route constants
+const (
+	APIUsersPath = "/api/v1/users/"
+)
+
 // Handler holds the dependencies for API handlers
 type Handler struct {
-	userService *service.UserService
+	// Removed userService dependency for now
 }
 
 // NewHandler creates a new Handler instance
-func NewHandler(userService *service.UserService) *Handler {
-	return &Handler{
-		userService: userService,
-	}
+func NewHandler() *Handler {
+	return &Handler{}
 }
 
 // SetupRoutes sets up the API routes
@@ -55,9 +60,8 @@ func (h *Handler) SetupRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/health", h.HealthCheck)
 
 	// API v1 routes - using a more specific pattern-based approach
-	mux.HandleFunc("/api/v1/users/search", h.SearchUsers) // Must come before /api/v1/users/
-	mux.HandleFunc("/api/v1/users/", h.handleUserRoutes)  // Handles all /users/* routes
-	mux.HandleFunc("/api/v1/users", h.handleUsers)        // Handles exact /users route
+	mux.HandleFunc("/api/v1/users/search", h.SearchUsers) // Must come before APIUsersPath
+	mux.HandleFunc(APIUsersPath, h.handleUserRoutes)      // Handles all /users/* routes including exact match
 	mux.HandleFunc("/api/v1/stats", h.GetStats)
 }
 
@@ -86,7 +90,7 @@ func (h *Handler) handleUserRoutes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract the path after /api/v1/users/
-	path := strings.TrimPrefix(r.URL.Path, "/api/v1/users/")
+	path := strings.TrimPrefix(r.URL.Path, APIUsersPath)
 
 	// If path is empty, redirect to exact users route
 	if path == "" {
@@ -125,7 +129,7 @@ func writeJSON(w http.ResponseWriter, status int, data interface{}) {
 // getUserIDFromPath extracts user ID from URL path
 func getUserIDFromPath(path string) (int, error) {
 	// Remove the /api/v1/users/ prefix
-	userIDStr := strings.TrimPrefix(path, "/api/v1/users/")
+	userIDStr := strings.TrimPrefix(path, APIUsersPath)
 	// Remove any trailing slashes or additional path segments
 	if idx := strings.Index(userIDStr, "/"); idx != -1 {
 		userIDStr = userIDStr[:idx]
@@ -166,7 +170,11 @@ func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	health := h.userService.GetHealthStatus()
+	health := &models.HealthResponse{
+		Status:    "healthy",
+		Timestamp: time.Now(),
+		Version:   "1.0.0",
+	}
 	writeJSON(w, http.StatusOK, health)
 }
 
@@ -182,19 +190,11 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.CreateUser(&req)
-	if err != nil {
-		writeJSON(w, http.StatusConflict, models.ErrorResponse{
-			Error:   ErrFailedToCreateUser,
-			Message: err.Error(),
-			Code:    http.StatusConflict,
-		})
-		return
-	}
-
-	writeJSON(w, http.StatusCreated, models.SuccessResponse{
-		Message: MsgUserCreated,
-		Data:    user,
+	// Stub implementation - return not implemented
+	writeJSON(w, http.StatusNotImplemented, models.ErrorResponse{
+		Error:   "Not implemented",
+		Message: "User service not available",
+		Code:    http.StatusNotImplemented,
 	})
 }
 
@@ -210,37 +210,20 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.GetUser(id)
-	if err != nil {
-		writeJSON(w, http.StatusNotFound, models.ErrorResponse{
-			Error:   ErrUserNotFound,
-			Message: err.Error(),
-			Code:    http.StatusNotFound,
-		})
-		return
-	}
-
-	writeJSON(w, http.StatusOK, models.SuccessResponse{
-		Message: MsgUserRetrieved,
-		Data:    user,
+	// Stub implementation - return not implemented
+	writeJSON(w, http.StatusNotImplemented, models.ErrorResponse{
+		Error:   "Not implemented",
+		Message: "User service not available",
+		Code:    http.StatusNotImplemented,
 	})
 }
 
 // GetAllUsers handles get all users requests
 func (h *Handler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := h.userService.GetAllUsers()
-	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, models.ErrorResponse{
-			Error:   ErrFailedToRetrieveUsers,
-			Message: err.Error(),
-			Code:    http.StatusInternalServerError,
-		})
-		return
-	}
-
+	// Stub implementation - return empty list
 	writeJSON(w, http.StatusOK, models.SuccessResponse{
 		Message: MsgUsersRetrieved,
-		Data:    users,
+		Data:    []interface{}{},
 	})
 }
 
@@ -266,26 +249,11 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.UpdateUser(id, &req)
-	if err != nil {
-		status := http.StatusInternalServerError
-		if err.Error() == service.ErrUserNotFound {
-			status = http.StatusNotFound
-		} else if err.Error() == service.ErrUsernameExists || err.Error() == service.ErrEmailExists {
-			status = http.StatusConflict
-		}
-
-		writeJSON(w, status, models.ErrorResponse{
-			Error:   ErrFailedToUpdateUser,
-			Message: err.Error(),
-			Code:    status,
-		})
-		return
-	}
-
-	writeJSON(w, http.StatusOK, models.SuccessResponse{
-		Message: MsgUserUpdated,
-		Data:    user,
+	// Stub implementation - return not implemented
+	writeJSON(w, http.StatusNotImplemented, models.ErrorResponse{
+		Error:   "Not implemented",
+		Message: "User service not available",
+		Code:    http.StatusNotImplemented,
 	})
 }
 
@@ -301,23 +269,11 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.userService.DeleteUser(id)
-	if err != nil {
-		status := http.StatusInternalServerError
-		if err.Error() == service.ErrUserNotFound {
-			status = http.StatusNotFound
-		}
-
-		writeJSON(w, status, models.ErrorResponse{
-			Error:   ErrFailedToDeleteUser,
-			Message: err.Error(),
-			Code:    status,
-		})
-		return
-	}
-
-	writeJSON(w, http.StatusOK, models.SuccessResponse{
-		Message: MsgUserDeleted,
+	// Stub implementation - return not implemented
+	writeJSON(w, http.StatusNotImplemented, models.ErrorResponse{
+		Error:   "Not implemented",
+		Message: "User service not available",
+		Code:    http.StatusNotImplemented,
 	})
 }
 
@@ -333,26 +289,17 @@ func (h *Handler) SearchUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users, err := h.userService.SearchUsers(query)
-	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, models.ErrorResponse{
-			Error:   ErrSearchFailed,
-			Message: err.Error(),
-			Code:    http.StatusInternalServerError,
-		})
-		return
-	}
-
+	// Stub implementation - return empty results
 	writeJSON(w, http.StatusOK, models.SuccessResponse{
 		Message: MsgSearchCompleted,
-		Data:    users,
+		Data:    []interface{}{},
 	})
 }
 
 // GetStats handles statistics requests
 func (h *Handler) GetStats(w http.ResponseWriter, r *http.Request) {
 	stats := map[string]interface{}{
-		"total_users": h.userService.GetUserCount(),
+		"total_users": 0, // Stub implementation
 	}
 
 	writeJSON(w, http.StatusOK, models.SuccessResponse{

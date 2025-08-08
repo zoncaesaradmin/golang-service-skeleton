@@ -9,6 +9,30 @@ import (
 	"time"
 )
 
+// Error message constants
+const (
+	errFailedToDecodeResponse   = "failed to decode response: %w"
+	errFailedToMarshalUserData  = "failed to marshal user data: %w"
+	errFailedToUnmarshalUser    = "failed to unmarshal user: %w"
+	errFailedToMarshalUsersData = "failed to marshal users data: %w"
+	errFailedToUnmarshalUsers   = "failed to unmarshal users: %w"
+)
+
+// API endpoint format constants
+const (
+	apiUserByIDFormat    = "%s/api/v1/users/%d"
+	apiUsersSearchFormat = "%s/api/v1/users/search?q=%s"
+	healthEndpoint       = "/health"
+	usersEndpoint        = "/api/v1/users"
+	statsEndpoint        = "/api/v1/stats"
+)
+
+// HTTP constants
+const (
+	contentTypeJSON = "application/json"
+	defaultTimeout  = 30 * time.Second
+)
+
 // Client represents a client for the service API
 type Client struct {
 	baseURL    string
@@ -20,7 +44,7 @@ func NewClient(baseURL string) *Client {
 	return &Client{
 		baseURL: baseURL,
 		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout: defaultTimeout,
 		},
 	}
 }
@@ -69,7 +93,7 @@ type HealthResponse struct {
 
 // HealthCheck performs a health check
 func (c *Client) HealthCheck() (*HealthResponse, error) {
-	resp, err := c.httpClient.Get(c.baseURL + "/health")
+	resp, err := c.httpClient.Get(c.baseURL + healthEndpoint)
 	if err != nil {
 		return nil, fmt.Errorf("health check failed: %w", err)
 	}
@@ -94,7 +118,7 @@ func (c *Client) CreateUser(req *CreateUserRequest) (*User, error) {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	resp, err := c.httpClient.Post(c.baseURL+"/api/v1/users", "application/json", bytes.NewBuffer(body))
+	resp, err := c.httpClient.Post(c.baseURL+usersEndpoint, contentTypeJSON, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("create user request failed: %w", err)
 	}
@@ -102,7 +126,7 @@ func (c *Client) CreateUser(req *CreateUserRequest) (*User, error) {
 
 	var apiResp APIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, fmt.Errorf(errFailedToDecodeResponse, err)
 	}
 
 	if resp.StatusCode != http.StatusCreated {
@@ -112,12 +136,12 @@ func (c *Client) CreateUser(req *CreateUserRequest) (*User, error) {
 	// Convert the data interface{} to User
 	userData, err := json.Marshal(apiResp.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal user data: %w", err)
+		return nil, fmt.Errorf(errFailedToMarshalUserData, err)
 	}
 
 	var user User
 	if err := json.Unmarshal(userData, &user); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal user: %w", err)
+		return nil, fmt.Errorf(errFailedToUnmarshalUser, err)
 	}
 
 	return &user, nil
@@ -125,7 +149,7 @@ func (c *Client) CreateUser(req *CreateUserRequest) (*User, error) {
 
 // GetUser retrieves a user by ID
 func (c *Client) GetUser(id int) (*User, error) {
-	resp, err := c.httpClient.Get(fmt.Sprintf("%s/api/v1/users/%d", c.baseURL, id))
+	resp, err := c.httpClient.Get(fmt.Sprintf(apiUserByIDFormat, c.baseURL, id))
 	if err != nil {
 		return nil, fmt.Errorf("get user request failed: %w", err)
 	}
@@ -133,7 +157,7 @@ func (c *Client) GetUser(id int) (*User, error) {
 
 	var apiResp APIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, fmt.Errorf(errFailedToDecodeResponse, err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -143,12 +167,12 @@ func (c *Client) GetUser(id int) (*User, error) {
 	// Convert the data interface{} to User
 	userData, err := json.Marshal(apiResp.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal user data: %w", err)
+		return nil, fmt.Errorf(errFailedToMarshalUserData, err)
 	}
 
 	var user User
 	if err := json.Unmarshal(userData, &user); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal user: %w", err)
+		return nil, fmt.Errorf(errFailedToUnmarshalUser, err)
 	}
 
 	return &user, nil
@@ -156,7 +180,7 @@ func (c *Client) GetUser(id int) (*User, error) {
 
 // GetAllUsers retrieves all users
 func (c *Client) GetAllUsers() ([]*User, error) {
-	resp, err := c.httpClient.Get(c.baseURL + "/api/v1/users")
+	resp, err := c.httpClient.Get(c.baseURL + usersEndpoint)
 	if err != nil {
 		return nil, fmt.Errorf("get all users request failed: %w", err)
 	}
@@ -164,7 +188,7 @@ func (c *Client) GetAllUsers() ([]*User, error) {
 
 	var apiResp APIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, fmt.Errorf(errFailedToDecodeResponse, err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -174,12 +198,12 @@ func (c *Client) GetAllUsers() ([]*User, error) {
 	// Convert the data interface{} to []*User
 	usersData, err := json.Marshal(apiResp.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal users data: %w", err)
+		return nil, fmt.Errorf(errFailedToMarshalUsersData, err)
 	}
 
 	var users []*User
 	if err := json.Unmarshal(usersData, &users); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal users: %w", err)
+		return nil, fmt.Errorf(errFailedToUnmarshalUsers, err)
 	}
 
 	return users, nil
@@ -192,11 +216,11 @@ func (c *Client) UpdateUser(id int, req *UpdateUserRequest) (*User, error) {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	httpReq, err := http.NewRequest("PUT", fmt.Sprintf("%s/api/v1/users/%d", c.baseURL, id), bytes.NewBuffer(body))
+	httpReq, err := http.NewRequest("PUT", fmt.Sprintf(apiUserByIDFormat, c.baseURL, id), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Content-Type", contentTypeJSON)
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
@@ -206,7 +230,7 @@ func (c *Client) UpdateUser(id int, req *UpdateUserRequest) (*User, error) {
 
 	var apiResp APIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, fmt.Errorf(errFailedToDecodeResponse, err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -229,7 +253,7 @@ func (c *Client) UpdateUser(id int, req *UpdateUserRequest) (*User, error) {
 
 // DeleteUser deletes a user by ID
 func (c *Client) DeleteUser(id int) error {
-	httpReq, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/users/%d", c.baseURL, id), nil)
+	httpReq, err := http.NewRequest("DELETE", fmt.Sprintf(apiUserByIDFormat, c.baseURL, id), nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
@@ -250,7 +274,7 @@ func (c *Client) DeleteUser(id int) error {
 
 // SearchUsers searches for users
 func (c *Client) SearchUsers(query string) ([]*User, error) {
-	resp, err := c.httpClient.Get(fmt.Sprintf("%s/api/v1/users/search?q=%s", c.baseURL, query))
+	resp, err := c.httpClient.Get(fmt.Sprintf(apiUsersSearchFormat, c.baseURL, query))
 	if err != nil {
 		return nil, fmt.Errorf("search users request failed: %w", err)
 	}
@@ -258,7 +282,7 @@ func (c *Client) SearchUsers(query string) ([]*User, error) {
 
 	var apiResp APIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, fmt.Errorf(errFailedToDecodeResponse, err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -268,12 +292,12 @@ func (c *Client) SearchUsers(query string) ([]*User, error) {
 	// Convert the data interface{} to []*User
 	usersData, err := json.Marshal(apiResp.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal users data: %w", err)
+		return nil, fmt.Errorf(errFailedToMarshalUsersData, err)
 	}
 
 	var users []*User
 	if err := json.Unmarshal(usersData, &users); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal users: %w", err)
+		return nil, fmt.Errorf(errFailedToUnmarshalUsers, err)
 	}
 
 	return users, nil
@@ -281,7 +305,7 @@ func (c *Client) SearchUsers(query string) ([]*User, error) {
 
 // GetStats retrieves service statistics
 func (c *Client) GetStats() (map[string]interface{}, error) {
-	resp, err := c.httpClient.Get(c.baseURL + "/api/v1/stats")
+	resp, err := c.httpClient.Get(c.baseURL + statsEndpoint)
 	if err != nil {
 		return nil, fmt.Errorf("get stats request failed: %w", err)
 	}
@@ -289,7 +313,7 @@ func (c *Client) GetStats() (map[string]interface{}, error) {
 
 	var apiResp APIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, fmt.Errorf(errFailedToDecodeResponse, err)
 	}
 
 	if resp.StatusCode != http.StatusOK {

@@ -122,22 +122,29 @@ func TestLoggerConfigValidate(t *testing.T) {
 		},
 	}
 
+	checkValidation := func(t *testing.T, tt struct {
+		name    string
+		config  LoggerConfig
+		wantErr bool
+		errMsg  string
+	}) {
+		err := tt.config.Validate()
+		if tt.wantErr {
+			if err == nil {
+				t.Errorf("LoggerConfig.Validate() expected error but got none")
+				return
+			}
+			if !strings.Contains(err.Error(), tt.errMsg) {
+				t.Errorf("LoggerConfig.Validate() error = %v, want error containing %v", err, tt.errMsg)
+			}
+		} else if err != nil {
+			t.Errorf("LoggerConfig.Validate() unexpected error = %v", err)
+		}
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.config.Validate()
-			if tt.wantErr {
-				if err == nil {
-					t.Errorf("LoggerConfig.Validate() expected error but got none")
-					return
-				}
-				if !strings.Contains(err.Error(), tt.errMsg) {
-					t.Errorf("LoggerConfig.Validate() error = %v, want error containing %v", err, tt.errMsg)
-				}
-			} else {
-				if err != nil {
-					t.Errorf("LoggerConfig.Validate() unexpected error = %v", err)
-				}
-			}
+			checkValidation(t, tt)
 		})
 	}
 }
