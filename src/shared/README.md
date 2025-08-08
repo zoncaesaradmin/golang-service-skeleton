@@ -6,7 +6,7 @@ This module contains common utilities and packages shared between the service an
 
 - `utils/` - Common utility functions
 - `types/` - Shared data types and structures
-- `validator/` - Common validation logic
+- `logging/` - Comprehensive logging functionality
 
 ## Coverage Target
 
@@ -20,5 +20,5 @@ Import from other modules in the workspace:
 ```go
 import "sharedmodule/utils"
 import "sharedmodule/types"
-import "sharedmodule/validator"
+import "sharedmodule/logging"
 ```

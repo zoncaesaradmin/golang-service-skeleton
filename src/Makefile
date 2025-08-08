@@ -1,8 +1,8 @@
 # Root Makefile for Golang Service Skeleton
-.PHONY: help build build-with-coverage test clean clean-coverage deep-clean run-service run-tests install-deps fmt vet lint coverage coverage-enforce
+.PHONY: help build build-with-coverage test clean clean-coverage clean-all-coverage deep-clean run-service run-tests install-deps fmt vet lint coverage coverage-enforce
 
 # Coverage enforcement thresholds
-SERVICE_COVERAGE_THRESHOLD=25
+SERVICE_COVERAGE_THRESHOLD = 35
 
 # Default target
 help:
@@ -10,6 +10,7 @@ help:
 	@echo "========================================"
 	@echo ""
 	@echo "Available targets:"
+	@echo "  start           - Build with enforced combined coverage (does not run service)"
 	@echo "  build           - Build all modules (service, testrunner, shared)"
 	@echo "  build-with-coverage - Build with coverage enforcement (recommended for production)"
 	@echo "  test            - Run all tests (unit and integration)"
@@ -19,7 +20,8 @@ help:
 	@echo "  run-service-dev - Build without coverage enforcement and run (for development)"
 	@echo "  run-tests       - Build and run integration tests"
 	@echo "  clean           - Clean build artifacts from all projects"
-	@echo "  clean-coverage  - Clean coverage files (service/shared/combined coverage.out)"
+	@echo "  clean-coverage  - Clean individual module coverage files (preserves main coverage.out)"
+	@echo "  clean-all-coverage - Clean all coverage files including main combined coverage"
 	@echo "  deep-clean      - Deep clean including vendor and module cache"
 	@echo "  install-deps    - Download dependencies for all projects"
 	@echo "  fmt             - Format code in all projects"
@@ -34,15 +36,17 @@ help:
 	@echo "  ❌ testrunner/*  - Testing infrastructure (excluded)"
 	@echo ""
 	@echo "Coverage Files (preserved for org tools):"
-	@echo "  📁 service/coverage.out     - Service module coverage data"
-	@echo "  📁 shared/coverage.out      - Shared module coverage data"
-	@echo "  📁 combined_coverage.out    - Combined coverage data (root level)"
+	@echo "  📁 coverage.out            - Combined coverage data for entire repository"
 	@echo ""
 	@echo "Individual project targets:"
 	@echo "  service-*            - Run target for service (e.g., make service-build)"
 	@echo "  service-build-with-coverage - Build service only with coverage enforcement"
 	@echo "  testrunner-*         - Run target for testrunner (e.g., make testrunner-build)"
 	@echo "  shared-*             - Run target for shared module (e.g., make shared-test)"
+
+# Start target - Build with enforced combined coverage and run the service
+start: coverage-enforce service-build
+	@echo "✅ Service built with enforced coverage!"
 
 # Build all projects
 build: service-build testrunner-build shared-build
@@ -74,22 +78,33 @@ coverage: service-coverage shared-coverage
 # Calculate combined coverage from service and shared modules
 coverage-calculate:
 	@echo "🔢 True Combined Coverage Calculation:"
-	@rm -f combined_coverage.out; \
-	echo "mode: set" > combined_coverage.out; \
+	@rm -f coverage.out; \
+	echo "mode: set" > coverage.out; \
 	if [ -f service/coverage.out ]; then \
-		tail -n +2 service/coverage.out >> combined_coverage.out; \
+		tail -n +2 service/coverage.out >> coverage.out; \
 	fi; \
 	if [ -f shared/coverage.out ]; then \
-		tail -n +2 shared/coverage.out >> combined_coverage.out; \
+		tail -n +2 shared/coverage.out >> coverage.out; \
 	fi; \
-	if [ ! -s combined_coverage.out ] || [ $$(wc -l < combined_coverage.out) -eq 1 ]; then \
+	if [ ! -s coverage.out ] || [ $$(wc -l < coverage.out) -eq 1 ]; then \
 		echo "❌ No coverage data found"; \
-		rm -f combined_coverage.out; \
+		rm -f coverage.out; \
 		exit 1; \
 	fi; \
-	SERVICE_COV=$$(cd service && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
-	SHARED_COV=$$(cd shared && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
-	COMBINED_COV=$$(go tool cover -func=combined_coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
+	SERVICE_COV=$$(cd service && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$SERVICE_COV" ]; then SERVICE_COV="0"; fi; \
+	SHARED_COV=$$(cd shared && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$SHARED_COV" ]; then SHARED_COV="0"; fi; \
+	COMBINED_COV=$$(go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$COMBINED_COV" ]; then \
+		echo "⚠️  Warning: Failed to calculate combined coverage, trying alternative method..."; \
+		echo "📋 Debug: Coverage file size: $$(wc -l < coverage.out) lines"; \
+		COMBINED_COV=$$(go tool cover -func=coverage.out 2>&1 | grep "total:" | awk '{print $$3}' | sed 's/%//'); \
+		if [ -z "$$COMBINED_COV" ]; then \
+			echo "📋 Debug: Alternative method also failed, setting to 0"; \
+			COMBINED_COV="0"; \
+		fi; \
+	fi; \
 	echo "Service Module: $$SERVICE_COV%"; \
 	echo "Shared Module:  $$SHARED_COV%"; \
 	echo ""; \
@@ -99,7 +114,7 @@ coverage-calculate:
 	echo "📁 Coverage files preserved:"; \
 	echo "   • service/coverage.out"; \
 	echo "   • shared/coverage.out"; \
-	echo "   • combined_coverage.out"; \
+	echo "   • coverage.out"; \
 	echo ""
 
 # Enforce combined service coverage threshold
@@ -110,22 +125,29 @@ coverage-enforce: service-coverage shared-coverage
 	@echo "Scope: service/* + shared/* (excludes testrunner/*)"
 	@echo "Threshold: $(SERVICE_COVERAGE_THRESHOLD)%"
 	@echo ""
-	@rm -f combined_coverage.out; \
-	echo "mode: set" > combined_coverage.out; \
+	@rm -f coverage.out; \
+	echo "mode: set" > coverage.out; \
 	if [ -f service/coverage.out ]; then \
-		tail -n +2 service/coverage.out >> combined_coverage.out; \
+		tail -n +2 service/coverage.out >> coverage.out; \
 	fi; \
 	if [ -f shared/coverage.out ]; then \
-		tail -n +2 shared/coverage.out >> combined_coverage.out; \
+		tail -n +2 shared/coverage.out >> coverage.out; \
 	fi; \
-	if [ ! -s combined_coverage.out ] || [ $$(wc -l < combined_coverage.out) -eq 1 ]; then \
+	if [ ! -s coverage.out ] || [ $$(wc -l < coverage.out) -eq 1 ]; then \
 		echo "❌ No coverage data found"; \
-		rm -f combined_coverage.out; \
+		rm -f coverage.out; \
 		exit 1; \
 	fi; \
-	SERVICE_COV=$$(cd service && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
-	SHARED_COV=$$(cd shared && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
-	COMBINED_COV=$$(go tool cover -func=combined_coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
+	SERVICE_COV=$$(cd service && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$SERVICE_COV" ]; then SERVICE_COV="0"; fi; \
+	SHARED_COV=$$(cd shared && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$SHARED_COV" ]; then SHARED_COV="0"; fi; \
+	COMBINED_COV=$$(go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$COMBINED_COV" ]; then \
+		echo "⚠️  Warning: Failed to calculate combined coverage, trying alternative method..."; \
+		COMBINED_COV=$$(go tool cover -func=coverage.out 2>&1 | grep "total:" | awk '{print $$3}' | sed 's/%//'); \
+		if [ -z "$$COMBINED_COV" ]; then COMBINED_COV="0"; fi; \
+	fi; \
 	echo "📊 Service Module: $$SERVICE_COV%"; \
 	echo "📊 Shared Module:  $$SHARED_COV%"; \
 	echo ""; \
@@ -148,16 +170,25 @@ coverage-enforce: service-coverage shared-coverage
 	echo "📁 Coverage files preserved:"; \
 	echo "   • service/coverage.out"; \
 	echo "   • shared/coverage.out"; \
-	echo "   • combined_coverage.out"
+	echo "   • coverage.out"
 
 # Clean all projects
 clean: service-clean testrunner-clean shared-clean
+	@echo "Cleaning individual module coverage files while preserving main coverage.out..."
+	@rm -f service/coverage.out shared/coverage.out 2>/dev/null || true
+	@echo "✅ All projects cleaned (main coverage.out preserved)"
 
 # Clean coverage files (when needed for fresh coverage run)
 clean-coverage:
-	@echo "Cleaning coverage files..."
-	@rm -f service/coverage.out shared/coverage.out combined_coverage.out
-	@echo "✅ Coverage files cleaned"
+	@echo "Cleaning individual module coverage files..."
+	@rm -f service/coverage.out shared/coverage.out
+	@echo "✅ Individual coverage files cleaned (main coverage.out preserved)"
+
+# Clean all coverage files including main combined coverage
+clean-all-coverage:
+	@echo "Cleaning all coverage files including main combined coverage..."
+	@rm -f service/coverage.out shared/coverage.out coverage.out
+	@echo "✅ All coverage files cleaned"
 
 # Deep clean all projects
 deep-clean: service-deep-clean testrunner-deep-clean shared-deep-clean
@@ -190,24 +221,31 @@ service-build:
 
 service-build-with-coverage: service-coverage shared-coverage
 	@echo "Building service with coverage enforcement..."
-	@SERVICE_COV=$$(cd service && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
-	SHARED_COV=$$(cd shared && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
-	rm -f combined_coverage.out; \
-	echo "mode: set" > combined_coverage.out; \
+	@SERVICE_COV=$$(cd service && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$SERVICE_COV" ]; then SERVICE_COV="0"; fi; \
+	SHARED_COV=$$(cd shared && go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$SHARED_COV" ]; then SHARED_COV="0"; fi; \
+	rm -f coverage.out; \
+	echo "mode: set" > coverage.out; \
 	if [ -f service/coverage.out ]; then \
-		tail -n +2 service/coverage.out >> combined_coverage.out; \
+		tail -n +2 service/coverage.out >> coverage.out; \
 	fi; \
 	if [ -f shared/coverage.out ]; then \
-		tail -n +2 shared/coverage.out >> combined_coverage.out; \
+		tail -n +2 shared/coverage.out >> coverage.out; \
 	fi; \
-	COMBINED_COV=$$(go tool cover -func=combined_coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//' || echo "0"); \
+	COMBINED_COV=$$(go tool cover -func=coverage.out 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	if [ -z "$$COMBINED_COV" ]; then \
+		echo "⚠️  Warning: Failed to calculate combined coverage, trying alternative method..."; \
+		COMBINED_COV=$$(go tool cover -func=coverage.out 2>&1 | grep "total:" | awk '{print $$3}' | sed 's/%//'); \
+		if [ -z "$$COMBINED_COV" ]; then COMBINED_COV="0"; fi; \
+	fi; \
 	echo "🎯 Service Coverage: $$SERVICE_COV% | Shared: $$SHARED_COV% | Combined: $$COMBINED_COV%"; \
 	if [ $$(echo "$$COMBINED_COV >= $(SERVICE_COVERAGE_THRESHOLD)" | bc -l) -eq 1 ]; then \
 		echo "✅ Coverage $$COMBINED_COV% meets $(SERVICE_COVERAGE_THRESHOLD)% threshold - proceeding with build"; \
 		echo "📁 Coverage files preserved for org tools:"; \
 		echo "   • service/coverage.out"; \
 		echo "   • shared/coverage.out"; \
-		echo "   • combined_coverage.out"; \
+		echo "   • coverage.out"; \
 		cd service && $(MAKE) build; \
 	else \
 		echo "❌ Coverage $$COMBINED_COV% below $(SERVICE_COVERAGE_THRESHOLD)% threshold - build blocked"; \

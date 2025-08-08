@@ -137,13 +137,13 @@ coverage-types:
 	@$(GOTEST) -coverprofile=types_coverage.out ./types
 	@$(GOCMD) tool cover -func=types_coverage.out
 
-coverage-validator:
-	@echo "Running coverage for validator package..."
-	@$(GOTEST) -coverprofile=validator_coverage.out ./validator
-	@$(GOCMD) tool cover -func=validator_coverage.out
+coverage-logging:
+	@echo "Running coverage for logging package..."
+	@$(GOTEST) -coverprofile=logging_coverage.out ./logging
+	@$(GOCMD) tool cover -func=logging_coverage.out
 
 # Detailed coverage by package
-coverage-detailed: coverage-utils coverage-types coverage-validator
+coverage-detailed: coverage-utils coverage-types coverage-logging
 	@echo "Detailed coverage report by package completed"
 
 # Benchmark tests
