@@ -1,11 +1,14 @@
 # Service Makefile
-.PHONY: build test clean deep-clean run deps tidy lint fmt vet install-lint docker-build help
+.PHONY: build test clean deep-clean run deps tidy lint fmt vet coverage coverage-enforce coverage-html install-lint docker-build help
 
 # Variables
 BINARY_NAME=service
 BINARY_PATH=./bin/$(BINARY_NAME)
 MAIN_PATH=./cmd/main.go
 GO_FILES=$(shell find . -name "*.go" -type f)
+COVERAGE_THRESHOLD=80
+COVERAGE_OUT=coverage.out
+COVERAGE_HTML=coverage.html
 
 # Default target
 all: clean deps fmt vet lint test build
@@ -28,10 +31,32 @@ test:
 	go test -v ./...
 
 # Run tests with coverage
-test-coverage:
+coverage:
 	@echo "Running tests with coverage..."
-	go test -v -coverprofile=coverage.out ./...
-	go tool cover -html=coverage.out -o coverage.html
+	go test -coverprofile=$(COVERAGE_OUT) ./...
+	go tool cover -func=$(COVERAGE_OUT)
+
+# Generate HTML coverage report
+coverage-html: coverage
+	@echo "Generating HTML coverage report..."
+	go tool cover -html=$(COVERAGE_OUT) -o $(COVERAGE_HTML)
+	@echo "Coverage report generated: $(COVERAGE_HTML)"
+
+# Enforce coverage threshold
+coverage-enforce: coverage
+	@echo "Enforcing coverage threshold ($(COVERAGE_THRESHOLD)%)..."
+	@COVERAGE=$$(go tool cover -func=$(COVERAGE_OUT) | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	echo "Current coverage: $$COVERAGE%"; \
+	echo "Required coverage: $(COVERAGE_THRESHOLD)%"; \
+	if [ $$(echo "$$COVERAGE >= $(COVERAGE_THRESHOLD)" | bc -l) -eq 1 ]; then \
+		echo "✅ Service coverage enforcement passed!"; \
+	else \
+		echo "❌ Service coverage enforcement failed! Current: $$COVERAGE%, Required: $(COVERAGE_THRESHOLD)%"; \
+		exit 1; \
+	fi
+
+# Run tests with coverage (legacy alias)
+test-coverage: coverage
 
 # Download dependencies
 deps:
@@ -66,7 +91,7 @@ lint:
 clean:
 	@echo "Cleaning build artifacts and generated files..."
 	@rm -rf bin/
-	@rm -f coverage.out coverage.html
+	@rm -f $(COVERAGE_OUT) $(COVERAGE_HTML)
 	@rm -f *.log
 	@rm -rf tmp/ temp/
 	@find . -name "*.test" -type f -delete
@@ -92,18 +117,20 @@ docker-build:
 
 # Help
 help:
-	@echo "Available targets:"
-	@echo "  build          - Build the binary"
-	@echo "  run            - Build and run the service"
-	@echo "  test           - Run tests"
-	@echo "  test-coverage  - Run tests with coverage"
-	@echo "  deps           - Download dependencies"
-	@echo "  tidy           - Tidy dependencies"
-	@echo "  fmt            - Format code"
-	@echo "  vet            - Vet code"
-	@echo "  lint           - Lint code"
-	@echo "  clean          - Clean build artifacts and generated files"
-	@echo "  deep-clean     - Deep clean including vendor and module cache"
-	@echo "  install-lint   - Install golangci-lint"
-	@echo "  docker-build   - Build Docker image"
-	@echo "  help           - Show this help"
+	@echo "Service Makefile - Available targets:"
+	@echo "  build            - Build the binary"
+	@echo "  run              - Build and run the service"
+	@echo "  test             - Run tests"
+	@echo "  coverage         - Run tests with coverage"
+	@echo "  coverage-html    - Generate HTML coverage report"
+	@echo "  coverage-enforce - Enforce coverage threshold ($(COVERAGE_THRESHOLD)%)"
+	@echo "  deps             - Download dependencies"
+	@echo "  tidy             - Tidy dependencies"
+	@echo "  fmt              - Format code"
+	@echo "  vet              - Vet code"
+	@echo "  lint             - Lint code"
+	@echo "  clean            - Clean build artifacts and generated files"
+	@echo "  deep-clean       - Deep clean including vendor and module cache"
+	@echo "  install-lint     - Install golangci-lint"
+	@echo "  docker-build     - Build Docker image"
+	@echo "  help             - Show this help"
