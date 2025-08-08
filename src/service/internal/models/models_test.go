@@ -26,6 +26,8 @@ func TestUserGetCreatedAt(t *testing.T) {
 	}
 }
 
+const errUpdatedAtFmt = "expected UpdatedAt to be %v, got %v"
+
 func TestUserGetUpdatedAt(t *testing.T) {
 	now := time.Now()
 	user := &User{UpdatedAt: now}
@@ -33,10 +35,9 @@ func TestUserGetUpdatedAt(t *testing.T) {
 	updatedAt := user.GetUpdatedAt()
 
 	if !updatedAt.Equal(now) {
-		t.Errorf("expected UpdatedAt to be %v, got %v", now, updatedAt)
+		t.Errorf(errUpdatedAtFmt, now, updatedAt)
 	}
 }
-
 func TestUserSetUpdatedAt(t *testing.T) {
 	user := &User{}
 	now := time.Now()
@@ -44,7 +45,7 @@ func TestUserSetUpdatedAt(t *testing.T) {
 	user.SetUpdatedAt(now)
 
 	if !user.UpdatedAt.Equal(now) {
-		t.Errorf("expected UpdatedAt to be %v, got %v", now, user.UpdatedAt)
+		t.Errorf(errUpdatedAtFmt, now, user.UpdatedAt)
 	}
 }
 

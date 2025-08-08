@@ -8,6 +8,12 @@ import (
 	"sharedmodule/logging"
 )
 
+const (
+	// Test constants
+	testHost           = "test-host"
+	expectedNoErrorMsg = "expected no error, got %v"
+)
+
 // Mock logger for testing
 type mockLogger struct{}
 
@@ -44,147 +50,6 @@ func (m *mockLogger) Logw(level logging.Level, msg string, keysAndValues ...inte
 func (m *mockLogger) Clone() logging.Logger { return &mockLogger{} }
 func (m *mockLogger) Close() error          { return nil }
 
-func TestNewServiceRegistry(t *testing.T) {
-	registry := NewServiceRegistry()
-
-	if registry == nil {
-		t.Fatal("expected registry to not be nil")
-	}
-
-	if registry.services == nil {
-		t.Error("expected services map to be initialized")
-	}
-}
-
-func TestServiceRegistryRegister(t *testing.T) {
-	registry := NewServiceRegistry()
-	testService := "test-service-instance"
-
-	err := registry.Register("test-service", testService)
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
-	}
-
-	// Test duplicate registration
-	err = registry.Register("test-service", testService)
-	if err == nil {
-		t.Error("expected error for duplicate service registration")
-	}
-	expectedError := "service 'test-service' is already registered"
-	if err.Error() != expectedError {
-		t.Errorf("expected error '%s', got '%s'", expectedError, err.Error())
-	}
-}
-
-func TestServiceRegistryGet(t *testing.T) {
-	registry := NewServiceRegistry()
-	testService := "test-service-instance"
-
-	// Test getting non-existent service
-	service, exists := registry.Get("non-existent")
-	if exists {
-		t.Error("expected service to not exist")
-	}
-	if service != nil {
-		t.Error("expected service to be nil")
-	}
-
-	// Register and get service
-	registry.Register("test-service", testService)
-	service, exists = registry.Get("test-service")
-	if !exists {
-		t.Error("expected service to exist")
-	}
-	if service != testService {
-		t.Errorf("expected service to be '%s', got %v", testService, service)
-	}
-}
-
-func TestServiceRegistryGetTyped(t *testing.T) {
-	registry := NewServiceRegistry()
-	testService := "test-service-instance"
-
-	// Test getting non-existent service
-	service, err := registry.GetTyped("non-existent", testService)
-	if err == nil {
-		t.Error("expected error for non-existent service")
-	}
-	expectedError := "service 'non-existent' not found"
-	if err.Error() != expectedError {
-		t.Errorf("expected error '%s', got '%s'", expectedError, err.Error())
-	}
-
-	// Register and get typed service
-	registry.Register("test-service", testService)
-	service, err = registry.GetTyped("test-service", testService)
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
-	}
-	if service != testService {
-		t.Errorf("expected service to be '%s', got %v", testService, service)
-	}
-}
-
-func TestServiceRegistryList(t *testing.T) {
-	registry := NewServiceRegistry()
-
-	// Test empty registry
-	names := registry.List()
-	if len(names) != 0 {
-		t.Errorf("expected 0 services, got %d", len(names))
-	}
-
-	// Add services and test list
-	registry.Register("service1", "instance1")
-	registry.Register("service2", "instance2")
-
-	names = registry.List()
-	if len(names) != 2 {
-		t.Errorf("expected 2 services, got %d", len(names))
-	}
-
-	// Check that all service names are present
-	nameMap := make(map[string]bool)
-	for _, name := range names {
-		nameMap[name] = true
-	}
-
-	if !nameMap["service1"] {
-		t.Error("expected 'service1' to be in the list")
-	}
-	if !nameMap["service2"] {
-		t.Error("expected 'service2' to be in the list")
-	}
-}
-
-func TestServiceRegistryUnregister(t *testing.T) {
-	registry := NewServiceRegistry()
-	testService := "test-service-instance"
-
-	// Test unregistering non-existent service
-	err := registry.Unregister("non-existent")
-	if err == nil {
-		t.Error("expected error for non-existent service")
-	}
-	expectedError := "service 'non-existent' not found"
-	if err.Error() != expectedError {
-		t.Errorf("expected error '%s', got '%s'", expectedError, err.Error())
-	}
-
-	// Register, then unregister service
-	registry.Register("test-service", testService)
-	err = registry.Unregister("test-service")
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
-	}
-
-	// Verify service is gone
-	_, exists := registry.Get("test-service")
-	if exists {
-		t.Error("expected service to be unregistered")
-	}
-}
-
 func TestNewApplication(t *testing.T) {
 	cfg := &config.Config{}
 	logger := &mockLogger{}
@@ -203,10 +68,6 @@ func TestNewApplication(t *testing.T) {
 		t.Error("expected logger to be set correctly")
 	}
 
-	if app.services == nil {
-		t.Error("expected services registry to be initialized")
-	}
-
 	if app.ctx == nil {
 		t.Error("expected context to be initialized")
 	}
@@ -218,7 +79,7 @@ func TestNewApplication(t *testing.T) {
 
 func TestApplicationConfig(t *testing.T) {
 	cfg := &config.Config{
-		Server: config.ServerConfig{Host: "test-host"},
+		Server: config.ServerConfig{Host: testHost},
 	}
 	logger := &mockLogger{}
 
@@ -228,8 +89,8 @@ func TestApplicationConfig(t *testing.T) {
 	if retrievedConfig != cfg {
 		t.Error("expected retrieved config to match original")
 	}
-	if retrievedConfig.Server.Host != "test-host" {
-		t.Errorf("expected host to be 'test-host', got %s", retrievedConfig.Server.Host)
+	if retrievedConfig.Server.Host != testHost {
+		t.Errorf("expected host to be '%s', got %s", testHost, retrievedConfig.Server.Host)
 	}
 }
 
@@ -242,21 +103,6 @@ func TestApplicationLogger(t *testing.T) {
 
 	if retrievedLogger != logger {
 		t.Error("expected retrieved logger to match original")
-	}
-}
-
-func TestApplicationServices(t *testing.T) {
-	cfg := &config.Config{}
-	logger := &mockLogger{}
-
-	app := NewApplication(cfg, logger)
-	services := app.Services()
-
-	if services == nil {
-		t.Error("expected services to not be nil")
-	}
-	if services != app.services {
-		t.Error("expected returned services to match internal registry")
 	}
 }
 
@@ -280,55 +126,6 @@ func TestApplicationContext(t *testing.T) {
 	}
 }
 
-func TestApplicationRegisterService(t *testing.T) {
-	cfg := &config.Config{}
-	logger := &mockLogger{}
-
-	app := NewApplication(cfg, logger)
-	testService := "test-service-instance"
-
-	err := app.RegisterService("test-service", testService)
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
-	}
-
-	// Verify service is registered
-	service, exists := app.GetService("test-service")
-	if !exists {
-		t.Error("expected service to be registered")
-	}
-	if service != testService {
-		t.Errorf("expected service to be '%s', got %v", testService, service)
-	}
-}
-
-func TestApplicationGetService(t *testing.T) {
-	cfg := &config.Config{}
-	logger := &mockLogger{}
-
-	app := NewApplication(cfg, logger)
-	testService := "test-service-instance"
-
-	// Test getting non-existent service
-	service, exists := app.GetService("non-existent")
-	if exists {
-		t.Error("expected service to not exist")
-	}
-	if service != nil {
-		t.Error("expected service to be nil")
-	}
-
-	// Register and get service
-	app.RegisterService("test-service", testService)
-	service, exists = app.GetService("test-service")
-	if !exists {
-		t.Error("expected service to exist")
-	}
-	if service != testService {
-		t.Errorf("expected service to be '%s', got %v", testService, service)
-	}
-}
-
 func TestApplicationShutdown(t *testing.T) {
 	cfg := &config.Config{}
 	logger := &mockLogger{}
@@ -346,7 +143,7 @@ func TestApplicationShutdown(t *testing.T) {
 
 	err := app.Shutdown()
 	if err != nil {
-		t.Errorf("expected no error during shutdown, got %v", err)
+		t.Errorf(expectedNoErrorMsg, err)
 	}
 
 	// Verify context is cancelled after shutdown

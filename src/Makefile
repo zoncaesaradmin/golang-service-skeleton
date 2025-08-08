@@ -2,7 +2,7 @@
 .PHONY: help build build-with-coverage test clean clean-coverage clean-all-coverage deep-clean run-service run-tests install-deps fmt vet lint coverage coverage-enforce
 
 # Coverage enforcement thresholds
-SERVICE_COVERAGE_THRESHOLD = 35
+SERVICE_COVERAGE_THRESHOLD = 70
 
 # Default target
 help:

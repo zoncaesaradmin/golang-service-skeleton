@@ -100,7 +100,7 @@ func runPerformanceTests(testSuite *tests.TestSuite) {
 }
 
 // runLoadTest runs a load test with specified number of concurrent requests
-func runLoadTest(testSuite *tests.TestSuite, concurrency int, name string) {
+func runLoadTest(_ *tests.TestSuite, concurrency int, name string) {
 	log.Printf("Running %s (concurrency: %d)...", name, concurrency)
 
 	start := time.Now()

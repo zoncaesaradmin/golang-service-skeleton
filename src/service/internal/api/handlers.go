@@ -26,6 +26,8 @@ const (
 	ErrMethodNotAllowed      = "Method not allowed"
 	ErrUsernameExists        = "username already exists"
 	ErrEmailExists           = "email already exists"
+	ErrNotImplemented        = "Not implemented"
+	ErrServiceNotAvailable   = "User service not available"
 )
 
 // Success message constants
@@ -192,8 +194,8 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Stub implementation - return not implemented
 	writeJSON(w, http.StatusNotImplemented, models.ErrorResponse{
-		Error:   "Not implemented",
-		Message: "User service not available",
+		Error:   ErrNotImplemented,
+		Message: ErrServiceNotAvailable,
 		Code:    http.StatusNotImplemented,
 	})
 }
@@ -212,8 +214,8 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	// Stub implementation - return not implemented
 	writeJSON(w, http.StatusNotImplemented, models.ErrorResponse{
-		Error:   "Not implemented",
-		Message: "User service not available",
+		Error:   ErrNotImplemented,
+		Message: ErrServiceNotAvailable,
 		Code:    http.StatusNotImplemented,
 	})
 }
@@ -251,8 +253,8 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Stub implementation - return not implemented
 	writeJSON(w, http.StatusNotImplemented, models.ErrorResponse{
-		Error:   "Not implemented",
-		Message: "User service not available",
+		Error:   ErrNotImplemented,
+		Message: ErrServiceNotAvailable,
 		Code:    http.StatusNotImplemented,
 	})
 }
@@ -269,10 +271,10 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Stub implementation - return not implemented
+	// Stub implementation - return not implemented for delete operation
 	writeJSON(w, http.StatusNotImplemented, models.ErrorResponse{
-		Error:   "Not implemented",
-		Message: "User service not available",
+		Error:   ErrNotImplemented,
+		Message: ErrFailedToDeleteUser + " - " + ErrServiceNotAvailable,
 		Code:    http.StatusNotImplemented,
 	})
 }

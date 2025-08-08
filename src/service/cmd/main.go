@@ -17,8 +17,8 @@ import (
 )
 
 func main() {
-	// Load configuration
-	cfg := config.LoadConfig()
+	// Load configuration with smart fallback (file first, then env+defaults)
+	cfg := config.LoadConfigWithDefaults("config.yaml")
 
 	// Initialize logger
 	loggerConfig := &logging.LoggerConfig{
