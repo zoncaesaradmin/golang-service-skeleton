@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"katharos/service/internal/api"
-	"katharos/service/internal/app"
-	"katharos/service/internal/config"
+	"compmodule/internal/api"
+	"compmodule/internal/app"
+	"compmodule/internal/config"
 	"sharedmodule/logging"
 )
 
@@ -23,10 +23,10 @@ func main() {
 	// Initialize logger
 	loggerConfig := &logging.LoggerConfig{
 		Level:         logging.InfoLevel,
-		FileName:      "/tmp/katharos-service.log",
-		LoggerName:    "katharos-service",
+		FileName:      "/tmp/katharos-component.log",
+		LoggerName:    "katharos-component",
 		ComponentName: "main",
-		ServiceName:   "katharos-service",
+		ServiceName:   "katharos-component",
 	}
 
 	logger, err := logging.NewLogger(loggerConfig)

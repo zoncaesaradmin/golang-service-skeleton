@@ -1,4 +1,4 @@
-module katharos/service
+module compmodule
 
 go 1.22.5
 

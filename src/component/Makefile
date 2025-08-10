@@ -1,13 +1,13 @@
-# Service Makefile
+# Component Makefile
 .PHONY: build test clean deep-clean run deps tidy lint fmt vet coverage coverage-enforce coverage-html install-lint docker-build help
 
 # Variables
-BINARY_NAME=service
+BINARY_NAME=component
 BINARY_PATH=./bin/$(BINARY_NAME)
 MAIN_PATH=./cmd/main.go
 GO_FILES=$(shell find . -name "*.go" -type f)
 COVERAGE_THRESHOLD=80
-COVERAGE_OUT=coverage.out
+COVERAGE_OUT=component_coverage.tmp
 COVERAGE_HTML=coverage.html
 
 # Default target
@@ -20,7 +20,7 @@ build:
 	go build -o $(BINARY_PATH) $(MAIN_PATH)
 	@echo "Build completed: $(BINARY_PATH)"
 
-# Run the service
+# Run the component
 run: build
 	@echo "Running $(BINARY_NAME)..."
 	$(BINARY_PATH)
@@ -49,9 +49,9 @@ coverage-enforce: coverage
 	echo "Current coverage: $$COVERAGE%"; \
 	echo "Required coverage: $(COVERAGE_THRESHOLD)%"; \
 	if [ $$(echo "$$COVERAGE >= $(COVERAGE_THRESHOLD)" | bc -l) -eq 1 ]; then \
-		echo "✅ Service coverage enforcement passed!"; \
+		echo "✅ Component coverage enforcement passed!"; \
 	else \
-		echo "❌ Service coverage enforcement failed! Current: $$COVERAGE%, Required: $(COVERAGE_THRESHOLD)%"; \
+		echo "❌ Component coverage enforcement failed! Current: $$COVERAGE%, Required: $(COVERAGE_THRESHOLD)%"; \
 		exit 1; \
 	fi
 
@@ -117,9 +117,9 @@ docker-build:
 
 # Help
 help:
-	@echo "Service Makefile - Available targets:"
+	@echo "Component Makefile - Available targets:"
 	@echo "  build            - Build the binary"
-	@echo "  run              - Build and run the service"
+	@echo "  run              - Build and run the component"
 	@echo "  test             - Run tests"
 	@echo "  coverage         - Run tests with coverage"
 	@echo "  coverage-html    - Generate HTML coverage report"

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"katharos/service/internal/models"
+	"compmodule/internal/models"
 )
 
 // Error message constants

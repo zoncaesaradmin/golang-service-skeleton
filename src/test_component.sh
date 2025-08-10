@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# Quick test script for the refactored service
-echo "Testing the refactored REST API service..."
+# Quick test script for the refactored component
+echo "Testing the refactored REST API component..."
 
-# Build and start the service in background
-cd src/service
-echo "Building service..."
-go build -o test-service ./cmd
+# Build and start the component in background
+cd src/component
+echo "Building component..."
+go build -o test-component ./cmd
 
-echo "Starting service..."
-./test-service &
-SERVICE_PID=$!
+echo "Starting component..."
+./test-component &
+COMPONENT_PID=$!
 
-# Wait a moment for service to start
+# Wait a moment for component to start
 sleep 2
 
 echo "Testing health endpoint..."
@@ -35,6 +35,6 @@ curl -s http://localhost:8080/api/v1/stats | jq '.' || echo "Stats failed"
 # Clean up
 echo ""
 echo "Cleaning up..."
-kill $SERVICE_PID 2>/dev/null
-rm -f test-service
+kill $COMPONENT_PID 2>/dev/null
+rm -f test-component
 echo "Test completed!"

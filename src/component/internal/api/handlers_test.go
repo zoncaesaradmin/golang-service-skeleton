@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"katharos/service/internal/models"
+	"compmodule/internal/models"
 )
 
 const (

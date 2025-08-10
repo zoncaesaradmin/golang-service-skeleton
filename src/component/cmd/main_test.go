@@ -7,16 +7,16 @@ import (
 	"testing"
 	"time"
 
-	"katharos/service/internal/api"
-	"katharos/service/internal/app"
-	"katharos/service/internal/config"
+	"compmodule/internal/api"
+	"compmodule/internal/app"
+	"compmodule/internal/config"
 	"sharedmodule/logging"
 )
 
 const (
 	healthEndpoint  = "/health"
-	serviceName     = "katharos-service"
-	logFileName     = "/tmp/katharos-service.log"
+	serviceName     = "katharos-component"
+	logFileName     = "/tmp/katharos-component.log"
 	componentMain   = "main"
 	testHost        = "localhost"
 	testHostAll     = "0.0.0.0"

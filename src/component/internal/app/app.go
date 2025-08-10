@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"katharos/service/internal/config"
+	"compmodule/internal/config"
 	"sharedmodule/logging"
 )
 

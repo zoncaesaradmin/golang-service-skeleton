@@ -1,6 +1,6 @@
-# Golang Service Skeleton
+# Golang Component Skeleton
 
-This project provides a comprehensive Go service skeleton with a REST API service and a separate test runner using Go workspace for multi-module management.
+This project provides a comprehensive Go component skeleton with a REST API component and a separate test runner using Go workspace for multi-module management.
 
 ## Project Structure
 
@@ -10,12 +10,12 @@ katharos/                     # Root workspace
 ├── Makefile                  # Root orchestration
 ├── README.md                 # Documentation
 │
-├── service/                  # Main REST API service
-│   ├── go.mod               # Module: katharos/service
+├── component/               # Main REST API component
+│   ├── go.mod               # Module: katharos/component
 │   ├── go.sum               # Go module checksums
-│   ├── Makefile             # Service build automation
+│   ├── Makefile             # Component build automation
 │   ├── cmd/                 # Application entry point
-│   │   └── main.go          # Service main function
+│   │   └── main.go          # Component main function
 │   ├── internal/            # Private application code
 │   │   ├── api/             # HTTP handlers and routes
 │   │   │   └── handlers.go  # REST API handlers

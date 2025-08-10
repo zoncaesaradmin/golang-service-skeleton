@@ -13,7 +13,7 @@ GOVET=$(GOCMD) vet
 
 # Coverage parameters
 COVERAGE_THRESHOLD=85
-COVERAGE_OUT=coverage.out
+COVERAGE_OUT=shared_coverage.tmp
 COVERAGE_HTML=coverage.html
 
 # Default target
