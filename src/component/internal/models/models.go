@@ -4,51 +4,50 @@ import (
 	"time"
 )
 
-// User represents a user in the system
-type User struct {
-	ID        int       `json:"id" db:"id"`
-	Username  string    `json:"username" db:"username" binding:"required"`
-	Email     string    `json:"email" db:"email" binding:"required,email"`
-	FirstName string    `json:"first_name" db:"first_name"`
-	LastName  string    `json:"last_name" db:"last_name"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+// MessageType defines the type of message being passed through the channels
+type ChannelMessageType string
+
+const (
+	// ChannelMessageTypeData represents data messages that need processing
+	ChannelMessageTypeData ChannelMessageType = "data"
+	// ChannelMessageTypeControl represents control messages (start, stop, pause, etc.)
+	ChannelMessageTypeControl ChannelMessageType = "control"
+)
+
+// ChannelMessage represents a common message structure for channel communication
+type ChannelMessage struct {
+	Type      ChannelMessageType `json:"type"`
+	Timestamp time.Time          `json:"timestamp"`
+	Data      []byte             `json:"data"`
 }
 
-// GetID returns the user ID (implements Resource interface)
-func (u *User) GetID() interface{} {
-	return u.ID
+// NewChannelMessage creates a new channel message with the given type and data
+func NewChannelMessage(msgType ChannelMessageType, data []byte, source string) *ChannelMessage {
+	return &ChannelMessage{
+		Type:      msgType,
+		Timestamp: time.Now(),
+		Data:      data,
+	}
 }
 
-// GetCreatedAt returns the creation time (implements Resource interface)
-func (u *User) GetCreatedAt() time.Time {
-	return u.CreatedAt
+// NewDataMessage creates a new data message
+func NewDataMessage(data []byte, source string) *ChannelMessage {
+	return NewChannelMessage(ChannelMessageTypeData, data, source)
 }
 
-// GetUpdatedAt returns the last update time (implements Resource interface)
-func (u *User) GetUpdatedAt() time.Time {
-	return u.UpdatedAt
+// NewControlMessage creates a new control message
+func NewControlMessage(data []byte, source string) *ChannelMessage {
+	return NewChannelMessage(ChannelMessageTypeControl, data, source)
 }
 
-// SetUpdatedAt sets the last update time (implements Resource interface)
-func (u *User) SetUpdatedAt(t time.Time) {
-	u.UpdatedAt = t
+// IsDataMessage checks if the message is a data message
+func (m *ChannelMessage) IsDataMessage() bool {
+	return m.Type == ChannelMessageTypeData
 }
 
-// CreateUserRequest represents the request to create a user
-type CreateUserRequest struct {
-	Username  string `json:"username" binding:"required"`
-	Email     string `json:"email" binding:"required,email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-}
-
-// UpdateUserRequest represents the request to update a user
-type UpdateUserRequest struct {
-	Username  *string `json:"username,omitempty"`
-	Email     *string `json:"email,omitempty"`
-	FirstName *string `json:"first_name,omitempty"`
-	LastName  *string `json:"last_name,omitempty"`
+// IsControlMessage checks if the message is a control message
+func (m *ChannelMessage) IsControlMessage() bool {
+	return m.Type == ChannelMessageTypeControl
 }
 
 // ErrorResponse represents an error response
