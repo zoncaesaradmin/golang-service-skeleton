@@ -49,15 +49,11 @@ func TestLoggerConfigValidate(t *testing.T) {
 		{
 			name: "valid config",
 			config: LoggerConfig{
-				Level:          InfoLevel,
-				FileName:       testLogFile,
-				LoggerName:     testLoggerName,
-				ComponentName:  testComponentName,
-				ServiceName:    testServiceName,
-				MaxAge:         7,
-				MaxBackups:     5,
-				MaxSize:        100,
-				IsLogRotatable: true,
+				Level:         InfoLevel,
+				FileName:      testLogFile,
+				LoggerName:    testLoggerName,
+				ComponentName: testComponentName,
+				ServiceName:   testServiceName,
 			},
 			wantErr: false,
 		},
@@ -105,21 +101,6 @@ func TestLoggerConfigValidate(t *testing.T) {
 			wantErr: true,
 			errMsg:  "service name is required",
 		},
-		{
-			name: "invalid max size",
-			config: LoggerConfig{
-				Level:         InfoLevel,
-				FileName:      testLogFile,
-				LoggerName:    testLoggerName,
-				ComponentName: testComponentName,
-				ServiceName:   testServiceName,
-				MaxAge:        7,
-				MaxBackups:    5,
-				MaxSize:       0, // Invalid
-			},
-			wantErr: true,
-			errMsg:  "max size must be positive",
-		},
 	}
 
 	checkValidation := func(t *testing.T, tt struct {
@@ -166,22 +147,6 @@ func TestDefaultConfig(t *testing.T) {
 
 	if config.ServiceName != "service" {
 		t.Errorf("DefaultConfig() ServiceName = %v, want %v", config.ServiceName, "service")
-	}
-
-	if config.MaxAge != 30 {
-		t.Errorf("DefaultConfig() MaxAge = %v, want %v", config.MaxAge, 30)
-	}
-
-	if config.MaxBackups != 10 {
-		t.Errorf("DefaultConfig() MaxBackups = %v, want %v", config.MaxBackups, 10)
-	}
-
-	if config.MaxSize != 100 {
-		t.Errorf("DefaultConfig() MaxSize = %v, want %v", config.MaxSize, 100)
-	}
-
-	if config.IsLogRotatable {
-		t.Errorf("DefaultConfig() IsLogRotatable = %v, want %v", config.IsLogRotatable, false)
 	}
 }
 
@@ -238,15 +203,11 @@ func TestNewLoggerWithConfig(t *testing.T) {
 	}()
 
 	config := &LoggerConfig{
-		Level:          InfoLevel,
-		FileName:       logFile,
-		LoggerName:     "wrapper-test-logger",
-		ComponentName:  "wrapper-test",
-		ServiceName:    "wrapper-test-service",
-		MaxAge:         7,
-		MaxBackups:     5,
-		MaxSize:        100,
-		IsLogRotatable: false,
+		Level:         InfoLevel,
+		FileName:      logFile,
+		LoggerName:    "wrapper-test-logger",
+		ComponentName: "wrapper-test",
+		ServiceName:   "wrapper-test-service",
 	}
 
 	logger, err := NewLogger(config)

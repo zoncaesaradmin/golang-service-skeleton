@@ -117,26 +117,16 @@ type LoggerConfig struct {
 	LoggerName    string // Name identifier for the logger instance
 	ComponentName string // Component/module name for structured logging
 	ServiceName   string // Service name for structured logging
-
-	// Rotation configuration (for future use)
-	MaxAge         int  // Maximum number of days to retain old log files
-	MaxBackups     int  // Maximum number of old log files to retain
-	MaxSize        int  // Maximum size in megabytes before log rotation
-	IsLogRotatable bool // Whether log rotation is enabled
 }
 
 // DefaultConfig returns the default logger configuration
 func DefaultConfig() *LoggerConfig {
 	return &LoggerConfig{
-		Level:          InfoLevel,
-		FileName:       "/tmp/app.log", // Default file instead of stdout
-		LoggerName:     "default",
-		ComponentName:  "application",
-		ServiceName:    "service",
-		MaxAge:         30,
-		MaxBackups:     10,
-		MaxSize:        100,
-		IsLogRotatable: false,
+		Level:         InfoLevel,
+		FileName:      "/tmp/app.log", // Default file instead of stdout
+		LoggerName:    "default",
+		ComponentName: "application",
+		ServiceName:   "service",
 	}
 }
 
@@ -153,15 +143,6 @@ func (c *LoggerConfig) Validate() error {
 	}
 	if c.ServiceName == "" {
 		return fmt.Errorf("service name is required")
-	}
-	if c.MaxAge < 0 {
-		return fmt.Errorf("max age must be non-negative")
-	}
-	if c.MaxBackups < 0 {
-		return fmt.Errorf("max backups must be non-negative")
-	}
-	if c.MaxSize <= 0 {
-		return fmt.Errorf("max size must be positive")
 	}
 	return nil
 }

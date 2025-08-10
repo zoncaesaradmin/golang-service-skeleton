@@ -13,15 +13,11 @@ func TestNewZerologLoggerWithConfig(t *testing.T) {
 	os.Remove(logFile)
 
 	config := &LoggerConfig{
-		Level:          DebugLevel,
-		FileName:       logFile,
-		LoggerName:     testLoggerName,
-		ComponentName:  testComponentName,
-		ServiceName:    testServiceName,
-		MaxAge:         7,
-		MaxBackups:     5,
-		MaxSize:        100,
-		IsLogRotatable: false,
+		Level:         DebugLevel,
+		FileName:      logFile,
+		LoggerName:    testLoggerName,
+		ComponentName: testComponentName,
+		ServiceName:   testServiceName,
 	}
 
 	logger, err := NewZerologLoggerWithConfig(config)

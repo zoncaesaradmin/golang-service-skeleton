@@ -22,15 +22,11 @@ func main() {
 
 	// Initialize logger
 	loggerConfig := &logging.LoggerConfig{
-		Level:          logging.InfoLevel,
-		FileName:       "/tmp/katharos-service.log",
-		LoggerName:     "katharos-service",
-		ComponentName:  "main",
-		ServiceName:    "katharos-service",
-		MaxAge:         30,
-		MaxBackups:     10,
-		MaxSize:        100,
-		IsLogRotatable: false,
+		Level:         logging.InfoLevel,
+		FileName:      "/tmp/katharos-service.log",
+		LoggerName:    "katharos-service",
+		ComponentName: "main",
+		ServiceName:   "katharos-service",
 	}
 
 	logger, err := logging.NewLogger(loggerConfig)

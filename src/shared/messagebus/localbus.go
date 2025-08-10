@@ -40,6 +40,48 @@ func (p *LocalProducer) Send(ctx context.Context, message *Message) (int32, int6
 	return message.Partition, message.Offset, nil
 }
 
+// SendAsync sends a message to local storage asynchronously
+func (p *LocalProducer) SendAsync(ctx context.Context, message *Message) <-chan SendResult {
+	resultChan := make(chan SendResult, 1)
+
+	go func() {
+		defer close(resultChan)
+
+		// Check for context cancellation
+		select {
+		case <-ctx.Done():
+			resultChan <- SendResult{
+				Partition: 0,
+				Offset:    0,
+				Error:     ctx.Err(),
+			}
+			return
+		default:
+		}
+
+		p.mutex.Lock()
+		defer p.mutex.Unlock()
+
+		message.Timestamp = time.Now()
+		message.Partition = 0 // Single partition for local
+
+		if _, exists := p.topics[message.Topic]; !exists {
+			p.topics[message.Topic] = make([]Message, 0)
+		}
+
+		message.Offset = int64(len(p.topics[message.Topic]))
+		p.topics[message.Topic] = append(p.topics[message.Topic], *message)
+
+		resultChan <- SendResult{
+			Partition: message.Partition,
+			Offset:    message.Offset,
+			Error:     nil,
+		}
+	}()
+
+	return resultChan
+}
+
 // Close closes the local producer
 func (p *LocalProducer) Close() error {
 	return nil

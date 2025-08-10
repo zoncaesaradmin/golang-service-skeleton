@@ -271,15 +271,11 @@ func TestHandlerInitialization(t *testing.T) {
 func TestLoggerConfiguration(t *testing.T) {
 	// Test logger configuration values
 	expectedConfig := &logging.LoggerConfig{
-		Level:          logging.InfoLevel,
-		FileName:       logFileName,
-		LoggerName:     serviceName,
-		ComponentName:  componentMain,
-		ServiceName:    serviceName,
-		MaxAge:         30,
-		MaxBackups:     10,
-		MaxSize:        100,
-		IsLogRotatable: false,
+		Level:         logging.InfoLevel,
+		FileName:      logFileName,
+		LoggerName:    serviceName,
+		ComponentName: componentMain,
+		ServiceName:   serviceName,
 	}
 
 	// Verify all fields are set correctly
@@ -301,22 +297,6 @@ func TestLoggerConfiguration(t *testing.T) {
 
 	if expectedConfig.ServiceName != serviceName {
 		t.Errorf("expected ServiceName to be '%s', got %s", serviceName, expectedConfig.ServiceName)
-	}
-
-	if expectedConfig.MaxAge != 30 {
-		t.Errorf("expected MaxAge to be 30, got %d", expectedConfig.MaxAge)
-	}
-
-	if expectedConfig.MaxBackups != 10 {
-		t.Errorf("expected MaxBackups to be 10, got %d", expectedConfig.MaxBackups)
-	}
-
-	if expectedConfig.MaxSize != 100 {
-		t.Errorf("expected MaxSize to be 100, got %d", expectedConfig.MaxSize)
-	}
-
-	if expectedConfig.IsLogRotatable != false {
-		t.Errorf("expected IsLogRotatable to be false, got %t", expectedConfig.IsLogRotatable)
 	}
 }
 

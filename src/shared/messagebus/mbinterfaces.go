@@ -18,11 +18,22 @@ type Message struct {
 
 // Producer interface for publishing messages
 type Producer interface {
-	// Send sends a message and returns the partition and offset
+	// Send sends a message synchronously and returns the partition and offset
 	Send(ctx context.Context, message *Message) (partition int32, offset int64, err error)
+
+	// SendAsync sends a message asynchronously and returns a channel for the result
+	// The channel will receive a SendResult when the operation completes
+	SendAsync(ctx context.Context, message *Message) <-chan SendResult
 
 	// Close closes the producer
 	Close() error
+}
+
+// SendResult represents the result of an asynchronous send operation
+type SendResult struct {
+	Partition int32 // The partition the message was sent to
+	Offset    int64 // The offset of the message
+	Error     error // Any error that occurred during sending
 }
 
 // Consumer interface for consuming messages

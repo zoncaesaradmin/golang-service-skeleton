@@ -77,6 +77,82 @@ func (p *KafkaProducer) Send(ctx context.Context, message *Message) (int32, int6
 	}
 }
 
+// SendAsync sends a message to Kafka asynchronously
+func (p *KafkaProducer) SendAsync(ctx context.Context, message *Message) <-chan SendResult {
+	resultChan := make(chan SendResult, 1)
+
+	go func() {
+		defer close(resultChan)
+
+		message.Timestamp = time.Now()
+
+		kafkaMessage := &kafka.Message{
+			TopicPartition: kafka.TopicPartition{
+				Topic:     &message.Topic,
+				Partition: message.Partition,
+			},
+			Key:       []byte(message.Key),
+			Value:     message.Value,
+			Timestamp: message.Timestamp,
+		}
+
+		// Add headers
+		for key, value := range message.Headers {
+			kafkaMessage.Headers = append(kafkaMessage.Headers, kafka.Header{
+				Key:   key,
+				Value: []byte(value),
+			})
+		}
+
+		deliveryChan := make(chan kafka.Event, 1)
+		defer close(deliveryChan)
+
+		err := p.producer.Produce(kafkaMessage, deliveryChan)
+		if err != nil {
+			resultChan <- SendResult{
+				Partition: 0,
+				Offset:    0,
+				Error:     fmt.Errorf("failed to produce message: %w", err),
+			}
+			return
+		}
+
+		// Wait for delivery report
+		select {
+		case event := <-deliveryChan:
+			if msg, ok := event.(*kafka.Message); ok {
+				if msg.TopicPartition.Error != nil {
+					resultChan <- SendResult{
+						Partition: 0,
+						Offset:    0,
+						Error:     fmt.Errorf("delivery failed: %w", msg.TopicPartition.Error),
+					}
+					return
+				}
+				resultChan <- SendResult{
+					Partition: msg.TopicPartition.Partition,
+					Offset:    int64(msg.TopicPartition.Offset),
+					Error:     nil,
+				}
+				return
+			}
+			resultChan <- SendResult{
+				Partition: 0,
+				Offset:    0,
+				Error:     fmt.Errorf("unexpected event type"),
+			}
+		case <-ctx.Done():
+			resultChan <- SendResult{
+				Partition: 0,
+				Offset:    0,
+				Error:     ctx.Err(),
+			}
+		}
+	}()
+
+	return resultChan
+}
+
 // Close closes the Kafka producer
 func (p *KafkaProducer) Close() error {
 	p.producer.Close()
