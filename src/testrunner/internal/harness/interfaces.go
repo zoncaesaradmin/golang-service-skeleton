@@ -1,10 +1,13 @@
 package harness
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"katharos/testrunner/internal/config"
+	"sharedmodule/messagebus"
 )
 
 type TestHarness interface {
@@ -15,8 +18,9 @@ type TestHarness interface {
 }
 
 type LocalHarness struct {
-	messageQueue chan map[string]interface{}
-	config       config.MessageBusConfig
+	producer messagebus.Producer
+	consumer messagebus.Consumer
+	config   config.MessageBusConfig
 }
 
 func NewTestHarness(cfg config.MessageBusConfig) (TestHarness, error) {
@@ -24,35 +28,75 @@ func NewTestHarness(cfg config.MessageBusConfig) (TestHarness, error) {
 }
 
 func NewLocalHarness(cfg config.MessageBusConfig) *LocalHarness {
+	producer := messagebus.NewProducer()
+	consumer := messagebus.NewConsumer(producer)
+
 	return &LocalHarness{
-		messageQueue: make(chan map[string]interface{}, 10),
-		config:       cfg,
+		producer: producer,
+		consumer: consumer,
+		config:   cfg,
 	}
 }
 
 func (h *LocalHarness) Initialize() error {
-	return nil
+	// Subscribe to test output topic to receive responses
+	return h.consumer.Subscribe([]string{"test_output"})
 }
 
 func (h *LocalHarness) SendMessage(data map[string]interface{}) error {
-	select {
-	case h.messageQueue <- data:
-		return nil
-	case <-time.After(5 * time.Second):
-		return fmt.Errorf("timeout sending message")
+	// Convert data to JSON
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to marshal message data: %w", err)
 	}
+
+	// Create message for test input topic
+	message := &messagebus.Message{
+		Topic: "test_input",
+		Key:   "test",
+		Value: jsonData,
+	}
+
+	// Send message
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, _, err = h.producer.Send(ctx, message)
+	if err != nil {
+		return fmt.Errorf("failed to send message: %w", err)
+	}
+
+	return nil
 }
 
 func (h *LocalHarness) ReceiveMessage(timeout time.Duration) (map[string]interface{}, error) {
-	select {
-	case msg := <-h.messageQueue:
-		return msg, nil
-	case <-time.After(timeout):
+	// Poll for response message
+	message, err := h.consumer.Poll(timeout)
+	if err != nil {
+		return nil, fmt.Errorf("failed to poll message: %w", err)
+	}
+
+	if message == nil {
 		return nil, fmt.Errorf("timeout receiving message")
 	}
+
+	// Parse JSON response
+	var responseData map[string]interface{}
+	if err := json.Unmarshal(message.Value, &responseData); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	return responseData, nil
 }
 
 func (h *LocalHarness) Cleanup() error {
-	close(h.messageQueue)
+	if err := h.consumer.Close(); err != nil {
+		return fmt.Errorf("failed to close consumer: %w", err)
+	}
+
+	if err := h.producer.Close(); err != nil {
+		return fmt.Errorf("failed to close producer: %w", err)
+	}
+
 	return nil
 }

@@ -13,6 +13,7 @@ import (
 	"compmodule/internal/api"
 	"compmodule/internal/app"
 	"compmodule/internal/config"
+	"compmodule/internal/processing"
 	"sharedmodule/logging"
 )
 
@@ -54,8 +55,32 @@ func main() {
 	// Setup HTTP mux
 	mux := setupRouter(handler)
 
+	// Start processing pipeline for message bus communication
+	processingConfig := processing.Config{
+		Input: processing.InputConfig{
+			Topics:            []string{"test_input"},
+			PollTimeout:       1 * time.Second,
+			ChannelBufferSize: 100,
+		},
+		Processor: processing.ProcessorConfig{
+			ProcessingDelay: 10 * time.Millisecond,
+			BatchSize:       10,
+		},
+		Output: processing.OutputConfig{
+			OutputTopic:       "test_output",
+			BatchSize:         10,
+			FlushTimeout:      1 * time.Second,
+			ChannelBufferSize: 100,
+		},
+	}
+
+	pipeline := processing.NewPipeline(processingConfig, logger)
+	if err := pipeline.Start(); err != nil {
+		logger.Fatalf("Failed to start processing pipeline: %v", err)
+	}
+
 	// Start server
-	startServer(mux, cfg, application)
+	startServer(mux, cfg, application, pipeline)
 }
 
 func setupRouter(handler *api.Handler) *http.ServeMux {
@@ -67,7 +92,7 @@ func setupRouter(handler *api.Handler) *http.ServeMux {
 	return mux
 }
 
-func startServer(mux *http.ServeMux, cfg *config.Config, application *app.Application) {
+func startServer(mux *http.ServeMux, cfg *config.Config, application *app.Application, pipeline *processing.Pipeline) {
 	logger := application.Logger()
 
 	// Create server
@@ -100,6 +125,11 @@ func startServer(mux *http.ServeMux, cfg *config.Config, application *app.Applic
 	// Shutdown the server
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Errorf("Server forced to shutdown: %v", err)
+	}
+
+	// Shutdown the processing pipeline
+	if err := pipeline.Stop(); err != nil {
+		logger.Errorf("Pipeline shutdown error: %v", err)
 	}
 
 	// Shutdown the application
