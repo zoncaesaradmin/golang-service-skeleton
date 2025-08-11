@@ -12,9 +12,9 @@ import (
 type contextKey string
 
 const (
-	traceIDKey   contextKey = "trace_id"
-	userIDKey    contextKey = "user_id"
-	debugMessage            = "Debug message"
+	traceIDKey contextKey = "trace_id"
+
+	debugMessage = "Debug message"
 )
 
 func TestNewZerologLoggerWithConfig(t *testing.T) {

@@ -9,6 +9,14 @@ import (
 	"compmodule/internal/models"
 )
 
+const (
+	// Test constants
+	testHealthPath    = "/health"
+	testStatsPath     = "/api/v1/stats"
+	contentTypeHeader = "Content-Type"
+	jsonContentType   = "application/json"
+)
+
 func TestNewHandler(t *testing.T) {
 	handler := NewHandler()
 	if handler == nil {
@@ -18,7 +26,7 @@ func TestNewHandler(t *testing.T) {
 
 func TestHealthCheck(t *testing.T) {
 	handler := NewHandler()
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	req := httptest.NewRequest(http.MethodGet, testHealthPath, nil)
 	rr := httptest.NewRecorder()
 
 	handler.HealthCheck(rr, req)
@@ -29,8 +37,8 @@ func TestHealthCheck(t *testing.T) {
 	}
 
 	// Check Content-Type
-	if contentType := rr.Header().Get("Content-Type"); contentType != "application/json" {
-		t.Errorf("HealthCheck() Content-Type = %q, want %q", contentType, "application/json")
+	if contentType := rr.Header().Get(contentTypeHeader); contentType != jsonContentType {
+		t.Errorf("HealthCheck() Content-Type = %q, want %q", contentType, jsonContentType)
 	}
 
 	// Parse and validate JSON response
@@ -50,7 +58,7 @@ func TestHealthCheck(t *testing.T) {
 
 func TestGetStats(t *testing.T) {
 	handler := NewHandler()
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/stats", nil)
+	req := httptest.NewRequest(http.MethodGet, testStatsPath, nil)
 	rr := httptest.NewRecorder()
 
 	handler.GetStats(rr, req)
@@ -61,8 +69,8 @@ func TestGetStats(t *testing.T) {
 	}
 
 	// Check Content-Type
-	if contentType := rr.Header().Get("Content-Type"); contentType != "application/json" {
-		t.Errorf("GetStats() Content-Type = %q, want %q", contentType, "application/json")
+	if contentType := rr.Header().Get(contentTypeHeader); contentType != jsonContentType {
+		t.Errorf("GetStats() Content-Type = %q, want %q", contentType, jsonContentType)
 	}
 
 	// Parse and validate JSON response
@@ -88,8 +96,8 @@ func TestWriteJSON(t *testing.T) {
 	}
 
 	// Check Content-Type
-	if contentType := rr.Header().Get("Content-Type"); contentType != "application/json" {
-		t.Errorf("writeJSON() Content-Type = %q, want %q", contentType, "application/json")
+	if contentType := rr.Header().Get(contentTypeHeader); contentType != jsonContentType {
+		t.Errorf("writeJSON() Content-Type = %q, want %q", contentType, jsonContentType)
 	}
 
 	// Check that response body is valid JSON
@@ -101,7 +109,7 @@ func TestWriteJSON(t *testing.T) {
 
 func TestHealthCheckOPTIONS(t *testing.T) {
 	handler := NewHandler()
-	req := httptest.NewRequest(http.MethodOptions, "/health", nil)
+	req := httptest.NewRequest(http.MethodOptions, testHealthPath, nil)
 	rr := httptest.NewRecorder()
 
 	handler.HealthCheck(rr, req)
@@ -137,8 +145,8 @@ func TestSetupRoutes(t *testing.T) {
 		path           string
 		expectedStatus int
 	}{
-		{"/health", http.StatusOK},
-		{"/api/v1/stats", http.StatusOK},
+		{testHealthPath, http.StatusOK},
+		{testStatsPath, http.StatusOK},
 	}
 	
 	for _, tc := range testCases {
@@ -155,7 +163,7 @@ func TestSetupRoutes(t *testing.T) {
 
 func TestGetStatsResponseData(t *testing.T) {
 	handler := NewHandler()
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/stats", nil)
+	req := httptest.NewRequest(http.MethodGet, testStatsPath, nil)
 	rr := httptest.NewRecorder()
 
 	handler.GetStats(rr, req)

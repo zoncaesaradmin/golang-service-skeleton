@@ -11,6 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const testTopic = "test-topic"
+
 // Test LocalProducer.NewProducer
 func TestNewLocalProducer(t *testing.T) {
 	producer := NewProducer()
@@ -19,14 +21,14 @@ func TestNewLocalProducer(t *testing.T) {
 }
 
 // Test LocalProducer.Send
-func TestLocalProducer_Send(t *testing.T) {
+func TestLocalProducerSend(t *testing.T) {
 	producer := NewProducer()
 	assert.NotNil(t, producer)
 
-	ctx := context.Background()
-	message := &Message{
-		Topic:   "test-topic",
+		Topic:   testTopic,
 		Key:     "test-key",
+		Value:   []byte("test-value"),
+		Headers: map[string]string{"header1": "value1"},
 		Value:   []byte("test-value"),
 		Headers: map[string]string{"header1": "value1"},
 	}
@@ -48,8 +50,8 @@ func TestNewLocalConsumer(t *testing.T) {
 // Test LocalConsumer.Subscribe
 func TestLocalConsumer_Subscribe(t *testing.T) {
 	producer := NewProducer()
-	consumer := NewConsumer(producer)
-
+	err := consumer.Subscribe([]string{testTopic})
+	assert.NoError(t, err)
 	err := consumer.Subscribe([]string{"test-topic"})
 	assert.NoError(t, err)
 }
@@ -118,11 +120,11 @@ func TestLocalConsumer_Commit(t *testing.T) {
 	producer := NewProducer()
 	consumer := NewConsumer(producer)
 
-	ctx := context.Background()
-	message := &Message{
-		Topic:     "test-topic",
+		Topic:     testTopic,
 		Key:       "test-key",
 		Value:     []byte("test-value"),
+		Offset:    5,
+		Partition: 0,
 		Offset:    5,
 		Partition: 0,
 	}

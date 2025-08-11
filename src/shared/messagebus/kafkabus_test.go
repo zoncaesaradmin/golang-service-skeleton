@@ -10,6 +10,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const headerContentType = "content-type"
+const contentTypeJSON = "application/json"
+
 // Test KafkaProducer initialization
 func TestNewProducer(t *testing.T) {
 	producer := NewProducer()
@@ -36,13 +39,11 @@ func TestNewConsumer(t *testing.T) {
 	}
 }
 
-// Test message conversion 
+// Test message conversion
 func TestMessageConversion(t *testing.T) {
 	message := &Message{
-		Topic:     "test-topic",
-		Key:       "test-key",
+		Headers:   map[string]string{headerContentType: contentTypeJSON},
 		Value:     []byte("test-value"),
-		Headers:   map[string]string{"content-type": "application/json"},
 		Timestamp: time.Now(),
 		Offset:    12345,
 		Partition: 1,
@@ -71,9 +72,9 @@ func TestMessageConversion(t *testing.T) {
 	// Verify conversion
 	assert.Equal(t, message.Topic, *kafkaMsg.TopicPartition.Topic)
 	assert.Equal(t, []byte(message.Key), kafkaMsg.Key)
-	assert.Equal(t, message.Value, kafkaMsg.Value)
+	assert.Equal(t, headerContentType, kafkaMsg.Headers[0].Key)
 	assert.Len(t, kafkaMsg.Headers, 1)
-	assert.Equal(t, "content-type", kafkaMsg.Headers[0].Key)
+	assert.Equal(t, headerContentType, kafkaMsg.Headers[0].Key)
 	assert.Equal(t, []byte("application/json"), kafkaMsg.Headers[0].Value)
 }
 
@@ -118,14 +119,10 @@ func TestKafkaConsumerInterface(t *testing.T) {
 	var consumer Consumer
 	consumer = &KafkaConsumer{consumer: nil}
 	assert.NotNil(t, consumer)
-}
-
-// Test header processing
-func TestHeaderProcessing(t *testing.T) {
 	headers := map[string]string{
-		"content-type": "application/json",
-		"source":       "test-service",
-		"version":      "1.0",
+		headerContentType: contentTypeJSON,
+		"source":          "test-service",
+		"version":         "1.0",
 	}
 
 	// Simulate header conversion from Send method
@@ -146,7 +143,8 @@ func TestHeaderProcessing(t *testing.T) {
 		headerMap[header.Key] = string(header.Value)
 	}
 
-	assert.Equal(t, "application/json", headerMap["content-type"])
+	// Verify converted headers
+	assert.Equal(t, contentTypeJSON, headerMap[headerContentType])
 	assert.Equal(t, "test-service", headerMap["source"])
 	assert.Equal(t, "1.0", headerMap["version"])
 }

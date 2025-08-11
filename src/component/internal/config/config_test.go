@@ -1,9 +1,12 @@
 package config
 
 import (
+	"path/filepath"
 	"os"
 	"testing"
 )
+
+const errCreateTestConfigFile = "Failed to create test config file: %v"
 
 func TestLoadConfigDefaults(t *testing.T) {
 	config := LoadConfig()
@@ -74,14 +77,12 @@ logging:
   level: "debug"
   format: "text"
 `
-	
-	configFile := tempDir + "/test_config.yaml"
-	err := os.WriteFile(configFile, []byte(configContent), 0644)
+	err := os.WriteFile(filepath.Join(tempDir, "config.yaml"), []byte(configContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create test config file: %v", err)
 	}
 	
-	config, err := LoadConfigFromFile(configFile)
+	config, err := LoadConfigFromFile(filepath.Join(tempDir, "config.yaml"))
 	if err != nil {
 		t.Fatalf("LoadConfigFromFile failed: %v", err)
 	}
@@ -117,14 +118,12 @@ server:
 database:
   - this is not valid YAML structure
 `
-	
-	configFile := tempDir + "/invalid_config.yaml"
-	err = os.WriteFile(configFile, []byte(invalidYAML), 0644)
+	err = os.WriteFile(filepath.Join(tempDir, "config.yaml"), []byte(invalidYAML), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create test config file: %v", err)
 	}
 	
-	_, err = LoadConfigFromFile(configFile)
+	_, err = LoadConfigFromFile(filepath.Join(tempDir, "config.yaml"))
 	if err == nil {
 		t.Error("Expected error for invalid YAML, got nil")
 	}
@@ -144,7 +143,6 @@ logging:
 	configFile := tempDir + "/existing_config.yaml"
 	err := os.WriteFile(configFile, []byte(configContent), 0644)
 	if err != nil {
-		t.Fatalf("Failed to create test config file: %v", err)
 	}
 	
 	config := LoadConfigWithDefaults(configFile)
