@@ -59,6 +59,8 @@ func (h *Handler) SetupRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/health", h.HealthCheck)
 
 	mux.HandleFunc("/api/v1/stats", h.GetStats)
+	mux.HandleFunc("/api/v1/users/search", h.SearchUsers)
+	mux.HandleFunc("/api/v1/users/", h.HandleUsers)
 }
 
 // Helper functions for JSON responses and middleware
@@ -114,3 +116,57 @@ func (h *Handler) GetStats(w http.ResponseWriter, r *http.Request) {
 // Note: Middleware functions (CORS and Logging) are now implemented
 // as methods on the Handler struct and applied within individual handlers.
 // This provides better control and eliminates the dependency on Gin framework.
+
+// HandleUsers handles user-related requests
+func (h *Handler) HandleUsers(w http.ResponseWriter, r *http.Request) {
+	// Apply CORS middleware
+	h.corsMiddleware(w, r)
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	switch r.Method {
+	case "GET":
+		// Stub implementation for getting users
+		users := []interface{}{} // Empty list for now
+		writeJSON(w, http.StatusOK, models.SuccessResponse{
+			Message: MsgUsersRetrieved,
+			Data:    users,
+		})
+	default:
+		writeJSON(w, http.StatusMethodNotAllowed, models.ErrorResponse{
+			Error: ErrMethodNotAllowed,
+		})
+	}
+}
+
+// SearchUsers handles user search requests
+func (h *Handler) SearchUsers(w http.ResponseWriter, r *http.Request) {
+	// Apply CORS middleware
+	h.corsMiddleware(w, r)
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	if r.Method != "GET" {
+		writeJSON(w, http.StatusMethodNotAllowed, models.ErrorResponse{
+			Error: ErrMethodNotAllowed,
+		})
+		return
+	}
+
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		writeJSON(w, http.StatusBadRequest, models.ErrorResponse{
+			Error: ErrMissingSearchQuery,
+		})
+		return
+	}
+
+	// Stub implementation for user search
+	users := []interface{}{} // Empty search results for now
+	writeJSON(w, http.StatusOK, models.SuccessResponse{
+		Message: MsgSearchCompleted,
+		Data:    users,
+	})
+}
