@@ -14,9 +14,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration
-COMPONENT_DIR="./component"
-TESTRUNNER_DIR="./testrunner"
+# Configuration - Updated paths to access src/ from test/
+COMPONENT_DIR="../src/component"
+TESTRUNNER_DIR="../src/testrunner"
 RESULTS_DIR="./results"
 LOGS_DIR="./results/logs"
 COVERAGE_DIR="./coverage"
@@ -79,7 +79,7 @@ build_component() {
         exit 1
     fi
     
-    cd ..
+    cd - > /dev/null
 }
 
 # Function to build testrunner
@@ -97,7 +97,7 @@ build_testrunner() {
         exit 1
     fi
     
-    cd ..
+    cd - > /dev/null
 }
 
 # Function to run component
@@ -105,18 +105,18 @@ run_component() {
     log_info "Starting component..."
     cd "$COMPONENT_DIR"
     
-    # Set coverage directory and log file path
-    export GOCOVERDIR="../$COVERAGE_DIR"
-    export LOG_FILE_PATH="../$LOGS_DIR/component.log"
+    # Set coverage directory and log file path (relative to component directory)
+    export GOCOVERDIR="../../test/$COVERAGE_DIR"
+    export LOG_FILE_PATH="../../test/$LOGS_DIR/component.log"
     
     # Run component in background and capture stdout/stderr
-    ./bin/component > "../$LOGS_DIR/component_stdout.log" 2> "../$LOGS_DIR/component_stderr.log" &
+    ./bin/component > "../../test/$LOGS_DIR/component_stdout.log" 2> "../../test/$LOGS_DIR/component_stderr.log" &
     COMPONENT_PID=$!
-    echo $COMPONENT_PID > ../component.pid
+    echo $COMPONENT_PID > ../../test/component.pid
     
     log_success "Component started with PID $COMPONENT_PID"
     log_info "Component logs: $LOGS_DIR/component.log, $LOGS_DIR/component_stdout.log, $LOGS_DIR/component_stderr.log"
-    cd ..
+    cd - > /dev/null
     
     # Wait a moment for component to start
     sleep 2
@@ -127,20 +127,20 @@ run_testrunner() {
     log_info "Running testrunner..."
     cd "$TESTRUNNER_DIR"
     
-    # Set testrunner log file path
-    export LOG_FILE_PATH="../$LOGS_DIR/testrunner.log"
+    # Set testrunner log file path (relative to testrunner directory)
+    export LOG_FILE_PATH="../../test/$LOGS_DIR/testrunner.log"
     
     # Temporarily disable strict error handling for testrunner execution
     set +e
     # Run testrunner and capture output
-    ./bin/testrunner > "../$LOGS_DIR/testrunner_stdout.log" 2> "../$LOGS_DIR/testrunner_stderr.log"
+    ./bin/testrunner > "../../test/$LOGS_DIR/testrunner_stdout.log" 2> "../../test/$LOGS_DIR/testrunner_stderr.log"
     TEST_RESULT=$?
     set -e
     
     # Also capture combined output for backward compatibility
-    cat "../$LOGS_DIR/testrunner_stdout.log" "../$LOGS_DIR/testrunner_stderr.log" > "../$RESULTS_DIR/testrunner_output.log"
+    cat "../../test/$LOGS_DIR/testrunner_stdout.log" "../../test/$LOGS_DIR/testrunner_stderr.log" > "../../test/$RESULTS_DIR/testrunner_output.log"
     
-    cd ..
+    cd - > /dev/null
     
     if [ $TEST_RESULT -eq 0 ]; then
         log_success "Tests completed successfully"
@@ -248,13 +248,17 @@ generate_coverage_report() {
     
     if [ -d "$COVERAGE_DIR" ] && [ "$(ls -A $COVERAGE_DIR)" ]; then
         # Convert binary coverage data to text format
-        go tool covdata textfmt -i="$COVERAGE_DIR" -o="$RESULTS_DIR/coverage.out"
+        # Use the component's working directory for proper module resolution
+        cd "$COMPONENT_DIR"
+        go tool covdata textfmt -i="../../test/$COVERAGE_DIR" -o="../../test/$RESULTS_DIR/coverage.out"
         
         # Generate HTML coverage report
-        go tool cover -html="$RESULTS_DIR/coverage.out" -o="$RESULTS_DIR/coverage.html"
+        go tool cover -html="../../test/$RESULTS_DIR/coverage.out" -o="../../test/$RESULTS_DIR/coverage.html"
         
         # Generate coverage summary
-        go tool cover -func="$RESULTS_DIR/coverage.out" > "$RESULTS_DIR/coverage_summary.txt"
+        go tool cover -func="../../test/$RESULTS_DIR/coverage.out" > "../../test/$RESULTS_DIR/coverage_summary.txt"
+        
+        cd - > /dev/null
         
         log_success "Coverage report generated at $RESULTS_DIR/coverage.html"
         
@@ -331,6 +335,7 @@ generate_report() {
 main() {
     echo
     log_info "Starting Local Development Test Runner (mode: $BUILD_MODE)"
+    log_info "Working from test directory, accessing src/ components"
     echo
     
     # Setup trap for cleanup on exit - but not for normal script completion
