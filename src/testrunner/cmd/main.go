@@ -22,11 +22,10 @@ import (
 func main() {
 	// Command line flags
 	var (
-		configFile = flag.String("config", "config.yaml", "Configuration file path")
-		scenario   = flag.String("scenario", "", "Specific scenario to run (leave empty for all)")
-		output     = flag.String("output", "console", "Output format: console, json, junit")
-		verbose    = flag.Bool("verbose", false, "Enable verbose logging")
-		generate   = flag.Bool("generate", false, "Generate sample test data and config")
+		scenario = flag.String("scenario", "", "Specific scenario to run (leave empty for all)")
+		output   = flag.String("output", "console", "Output format: console, json, junit")
+		verbose  = flag.Bool("verbose", false, "Enable verbose logging")
+		generate = flag.Bool("generate", false, "Generate sample test data and config")
 	)
 	flag.Parse()
 
@@ -47,11 +46,19 @@ func main() {
 	}
 
 	log.Printf("Starting Katharos Test Runner...")
-	log.Printf("Config file: %s", *configFile)
+
+	// Load configuration from centralized location using HOME_DIR
+	homeDir := os.Getenv("HOME_DIR")
+	if homeDir == "" {
+		log.Fatal("HOME_DIR environment variable is required and must point to the repository root")
+	}
+
+	configPath := filepath.Join(homeDir, "conf", "testconfig.yaml")
+	log.Printf("Config file: %s", configPath)
 	log.Printf("Output format: %s", *output)
 
 	// Load configuration
-	cfg, err := config.LoadConfig(*configFile)
+	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}

@@ -1,5 +1,5 @@
 # Component Makefile
-.PHONY: build test clean deep-clean run deps tidy lint fmt vet coverage coverage-enforce coverage-html install-lint docker-build help
+.PHONY: build test clean deep-clean run run-local run-local-coverage deps tidy lint fmt vet coverage coverage-enforce coverage-html install-lint docker-build help
 
 # Variables
 BINARY_NAME=component
@@ -22,8 +22,22 @@ build:
 
 # Run the component
 run: build
-	@echo "Running $(BINARY_NAME)..."
-	$(BINARY_PATH)
+	@echo "Running $(BINARY_NAME) with HOME_DIR set to repository root..."
+	@HOME_DIR="$$(cd ../../ && pwd)" $(BINARY_PATH)
+
+# Run the component with local development settings
+run-local:
+	@echo "Building and running $(BINARY_NAME) with local tags and HOME_DIR..."
+	@mkdir -p bin
+	go build -tags local -o $(BINARY_PATH) $(MAIN_PATH)
+	@HOME_DIR="$$(cd ../../ && pwd)" $(BINARY_PATH)
+
+# Run the component with local development settings and coverage instrumentation (for integration tests)
+run-local-coverage:
+	@echo "Building and running $(BINARY_NAME) with local tags, coverage, and HOME_DIR..."
+	@mkdir -p bin
+	go build -tags local -cover -o $(BINARY_PATH) $(MAIN_PATH)
+	@HOME_DIR="$$(cd ../../ && pwd)" $(BINARY_PATH)
 
 # Run tests
 test:
@@ -119,7 +133,9 @@ docker-build:
 help:
 	@echo "Component Makefile - Available targets:"
 	@echo "  build            - Build the binary"
-	@echo "  run              - Build and run the component"
+	@echo "  run              - Build and run the component (requires HOME_DIR)"
+	@echo "  run-local        - Build and run with local tags (sets HOME_DIR automatically)"
+	@echo "  run-local-coverage - Build and run with local tags and coverage (for integration tests)"
 	@echo "  test             - Run tests"
 	@echo "  coverage         - Run tests with coverage"
 	@echo "  coverage-html    - Generate HTML coverage report"
@@ -134,3 +150,7 @@ help:
 	@echo "  install-lint     - Install golangci-lint"
 	@echo "  docker-build     - Build Docker image"
 	@echo "  help             - Show this help"
+	@echo ""
+	@echo "Environment Variables:"
+	@echo "  HOME_DIR         - Required: Absolute path to repository root"
+	@echo "                     (automatically set by run-local and test infrastructure)"

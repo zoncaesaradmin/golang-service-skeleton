@@ -1,0 +1,56 @@
+# Katharos Component Configuration
+# This is the main configuration file for the Katharos component.
+# Values can be overridden by environment variables (see documentation).
+#
+# Usage:
+#   - Component loads from: $HOME_DIR/conf/config.yaml
+#   - HOME_DIR must be set to repository root
+#   - Use 'make run-local' to set HOME_DIR automatically
+
+# Server configuration
+server:
+  host: "localhost"              # Server host (env: SERVER_HOST)
+  port: 8080                     # Server port (env: SERVER_PORT)
+  read_timeout: 10               # Read timeout in seconds (env: SERVER_READ_TIMEOUT)
+  write_timeout: 10              # Write timeout in seconds (env: SERVER_WRITE_TIMEOUT)
+
+# Database configuration
+# Note: Currently used for future database integration
+database:
+  host: "localhost"              # Database host (env: DB_HOST)
+  port: 5432                     # Database port (env: DB_PORT)
+  username: "katharos_user"      # Database username (env: DB_USERNAME)
+  password: "katharos_pass"      # Database password (env: DB_PASSWORD)
+  database: "katharos_db"        # Database name (env: DB_DATABASE)
+
+# Logging configuration
+logging:
+  level: "info"                  # Log level: debug, info, warn, error (env: LOG_LEVEL)
+  format: "json"                 # Log format: json, text (env: LOG_FORMAT)
+  file_path: "/tmp/katharos-component.log"  # Log file path (env: LOG_FILE_PATH)
+
+# Configuration Notes:
+# 
+# 1. Environment Variable Override:
+#    All configuration values can be overridden using environment variables.
+#    The environment variable names are shown in comments above.
+#
+# 2. File Location and HOME_DIR:
+#    - The component requires HOME_DIR environment variable pointing to repository root
+#    - Configuration is loaded from: $HOME_DIR/conf/config.yaml
+#    - If no config file is found, the component will fail to start
+#    - Environment variables can override any configuration value
+#
+# 3. Development vs Production:
+#    - For local development, use: make run-local (sets HOME_DIR automatically)
+#    - For production, set HOME_DIR=/path/to/repo when running the binary
+#    - Consider using environment variables for sensitive data in production
+#    - Never commit production passwords or secrets to version control
+#
+# 4. Message Bus Configuration:
+#    - Message bus settings are currently configured in code
+#    - Future versions may move message bus config to this file
+#
+# 5. Processing Pipeline:
+#    - Processing delays and batch sizes are currently hardcoded
+#    - Future versions may expose these as configuration options

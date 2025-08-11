@@ -57,7 +57,7 @@ src/                          # Source code root
 │   ├── go.mod               # Module: testrunner
 │   ├── go.sum               # Go module checksums
 │   ├── Makefile             # Test runner build automation
-│   ├── config.yaml          # Test runner configuration
+│   ├── (no config.yaml)     # Configuration moved to conf/testconfig.yaml
 │   ├── cmd/                 # Test runner entry point
 │   │   └── main.go          # Test runner main with message bus
 │   ├── internal/            # Private test code
@@ -294,7 +294,7 @@ The component and testrunner can be configured using environment variables and c
 
 ### Testrunner Configuration
 
-Configuration is managed via `testrunner/config.yaml`:
+Configuration is managed via `conf/testconfig.yaml` (automatically loaded using HOME_DIR):
 
 ```yaml
 # Message bus configuration

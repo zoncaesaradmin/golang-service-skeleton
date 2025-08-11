@@ -1,12 +1,18 @@
+# Testrunner Configuration
+# This configuration is used by the integration test runner
+
 component:
   binary_path: ../component/bin/component
   port: 8080
   timeout: 30s
+
 messagebus:
   type: local
+
 testdata:
   scenarios_path: testdata/scenarios
   fixtures_path: testdata/fixtures
+
 validation:
   timeout: 1m0s
   max_retries: 3

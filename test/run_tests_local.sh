@@ -14,12 +14,25 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration - Updated paths to access src/ from test/
-COMPONENT_DIR="../src/component"
-TESTRUNNER_DIR="../src/testrunner"
-RESULTS_DIR="./results"
-LOGS_DIR="./results/logs"
-COVERAGE_DIR="./coverage"
+# Configuration - Updated paths to work from both root and test directories
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "$(basename "$SCRIPT_DIR")" == "test" ]]; then
+    # Running from test directory or script in test directory
+    ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+    COMPONENT_DIR="$ROOT_DIR/src/component"
+    TESTRUNNER_DIR="$ROOT_DIR/src/testrunner"
+    RESULTS_DIR="$SCRIPT_DIR/results"
+    LOGS_DIR="$SCRIPT_DIR/results/logs"
+    COVERAGE_DIR="$SCRIPT_DIR/coverage"
+else
+    # Fallback: assume we're in root and test is a subdirectory
+    ROOT_DIR="$(pwd)"
+    COMPONENT_DIR="$ROOT_DIR/src/component"
+    TESTRUNNER_DIR="$ROOT_DIR/src/testrunner"
+    RESULTS_DIR="$ROOT_DIR/test/results"
+    LOGS_DIR="$ROOT_DIR/test/results/logs"
+    COVERAGE_DIR="$ROOT_DIR/test/coverage"
+fi
 BUILD_MODE="${1:-build}"
 
 # Function to print colored output
@@ -66,20 +79,15 @@ setup_directories() {
 
 # Function to build component with coverage
 build_component() {
-    log_info "Building component with coverage instrumentation..."
-    cd "$COMPONENT_DIR"
+    log_info "Component will be built by make run-local-coverage with coverage instrumentation and local tags..."
     
-    # Build with coverage and local tags
-    GOOS=darwin GOARCH=amd64 go build -tags local -cover -o bin/component cmd/main.go
-    
-    if [ $? -eq 0 ]; then
-        log_success "Component built successfully"
-    else
-        log_error "Component build failed"
+    # Verify component directory exists and has Makefile
+    if [ ! -f "$COMPONENT_DIR/Makefile" ]; then
+        log_error "Component Makefile not found at $COMPONENT_DIR/Makefile"
         exit 1
     fi
     
-    cd - > /dev/null
+    log_success "Component build preparation completed (will use make run-local-coverage)"
 }
 
 # Function to build testrunner
@@ -102,19 +110,20 @@ build_testrunner() {
 
 # Function to run component
 run_component() {
-    log_info "Starting component..."
+    log_info "Starting component using make run-local-coverage..."
     cd "$COMPONENT_DIR"
     
-    # Set coverage directory and log file path (relative to component directory)
-    export GOCOVERDIR="../../test/$COVERAGE_DIR"
-    export LOG_FILE_PATH="../../test/$LOGS_DIR/component.log"
+    # Set coverage directory and log file path (using absolute paths)
+    export GOCOVERDIR="$COVERAGE_DIR"
+    export LOG_FILE_PATH="$LOGS_DIR/component.log"
     
-    # Run component in background and capture stdout/stderr
-    ./bin/component > "../../test/$LOGS_DIR/component_stdout.log" 2> "../../test/$LOGS_DIR/component_stderr.log" &
+    # Use make run-local-coverage which automatically sets HOME_DIR and builds with local tags + coverage
+    # Run in background and capture stdout/stderr
+    make run-local-coverage > "$LOGS_DIR/component_stdout.log" 2> "$LOGS_DIR/component_stderr.log" &
     COMPONENT_PID=$!
-    echo $COMPONENT_PID > ../../test/component.pid
+    echo $COMPONENT_PID > "$ROOT_DIR/test/component.pid"
     
-    log_success "Component started with PID $COMPONENT_PID"
+    log_success "Component started with PID $COMPONENT_PID using make run-local-coverage (HOME_DIR=$ROOT_DIR)"
     log_info "Component logs: $LOGS_DIR/component.log, $LOGS_DIR/component_stdout.log, $LOGS_DIR/component_stderr.log"
     cd - > /dev/null
     
@@ -127,18 +136,19 @@ run_testrunner() {
     log_info "Running testrunner..."
     cd "$TESTRUNNER_DIR"
     
-    # Set testrunner log file path (relative to testrunner directory)
-    export LOG_FILE_PATH="../../test/$LOGS_DIR/testrunner.log"
+    # Set HOME_DIR and testrunner log file path (using absolute paths)
+    export HOME_DIR="$ROOT_DIR"
+    export LOG_FILE_PATH="$LOGS_DIR/testrunner.log"
     
     # Temporarily disable strict error handling for testrunner execution
     set +e
     # Run testrunner and capture output
-    ./bin/testrunner > "../../test/$LOGS_DIR/testrunner_stdout.log" 2> "../../test/$LOGS_DIR/testrunner_stderr.log"
+    ./bin/testrunner > "$LOGS_DIR/testrunner_stdout.log" 2> "$LOGS_DIR/testrunner_stderr.log"
     TEST_RESULT=$?
     set -e
     
     # Also capture combined output for backward compatibility
-    cat "../../test/$LOGS_DIR/testrunner_stdout.log" "../../test/$LOGS_DIR/testrunner_stderr.log" > "../../test/$RESULTS_DIR/testrunner_output.log"
+    cat "$LOGS_DIR/testrunner_stdout.log" "$LOGS_DIR/testrunner_stderr.log" > "$RESULTS_DIR/testrunner_output.log"
     
     cd - > /dev/null
     
@@ -153,11 +163,12 @@ run_testrunner() {
 
 # Function to stop component
 stop_component() {
-    if [ -f "component.pid" ]; then
-        COMPONENT_PID=$(cat component.pid)
+    PIDFILE="$ROOT_DIR/test/component.pid"
+    if [ -f "$PIDFILE" ]; then
+        COMPONENT_PID=$(cat "$PIDFILE")
         log_info "Stopping component (PID: $COMPONENT_PID)..."
         kill $COMPONENT_PID 2>/dev/null || true
-        rm -f component.pid
+        rm -f "$PIDFILE"
         log_success "Component stopped"
         
         # Wait a moment for clean shutdown and final logs
@@ -246,17 +257,17 @@ collect_logs() {
 generate_coverage_report() {
     log_info "Generating coverage report..."
     
-    if [ -d "$COVERAGE_DIR" ] && [ "$(ls -A $COVERAGE_DIR)" ]; then
+    if [ -d "$COVERAGE_DIR" ] && [ "$(ls -A "$COVERAGE_DIR")" ]; then
         # Convert binary coverage data to text format
         # Use the component's working directory for proper module resolution
         cd "$COMPONENT_DIR"
-        go tool covdata textfmt -i="../../test/$COVERAGE_DIR" -o="../../test/$RESULTS_DIR/coverage.out"
+        go tool covdata textfmt -i="$COVERAGE_DIR" -o="$RESULTS_DIR/coverage.out"
         
         # Generate HTML coverage report
-        go tool cover -html="../../test/$RESULTS_DIR/coverage.out" -o="../../test/$RESULTS_DIR/coverage.html"
+        go tool cover -html="$RESULTS_DIR/coverage.out" -o="$RESULTS_DIR/coverage.html"
         
         # Generate coverage summary
-        go tool cover -func="../../test/$RESULTS_DIR/coverage.out" > "../../test/$RESULTS_DIR/coverage_summary.txt"
+        go tool cover -func="$RESULTS_DIR/coverage.out" > "$RESULTS_DIR/coverage_summary.txt"
         
         cd - > /dev/null
         
@@ -335,7 +346,10 @@ generate_report() {
 main() {
     echo
     log_info "Starting Local Development Test Runner (mode: $BUILD_MODE)"
-    log_info "Working from test directory, accessing src/ components"
+    log_info "Script directory: $SCRIPT_DIR"
+    log_info "Repository root: $ROOT_DIR"
+    log_info "Component directory: $COMPONENT_DIR"
+    log_info "Results directory: $RESULTS_DIR"
     echo
     
     # Setup trap for cleanup on exit - but not for normal script completion

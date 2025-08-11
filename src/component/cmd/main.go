@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -18,8 +19,26 @@ import (
 )
 
 func main() {
-	// Load configuration with smart fallback (file first, then env+defaults)
-	cfg := config.LoadConfigWithDefaults("config.yaml")
+	// Load configuration using absolute paths based on HOME_DIR environment variable
+	homeDir := os.Getenv("HOME_DIR")
+	if homeDir == "" {
+		log.Fatal("HOME_DIR environment variable is required and must point to the repository root")
+	}
+
+	// Load configuration from the centralized config file
+	configPath := filepath.Join(homeDir, "conf", "config.yaml")
+
+	cfg, err := config.LoadConfigFromFile(configPath)
+	if err != nil {
+		log.Fatalf("Failed to load configuration from %s: %v", configPath, err)
+	}
+	log.Printf("Loaded configuration from: %s", configPath)
+
+	// If no config file was found, use defaults
+	if cfg == nil {
+		cfg = config.LoadConfig()
+		log.Printf("No configuration file found, using environment variables and defaults")
+	}
 
 	// Determine log file path from configuration
 	logFilePath := cfg.Logging.FilePath

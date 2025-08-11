@@ -97,6 +97,14 @@ temp/
 .env.production.local
 
 # ==============================================================================
+# Project-specific: Configuration files
+# ==============================================================================
+
+# Local development configs (only main configs in conf/ are tracked)
+config.local.yaml
+config.local.yml
+
+# ==============================================================================
 # Project-specific: Obsolete files (prevent VS Code resurrection)
 # ==============================================================================
 
