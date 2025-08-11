@@ -1,112 +1,220 @@
-# Golang Component Skeleton
+# Katharos Component System
 
-This project provides a comprehensive Go component skeleton with a REST API component and a separate test runner using Go workspace for multi-module management.
+This project provides a comprehensive Go component system with a message bus-based processing pipeline and integration test infrastructure using Go workspace for multi-module management.
+
+## Project Architecture
+
+The system uses a **message bus architecture** for cross-process communication:
+- **Component**: Main processing service with input/output pipeline
+- **Testrunner**: Integration test service that communicates via message bus
+- **Shared**: Common utilities and message bus implementations
+
+### Message Bus Modes
+- **Local Development**: File-based message bus (`//go:build local`)
+- **Production**: Kafka-based message bus (configurable)
 
 ## Project Structure
 
 ```
-katharos/                     # Root workspace
+src/                          # Source code root
 ├── go.work                   # Go workspace file
-├── Makefile                  # Root orchestration
-├── README.md                 # Documentation
+├── go.work.sum              # Workspace checksums
+├── Makefile                 # Build orchestration with coverage enforcement
+├── README.md                # This documentation
 │
-├── component/               # Main REST API component
-│   ├── go.mod               # Module: katharos/component
+├── component/               # Main processing component
+│   ├── go.mod               # Module: compmodule
 │   ├── go.sum               # Go module checksums
 │   ├── Makefile             # Component build automation
 │   ├── cmd/                 # Application entry point
-│   │   └── main.go          # Component main function
+│   │   ├── main.go          # Component main with processing pipeline
+│   │   └── main_test.go     # Main function tests
 │   ├── internal/            # Private application code
-│   │   ├── api/             # HTTP handlers and routes
-│   │   │   └── handlers.go  # REST API handlers
+│   │   ├── api/             # HTTP handlers (health, stats)
+│   │   │   ├── handlers.go  # API handlers
+│   │   │   └── handlers_test.go
+│   │   ├── app/             # Application lifecycle
+│   │   │   ├── app.go       # App initialization and shutdown
+│   │   │   └── app_test.go
 │   │   ├── config/          # Configuration management
-│   │   │   └── config.go    # Config structures
+│   │   │   ├── config.go    # Config structures and parsing
+│   │   │   └── config_test.go
 │   │   ├── models/          # Data models
-│   │   │   └── models.go    # User and API models
-│   │   └── service/         # Business logic
-│   │       ├── user_service.go      # User service implementation
-│   │       └── user_service_test.go # Unit tests
-│   ├── pkg/                 # Public library code (if any)
+│   │   │   ├── models.go    # Message and processing models
+│   │   │   └── models_test.go
+│   │   └── processing/      # Message processing pipeline
+│   │       ├── input.go     # Message bus consumer
+│   │       ├── input_test.go
+│   │       ├── output.go    # Message bus producer  
+│   │       ├── output_test.go
+│   │       ├── processing.go # Processing coordinator
+│   │       ├── processing_test.go
+│   │       ├── processor.go  # Business logic processor
+│   │       └── processor_test.go
 │   └── bin/                 # Build output
 │
-└── testrunner/              # Test runner service
-    ├── go.mod               # Module: katharos/testrunner
+├── testrunner/              # Integration test service
+│   ├── go.mod               # Module: testrunner
+│   ├── go.sum               # Go module checksums
+│   ├── Makefile             # Test runner build automation
+│   ├── config.yaml          # Test runner configuration
+│   ├── cmd/                 # Test runner entry point
+│   │   └── main.go          # Test runner main with message bus
+│   ├── internal/            # Private test code
+│   │   ├── client/          # API client for health checks
+│   │   │   └── client.go    # HTTP client implementation
+│   │   ├── config/          # Test configuration
+│   │   │   └── config.go    # Test config management
+│   │   ├── harness/         # Test harness interfaces
+│   │   │   └── interfaces.go
+│   │   ├── orchestrator/    # Test orchestration
+│   │   │   └── orchestrator.go
+│   │   ├── process/         # Process management
+│   │   │   └── manager.go
+│   │   ├── testdata/        # Test data loading
+│   │   │   └── loader.go
+│   │   ├── tests/           # Integration tests
+│   │   │   └── integration_tests.go
+│   │   ├── types/           # Test types
+│   │   │   └── types.go
+│   │   └── validation/      # Response validation
+│   │       ├── reporter.go  # Test reporting
+│   │       └── validator.go # Response validation
+│   ├── testdata/            # Test scenarios and fixtures
+│   │   ├── fixtures/        # Test data files
+│   │   │   └── sample_users.json
+│   │   └── scenarios/       # Test scenarios
+│   │       └── user_workflow.yaml
+│   └── bin/                 # Build output
+│
+└── shared/                  # Shared modules
+    ├── go.mod               # Module: sharedmodule  
     ├── go.sum               # Go module checksums
-    ├── Makefile             # Test runner build automation
-    ├── cmd/                 # Test runner entry point
-    │   └── main.go          # Test runner main function
-    ├── internal/            # Private test code
-    │   ├── client/          # API client for testing
-    │   │   └── client.go    # HTTP client implementation
-    │   └── tests/           # Integration tests
-    │       └── integration_tests.go # Test implementations
-    ├── pkg/                 # Public test utilities (if any)
-    └── bin/                 # Build output
+    ├── Makefile             # Shared module automation
+    ├── README.md            # Shared module documentation
+    ├── logging/             # Logging utilities
+    │   ├── logger.go        # Logger interface
+    │   ├── logger_test.go
+    │   ├── zerolog.go       # Zerolog implementation
+    │   ├── zerolog_test.go
+    │   └── README.md
+    ├── messagebus/          # Message bus implementations
+    │   ├── localbus.go      # File-based message bus (local dev)
+    │   ├── kafkabus.go      # Kafka message bus (production) 
+    │   ├── mbinterfaces.go  # Message bus interfaces
+    │   ├── localbus_test.go
+    │   ├── kafkabus_test.go
+    │   └── mbinterfaces_test.go
+    ├── types/               # Common types
+    │   ├── types.go         # Shared data types
+    │   └── types_test.go
+    └── utils/               # Utility functions
+        ├── utils.go         # Common utilities
+        └── utils_test.go
 ```
 
 ## Features
 
-### Main Service
-- **REST API** with Go standard library (net/http)
-- **User Management** (CRUD operations)
-- **Health Check** endpoint
-- **Configuration Management** via environment variables
-- **Graceful Shutdown**
-- **CORS Support**
-- **Thread-safe in-memory user storage**
-- **Unit Tests** with testify
-- **JSON API responses** with proper status codes
+### Message Bus Architecture
+- **Cross-Process Communication**: File-based message bus for local development
+- **Producer/Consumer Pattern**: Testrunner produces test messages, component consumes and processes
+- **Topic-Based Messaging**: Organized message flow via `test_input` and `test_output` topics
+- **Offset Tracking**: Sequential message processing with offset management
+- **Build Tag Support**: Switch between local (`-tags local`) and production message bus implementations
+
+### Main Component
+- **Processing Pipeline**: Input → Processor → Output pipeline with message bus integration
+- **Configurable Processing**: Customizable processing delays and batch sizes
+- **Health Check API**: HTTP endpoint for service monitoring (`/health`)
+- **Stats API**: Service statistics endpoint (`/api/v1/stats`)
+- **Graceful Shutdown**: Clean shutdown with processing pipeline cleanup
+- **Structured Logging**: JSON logging via zerolog with configurable levels
+- **Coverage Instrumentation**: Built-in coverage tracking for development
 
 ### Test Runner
-- **Integration Tests** for all API endpoints
-- **Performance Tests** with configurable concurrency
-- **Load Testing** capabilities
-- **Comprehensive Test Reports**
-- **Configurable Test Modes**
-- **Independent test binary** for service boundary testing
+- **Message Bus Integration**: Sends test scenarios via message bus and validates responses
+- **YAML Test Scenarios**: Configurable test scenarios with input/expected output
+- **Timeout Management**: Configurable test timeouts with proper polling
+- **Response Validation**: Flexible validation that checks for processing indicators
+- **Comprehensive Reporting**: Detailed test reports with success/failure analytics
+- **JSON Fixture Support**: Test data fixtures for complex scenarios
+
+### Shared Modules
+- **Message Bus Interfaces**: Common interfaces for producer/consumer patterns
+- **Local Development Bus**: File-based message bus for cross-process communication
+- **Production Bus Support**: Kafka integration for production environments (with build tags)
+- **Logging Framework**: Structured logging with multiple backend support
+- **Common Types**: Shared data structures across all modules
+- **Utilities**: Common helper functions and utilities
 
 ## Quick Start
 
 ### Prerequisites
-- Go 1.21 or higher
+- Go 1.22.5 or higher
 - Make
 
-### Running the Service
+### Running from Root Directory
 
-1. Build and run the service from root:
+The recommended approach is to use the test infrastructure from the root directory:
+
 ```bash
-make run-service
+# Navigate to root (parallel to src/)
+cd ..
+
+# Build and run integration tests (primary workflow)
+make test
+
+# Quick test run with existing binaries
+make test-run
+
+# View test help
+make test-help
 ```
 
-Or navigate to service directory:
+### Running Components Individually
+
+#### 1. Build and Run Component (Processing Pipeline)
 ```bash
-cd service
-make run
+# From src/ directory
+cd component
+make build BUILD_TAGS="local"
+./bin/component
 ```
 
-Or use individual commands:
+The component will start:
+- Processing pipeline listening on message bus
+- Health API on `localhost:8080`
+- Processing `test_input` messages and sending responses to `test_output`
+
+#### 2. Run Test Runner (Message Bus Tests)
 ```bash
-cd service
-make build
-./bin/service
+# In another terminal, from src/ directory  
+cd testrunner
+make build BUILD_TAGS="local"
+./bin/testrunner
 ```
 
-The service will start on `localhost:8080` by default.
+The testrunner will:
+- Send test scenarios via message bus
+- Wait for processed responses
+- Validate and report results
 
-### Running Tests
+### Message Bus Development
 
-1. Start the service (in another terminal):
+The system uses a file-based message bus for local development:
+
 ```bash
-make run-service
-# OR
-cd service && make run
-```
+# Check message bus activity
+ls -la /tmp/katharos-messagebus/
 
-2. Run the test runner:
-```bash
-make run-tests
-# OR
-cd testrunner && make run
+# View input messages
+cat /tmp/katharos-messagebus/test_input/0000000000.json
+
+# View output responses (after processing)
+cat /tmp/katharos-messagebus/test_output/0000000000.json | jq .
+
+# Clean message bus for fresh test
+rm -rf /tmp/katharos-messagebus
 ```
 
 ### Using Go Workspace
@@ -114,98 +222,201 @@ cd testrunner && make run
 This project uses Go 1.18+ workspace feature:
 ```bash
 go work sync    # Sync workspace modules
-go work use ./service ./testrunner  # Add modules to workspace
+go work use ./component ./testrunner ./shared  # Add modules to workspace
 ```
 
-## API Endpoints
+## Message Bus Architecture
 
-### Health Check
-- `GET /health` - Service health status
+### File-Based Message Bus
 
-### User Management
-- `POST /api/v1/users` - Create a new user
-- `GET /api/v1/users` - Get all users
-- `GET /api/v1/users/{id}` - Get user by ID
-- `PUT /api/v1/users/{id}` - Update user
-- `DELETE /api/v1/users/{id}` - Delete user
-- `GET /api/v1/users/search?q=query` - Search users
+For local development, the system uses a file-based message bus implementation:
 
-### Statistics
-- `GET /api/v1/stats` - Get service statistics
+- **Bus Location**: `/tmp/katharos-messagebus/`
+- **Topic Structure**: Each topic is a directory containing JSON message files
+- **Message Format**: Sequential numbered files (0000000000.json, 0000000001.json, etc.)
+- **Cross-Process Communication**: Component processes messages, testrunner validates responses
+
+### Message Format
+
+All messages follow the shared JSON structure:
+
+```json
+{
+  "id": "unique-message-id",
+  "timestamp": "2024-01-01T00:00:00Z",
+  "type": "TEST_USER_CREATION",
+  "payload": {
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+### Processing Pipeline
+
+1. **Input Handler**: Receives messages from `test_input` topic
+2. **Processor**: Transforms input according to message type
+3. **Output Handler**: Sends processed messages to `test_output` topic
+
+### Development vs Production
+
+The codebase supports build tags for different environments:
+
+```bash
+# Local development (file-based message bus)
+go build -tags local
+
+# Production (would use Kafka or other message brokers)
+go build
+```
+
+### Health Endpoints
+
+The component still provides HTTP endpoints for monitoring:
+
+- **GET** `/health` - Service health status
+- **GET** `/api/v1/stats` - Processing statistics
 
 ## Configuration
 
-The service can be configured using environment variables:
+The component and testrunner can be configured using environment variables and config files:
+
+### Component Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| SERVER_HOST | localhost | Server host |
-| SERVER_PORT | 8080 | Server port |
-| SERVER_READ_TIMEOUT | 10 | Read timeout in seconds |
-| SERVER_WRITE_TIMEOUT | 10 | Write timeout in seconds |
-| LOG_LEVEL | info | Log level |
-| LOG_FORMAT | json | Log format |
+| SERVER_HOST | localhost | Health check server host |
+| SERVER_PORT | 8080 | Health check server port |
+| LOG_LEVEL | info | Log level (debug, info, warn, error) |
+| LOG_FORMAT | json | Log format (json, text) |
+| PROCESSING_DELAY | 100ms | Processing delay for each message |
+| PROCESSING_BATCH_SIZE | 10 | Batch size for processing |
+
+### Testrunner Configuration
+
+Configuration is managed via `testrunner/config.yaml`:
+
+```yaml
+# Message bus configuration
+messagebus:
+  timeout: "30s"
+  polling_interval: "100ms"
+
+# Test scenarios
+scenarios:
+  - name: "user_workflow"
+    file: "testdata/scenarios/user_workflow.yaml"
+
+# Validation settings
+validation:
+  timeout: "10s"
+  strict_mode: false
+```
+
+### Message Bus Configuration
+
+Local development uses file-based message bus at `/tmp/katharos-messagebus/`.
+Production configuration would specify Kafka brokers and topics.
 
 ## Testing
 
-### Unit Tests
+The project has comprehensive test infrastructure in the parallel `test/` directory. Refer to `test/LOCAL_DEVELOPMENT.md` for detailed testing information.
+
+### Quick Testing (Recommended)
+
+Run tests from the root directory using the comprehensive test infrastructure:
+
 ```bash
-# From root
+# Build and run integration tests
 make test
 
-# Individual service
-cd service
+# Quick test with existing binaries  
+make test-run
+
+# View test options
+make test-help
+```
+
+### Component Unit Tests
+
+```bash
+cd component
 make test
 ```
 
-### Integration Tests
-```bash
-# From root
-make run-tests
+### Testrunner Unit Tests
 
-# From testrunner directory
-cd testrunner
-make run
+```bash
+cd testrunner  
+make test
 ```
 
-### Performance Tests
+### Shared Module Tests
+
 ```bash
-cd testrunner
-make run-performance-tests
+cd shared
+make test
 ```
 
 ### Test Coverage
+
 ```bash
-cd service
+# Component coverage
+cd component
 make test-coverage
+
+# Testrunner coverage  
+cd testrunner
+make test-coverage
+
+# Combined coverage (via integration tests)
+make test  # Coverage reported in test/results/
 ```
 
-### End-to-End Testing
+### Message Bus Testing
+
+Test the message bus functionality directly:
+
 ```bash
-# From root - starts service, runs tests, stops service
-make e2e-test
+# Start component
+cd component && make run BUILD_TAGS="local"
+
+# In another terminal, send test messages
+cd testrunner && make run BUILD_TAGS="local"
+
+# Monitor message bus
+ls -la /tmp/katharos-messagebus/
 ```
 
 ## Cleanup Commands
 
 ### Quick Clean (removes build artifacts)
 ```bash
-# Clean both projects from root
+# Clean all components from root
 make clean
 
-# Clean individual projects
-cd service && make clean
-cd testrunner && make clean
+# Clean individual components
+cd component && make clean
+cd testrunner && make clean  
+cd shared && make clean
 ```
 
 ### Deep Clean (removes build artifacts, vendor, and module cache)
 ```bash
-# Deep clean both projects from root
+# Deep clean all components from root
 make deep-clean
 
-# Deep clean individual projects
-cd service && make deep-clean
+# Deep clean individual components
+cd component && make deep-clean
 cd testrunner && make deep-clean
+cd shared && make deep-clean
+```
+
+### Message Bus Clean
+
+```bash
+# Clean message bus data (fresh start)
+rm -rf /tmp/katharos-messagebus
 ```
 
 The clean commands remove:
@@ -219,108 +430,215 @@ The deep-clean commands additionally remove:
 - `vendor/` directories
 - Go module cache
 
+### Test Results Clean
+
+```bash
+# Clean test outputs (from root directory)
+rm -rf test/results/
+```
+
 ## Build Commands
 
-### Root Level Commands
+### Component (Processing Pipeline)
+
 ```bash
-make help           # Show all available targets
-make build          # Build both service and testrunner
-make test           # Run all tests
-make clean          # Clean build artifacts from both projects
-make deep-clean     # Deep clean including vendor and module cache
-make run-service    # Build and run the main service
-make run-tests      # Build and run integration tests
-make dev-setup      # Complete development setup
-make ci             # Full CI pipeline
-make e2e-test       # End-to-end testing
+cd component
+
+# Build for local development (file-based message bus)
+make build BUILD_TAGS="local"
+
+# Build for production (would use Kafka message bus)
+make build
+
+# Run locally
+make run BUILD_TAGS="local"
+
+# Clean build artifacts
+make clean
 ```
 
-### Service
-```bash
-cd service
-make help           # Show available targets
-make build          # Build the binary
-make test           # Run unit tests
-make test-coverage  # Run tests with coverage
-make clean          # Clean build artifacts and generated files
-make deep-clean     # Deep clean including vendor and module cache
-make fmt            # Format code
-make vet            # Vet code
-make lint           # Lint code (requires golangci-lint)
-```
+### Testrunner (Integration Tests)
 
-### Test Runner
 ```bash
 cd testrunner
-make help                    # Show available targets
-make build                   # Build the binary
-make test                    # Run unit tests
-make clean                   # Clean build artifacts and generated files
-make deep-clean              # Deep clean including vendor and module cache
-make run-integration-tests   # Run integration tests
-make run-performance-tests   # Run performance tests
+
+# Build for local development  
+make build BUILD_TAGS="local"
+
+# Run integration tests
+make run BUILD_TAGS="local"
+
+# Clean build artifacts
+make clean
+```
+
+### Shared Modules
+
+```bash
+cd shared
+
+# Run tests for shared modules
+make test
+
+# Clean artifacts
+make clean
+```
+
+### Workspace-Level Commands
+
+```bash
+# From root directory - builds all components
+make build
+
+# Clean all modules
+make clean
+
+# Run comprehensive integration tests  
+make test
+```
+
+### Root Level Commands (Recommended)
+
+From the root directory (parallel to src/), use the comprehensive test infrastructure:
+
+```bash
+make help           # Show all available targets  
+make test           # Build and run integration tests (recommended workflow)
+make test-run       # Quick test with existing binaries
+make test-help      # Show test-specific options
+make test-clean     # Clean test results and artifacts
+```
+
+### Component Commands
+```bash
+cd component
+make help           # Show available targets
+make build          # Build with production settings
+make build BUILD_TAGS="local"  # Build for local development
+make run BUILD_TAGS="local"    # Run component with file-based message bus
+make test           # Run unit tests
+make test-coverage  # Run tests with coverage
+make clean          # Clean build artifacts
+```
+
+### Testrunner Commands
+```bash
+cd testrunner  
+make help           # Show available targets
+make build BUILD_TAGS="local"  # Build for local development
+make run BUILD_TAGS="local"    # Run integration tests via message bus
+make test           # Run unit tests
+make clean          # Clean build artifacts
+```
+
+### Shared Module Commands
+```bash
+cd shared
+make help           # Show available targets
+make test           # Run shared module tests
+make clean          # Clean build artifacts
 ```
 
 ## Development
 
 ### Prerequisites
-- Go 1.21 or higher
+- Go 1.22.5 or higher
 - Make
-- golangci-lint (optional, for linting)
 
 ### Project Architecture
-- **Multi-module workspace**: Uses Go 1.18+ workspace feature
-- **Standard HTTP**: Uses Go standard library instead of frameworks
-- **Thread-safe storage**: In-memory user storage with mutex protection
-- **Clean separation**: Service and test runner are completely independent
+- **Multi-module workspace**: Uses Go 1.18+ workspace feature with component, testrunner, and shared modules
+- **Message Bus Communication**: File-based message bus for local development with producer/consumer pattern
+- **Processing Pipeline**: Input → Processor → Output pipeline architecture
+- **Build Tag Support**: Local development vs production message bus implementations
+- **Clean separation**: Component and testrunner communicate via message bus, completely independent processes
 
 ### Adding New Features
-1. Add models in `service/internal/models/`
-2. Implement business logic in `service/internal/service/`
-3. Add HTTP handlers in `service/internal/api/`
-4. Add routes in the `SetupRoutes` function
-5. Write unit tests
-6. Add integration tests in `testrunner/internal/tests/`
+
+#### Component Features
+1. Add models in `component/internal/models/`
+2. Implement processing logic in `component/internal/processing/processor.go`
+3. Update message types in `shared/types/types.go`
+4. Add unit tests for new processing logic
+5. Add integration tests in `testrunner/internal/tests/`
+
+#### Message Bus Features
+1. Add new interfaces in `shared/messagebus/mbinterfaces.go`
+2. Implement in `shared/messagebus/localbus.go` for local development
+3. Implement in `shared/messagebus/kafkabus.go` for production
+4. Update build tags as needed
 
 ### Module Management
 ```bash
 # Working with workspace
 go work sync                 # Sync all modules in workspace
-go work use ./service        # Add service module
+go work use ./component      # Add component module
 go work use ./testrunner     # Add testrunner module
+go work use ./shared         # Add shared module
 
 # Working with individual modules
-cd service && go mod tidy    # Manage service dependencies
+cd component && go mod tidy  # Manage component dependencies
 cd testrunner && go mod tidy # Manage testrunner dependencies
+cd shared && go mod tidy     # Manage shared dependencies
 ```
 
 ### Testing Strategy
-1. **Unit Tests**: Test individual functions and methods in `service/internal/service/`
-2. **Integration Tests**: Test API endpoints end-to-end via HTTP client
-3. **Performance Tests**: Test system under load with configurable concurrency
-4. **Load Tests**: Test system scalability and limits
-5. **Service Boundary Tests**: External testing via independent test runner
+1. **Unit Tests**: Test individual functions in each module (component, testrunner, shared)
+2. **Integration Tests**: Test cross-process communication via message bus
+3. **Message Bus Tests**: Test producer/consumer patterns and offset management
+4. **Processing Pipeline Tests**: End-to-end processing validation
+5. **Cross-Process Tests**: Component and testrunner interaction via file-based message bus
 
 ## Examples
 
-### Creating a User
+### Basic Message Bus Workflow
+
+1. **Start the component**:
 ```bash
-curl -X POST http://localhost:8080/api/v1/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "john_doe",
-    "email": "john@example.com",
-    "first_name": "John",
-    "last_name": "Doe"
-  }'
+cd component
+make build BUILD_TAGS="local"
+./bin/component
 ```
 
-### Getting All Users
+2. **Send test messages via testrunner**:
 ```bash
-curl http://localhost:8080/api/v1/users
+cd testrunner
+make build BUILD_TAGS="local"  
+./bin/testrunner
 ```
 
-### Health Check
+3. **Monitor message bus activity**:
+```bash
+# Check message files
+ls -la /tmp/katharos-messagebus/test_input/
+ls -la /tmp/katharos-messagebus/test_output/
+
+# View message content
+cat /tmp/katharos-messagebus/test_input/0000000000.json | jq .
+cat /tmp/katharos-messagebus/test_output/0000000000.json | jq .
+```
+
+### Custom Test Scenarios
+
+Create custom test scenarios in `testrunner/testdata/scenarios/`:
+
+```yaml
+# custom_test.yaml
+name: "Custom User Test"
+description: "Test custom user processing"
+input:
+  type: "TEST_USER_CREATION"
+  payload:
+    name: "Custom User"
+    email: "custom@example.com"
+expected_output:
+  type: "TEST_USER_CREATION_RESULT" 
+  payload:
+    status: "processed"
+    processed_name: "Custom User"
+    processed_email: "custom@example.com"
+```
+
+### Health Check (Component Monitoring)
 ```bash
 curl http://localhost:8080/health
 ```
@@ -329,60 +647,19 @@ curl http://localhost:8080/health
 
 This project uses Go 1.18+ workspace feature which provides:
 
-- **Multi-module management**: Work with multiple related modules in a single workspace
-- **Cross-module development**: Make changes across service and testrunner simultaneously
+- **Multi-module management**: Work with component, testrunner, and shared modules in a single workspace
+- **Cross-module development**: Make changes across component, testrunner, and shared modules simultaneously
 - **Shared dependencies**: Efficient dependency management across modules
 - **IDE support**: Better code navigation and refactoring across modules
 
 ### Workspace Commands
 ```bash
 go work init                 # Initialize workspace
-go work use ./service        # Add service module to workspace
+go work use ./component      # Add component module to workspace
 go work use ./testrunner     # Add testrunner module to workspace
+go work use ./shared         # Add shared module to workspace
 go work sync                 # Sync workspace modules
 go work edit                 # Edit go.work file
-```
-
-## Docker Support (Optional)
-
-You can add Docker support by creating a Dockerfile in each service directory:
-
-```dockerfile
-# service/Dockerfile
-FROM golang:1.21-alpine AS builder
-WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN go build -o bin/service cmd/main.go
-
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /app/bin/service .
-EXPOSE 8080
-CMD ["./service"]
-```
-
-### Docker Compose Example
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  service:
-    build: ./service
-    ports:
-      - "8080:8080"
-    environment:
-      - SERVER_HOST=0.0.0.0
-      - SERVER_PORT=8080
-    
-  testrunner:
-    build: ./testrunner
-    depends_on:
-      - service
-    environment:
-      - SERVICE_URL=http://service:8080
 ```
 
 ## License
