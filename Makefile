@@ -28,7 +28,7 @@ help:
 	@echo "  clean        - Clean target"
 	@echo "  help         - Show this help"
 	@echo ""
-	@echo "🧪 Test Infrastructure (in test/ directory):"
+	@echo " Test Infrastructure (in test/ directory):"
 	@echo "  test         - Build components and run integration tests (primary workflow)"
 	@echo "  test-local   - Same as test (local dev mode - default behavior)"
 	@echo "  test-run     - Run tests with existing binaries (quick workflow)"

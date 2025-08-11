@@ -5,5 +5,33 @@
     },
     "go.toolsEnvVars": {
         "GOFLAGS": ""
-    }
+    },
+    "files.exclude": {
+        "**/service": true,
+        "src/service": true,
+        "**/test_service.sh": true,
+        "**/test_component.sh": true,
+        "**/ASYNC_IMPLEMENTATION.md": true,
+        "**/bin": true,
+        "**/coverage_improvement_test.go": true,
+        "test/results": true
+    },
+    "search.exclude": {
+        "**/service": true,
+        "src/service": true,
+        "**/test_service.sh": true,
+        "**/test_component.sh": true,
+        "**/ASYNC_IMPLEMENTATION.md": true,
+        "**/bin": true,
+        "test/results": true
+    },
+    "files.watcherExclude": {
+        "**/service/**": true,
+        "src/service/**": true,
+        "**/bin/**": true,
+        "test/results/**": true,
+        "/tmp/katharos-messagebus/**": true
+    },
+    "go.useLanguageServer": true,
+    "gopls.experimentalWorkspaceModule": true
 }
