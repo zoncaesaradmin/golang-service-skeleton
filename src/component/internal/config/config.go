@@ -35,8 +35,9 @@ type DatabaseConfig struct {
 
 // LoggingConfig holds logging-related configuration
 type LoggingConfig struct {
-	Level  string `yaml:"level"`
-	Format string `yaml:"format"`
+	Level    string `yaml:"level"`
+	Format   string `yaml:"format"`
+	FilePath string `yaml:"file_path"`
 }
 
 // LoadConfig loads configuration from environment variables with defaults
@@ -56,8 +57,9 @@ func LoadConfig() *Config {
 			Database: utils.GetEnv("DB_DATABASE", "mydb"),
 		},
 		Logging: LoggingConfig{
-			Level:  utils.GetEnv("LOG_LEVEL", "info"),
-			Format: utils.GetEnv("LOG_FORMAT", "json"),
+			Level:    utils.GetEnv("LOG_LEVEL", "info"),
+			Format:   utils.GetEnv("LOG_FORMAT", "json"),
+			FilePath: utils.GetEnv("LOG_FILE_PATH", "/tmp/katharos-component.log"),
 		},
 	}
 
@@ -134,5 +136,8 @@ func overrideWithEnvVars(config *Config) {
 	}
 	if format := utils.GetEnv("LOG_FORMAT", ""); format != "" {
 		config.Logging.Format = format
+	}
+	if filePath := utils.GetEnv("LOG_FILE_PATH", ""); filePath != "" {
+		config.Logging.FilePath = filePath
 	}
 }

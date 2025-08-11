@@ -20,10 +20,16 @@ func main() {
 	// Load configuration with smart fallback (file first, then env+defaults)
 	cfg := config.LoadConfigWithDefaults("config.yaml")
 
-	// Initialize logger
+	// Determine log file path from configuration
+	logFilePath := cfg.Logging.FilePath
+	if logFilePath == "" {
+		logFilePath = "/tmp/katharos-component.log"
+	}
+
+	// Initialize logger with configurable path
 	loggerConfig := &logging.LoggerConfig{
 		Level:         logging.InfoLevel,
-		FileName:      "/tmp/katharos-component.log",
+		FileName:      logFilePath,
 		LoggerName:    "katharos-component",
 		ComponentName: "main",
 		ServiceName:   "katharos-component",
@@ -34,6 +40,10 @@ func main() {
 		log.Fatalf("Failed to create logger: %v", err)
 	}
 	defer logger.Close()
+
+	// Log the configuration being used (without sensitive data)
+	logger.Infof("Starting katharos-component on %s:%d", cfg.Server.Host, cfg.Server.Port)
+	logger.Infof("Logging to: %s", logFilePath)
 
 	// Create application instance
 	application := app.NewApplication(cfg, logger)

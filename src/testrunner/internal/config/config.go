@@ -1,0 +1,88 @@
+package config
+
+import (
+	"fmt"
+	"os"
+	"time"
+
+	"gopkg.in/yaml.v2"
+)
+
+// Config represents the testrunner configuration
+type Config struct {
+	Component  ComponentConfig  `yaml:"component"`
+	MessageBus MessageBusConfig `yaml:"messagebus"`
+	Testdata   TestdataConfig   `yaml:"testdata"`
+	Validation ValidationConfig `yaml:"validation"`
+}
+
+// ComponentConfig contains component-specific settings
+type ComponentConfig struct {
+	BinaryPath string        `yaml:"binary_path"`
+	Port       int           `yaml:"port"`
+	Timeout    time.Duration `yaml:"timeout"`
+}
+
+// MessageBusConfig contains message bus settings
+type MessageBusConfig struct {
+	Type          string            `yaml:"type"`
+	KafkaConfig   *KafkaConfig      `yaml:"kafka,omitempty"`
+	LocalConfig   *LocalConfig      `yaml:"local,omitempty"`
+	ExtraSettings map[string]string `yaml:"extra_settings,omitempty"`
+}
+
+// KafkaConfig contains Kafka-specific settings
+type KafkaConfig struct {
+	Brokers []string `yaml:"brokers"`
+	Topic   string   `yaml:"topic"`
+}
+
+// LocalConfig contains local message bus settings
+type LocalConfig struct {
+	BufferSize int `yaml:"buffer_size"`
+}
+
+// TestdataConfig contains test data settings
+type TestdataConfig struct {
+	ScenariosPath string `yaml:"scenarios_path"`
+	FixturesPath  string `yaml:"fixtures_path"`
+}
+
+// ValidationConfig contains validation settings
+type ValidationConfig struct {
+	Timeout    time.Duration `yaml:"timeout"`
+	MaxRetries int           `yaml:"max_retries"`
+	RetryDelay time.Duration `yaml:"retry_delay"`
+}
+
+// LoadConfig loads configuration from a YAML file
+func LoadConfig(filepath string) (*Config, error) {
+	data, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	var config Config
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	// Apply defaults
+	if config.Component.Port == 0 {
+		config.Component.Port = 8080
+	}
+	if config.Component.Timeout == 0 {
+		config.Component.Timeout = 30 * time.Second
+	}
+	if config.Validation.Timeout == 0 {
+		config.Validation.Timeout = 60 * time.Second
+	}
+	if config.Validation.MaxRetries == 0 {
+		config.Validation.MaxRetries = 3
+	}
+	if config.Validation.RetryDelay == 0 {
+		config.Validation.RetryDelay = 1 * time.Second
+	}
+
+	return &config, nil
+}
