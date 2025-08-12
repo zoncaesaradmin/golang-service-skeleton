@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,9 +21,8 @@ const (
 	componentMain   = "main"
 	testHost        = "localhost"
 	testHostAll     = "0.0.0.0"
-	usersEndpoint   = "/api/v1/users/"
+	configEndpoint  = "/api/v1/config/"
 	statsEndpoint   = "/api/v1/stats"
-	searchEndpoint  = "/api/v1/users/search?q=test"
 	nonexistentPath = "/nonexistent"
 )
 
@@ -63,9 +63,7 @@ func (m *mockLogger) Clone() logging.Logger { return &mockLogger{} }
 func (m *mockLogger) Close() error          { return nil }
 
 func TestSetupRouter(t *testing.T) {
-	handler := api.NewHandler()
-
-	mux := setupRouter(handler)
+	mux := setupRouter()
 
 	if mux == nil {
 		t.Fatal("expected mux to not be nil")
@@ -78,9 +76,8 @@ func TestSetupRouter(t *testing.T) {
 		expectedStatus int
 	}{
 		{healthEndpoint, "GET", http.StatusOK},
-		{usersEndpoint, "GET", http.StatusOK},
+		{configEndpoint, "GET", http.StatusOK},
 		{statsEndpoint, "GET", http.StatusOK},
-		{searchEndpoint, "GET", http.StatusOK},
 		{nonexistentPath, "GET", http.StatusNotFound},
 	}
 
@@ -100,22 +97,26 @@ func TestSetupRouter(t *testing.T) {
 }
 
 func TestSetupRouterWithNilHandler(t *testing.T) {
-	// Test that setupRouter handles nil handler
-	// Since the actual behavior may not panic, we test what actually happens
-	defer func() {
-		if r := recover(); r != nil {
-			// If it panics, that's expected behavior for a nil handler
-			return
-		}
-	}()
+	// Test setupRouter function - it creates its own handler internally
+	// This test verifies that setupRouter works correctly
+	mux := setupRouter()
 
-	// This may or may not panic depending on the implementation
-	// Let's just test that we can call it without causing issues
-	mux := setupRouter(nil)
-
-	// If we get here without panicking, the function should still return a mux
+	// The function should always return a valid mux since it creates the handler internally
 	if mux == nil {
-		t.Error("expected mux to not be nil even with nil handler")
+		t.Error("expected mux to not be nil")
+	}
+
+	// Test that the mux has routes set up by making a test request
+	req, err := http.NewRequest("GET", healthEndpoint, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	mux.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected status %d for health endpoint, got %d", http.StatusOK, rr.Code)
 	}
 }
 
@@ -154,12 +155,11 @@ func TestServerConfiguration(t *testing.T) {
 			// Create test server configuration
 			logger := &mockLogger{}
 			application := app.NewApplication(tc.config, logger)
-			handler := api.NewHandler()
-			mux := setupRouter(handler)
+			mux := setupRouter()
 
 			// Create server with same configuration as startServer
 			srv := &http.Server{
-				Addr:         tc.config.Server.Host + ":" + string(rune(tc.config.Server.Port)),
+				Addr:         fmt.Sprintf("%s:%d", tc.config.Server.Host, tc.config.Server.Port),
 				Handler:      mux,
 				ReadTimeout:  time.Duration(tc.config.Server.ReadTimeout) * time.Second,
 				WriteTimeout: time.Duration(tc.config.Server.WriteTimeout) * time.Second,
@@ -305,8 +305,7 @@ func TestIntegrationComponents(t *testing.T) {
 	cfg := config.LoadConfig()
 	logger := &mockLogger{}
 	application := app.NewApplication(cfg, logger)
-	handler := api.NewHandler()
-	mux := setupRouter(handler)
+	mux := setupRouter()
 
 	// Test that we can make requests through the complete stack
 	req, err := http.NewRequest("GET", healthEndpoint, nil)
@@ -323,9 +322,8 @@ func TestIntegrationComponents(t *testing.T) {
 
 	// Test API endpoints
 	apiEndpoints := []string{
-		usersEndpoint,
+		configEndpoint,
 		statsEndpoint,
-		searchEndpoint,
 	}
 
 	for _, endpoint := range apiEndpoints {
@@ -400,18 +398,15 @@ func TestConfigLoadingDefault(t *testing.T) {
 
 // Benchmark tests for performance
 func BenchmarkSetupRouter(b *testing.B) {
-	handler := api.NewHandler()
-
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		mux := setupRouter(handler)
+		mux := setupRouter()
 		_ = mux
 	}
 }
 
 func BenchmarkHealthCheckRequest(b *testing.B) {
-	handler := api.NewHandler()
-	mux := setupRouter(handler)
+	mux := setupRouter()
 
 	req, _ := http.NewRequest("GET", healthEndpoint, nil)
 

@@ -27,14 +27,15 @@ func main() {
 	application := app.NewApplication(cfg, logger)
 
 	// Initialize handlers and setup HTTP mux
-	handler := api.NewHandler()
-	mux := setupRouter(handler)
+	mux := setupRouter()
 
 	// Start server
-	startServer(logger, mux, cfg, application)
+	startServer(mux, cfg, application)
 }
 
-func setupRouter(handler *api.Handler) *http.ServeMux {
+func setupRouter() *http.ServeMux {
+
+	handler := api.NewHandler()
 	mux := http.NewServeMux()
 
 	// Setup routes
@@ -43,7 +44,8 @@ func setupRouter(handler *api.Handler) *http.ServeMux {
 	return mux
 }
 
-func startServer(logger logging.Logger, mux *http.ServeMux, cfg *config.Config, application *app.Application) {
+func startServer(mux *http.ServeMux, cfg *config.Config, application *app.Application) {
+	logger := application.Logger()
 
 	// Create server
 	srv := &http.Server{

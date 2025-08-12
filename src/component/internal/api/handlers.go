@@ -10,32 +10,18 @@ import (
 
 // Error message constants
 const (
-	ErrInvalidUserID         = "Invalid user ID"
-	ErrUserIDMustBeInt       = "User ID must be a valid integer"
-	ErrInvalidRequestBody    = "Invalid request body"
-	ErrFailedToCreateUser    = "Failed to create user"
-	ErrUserNotFound          = "User not found"
-	ErrFailedToRetrieveUsers = "Failed to retrieve users"
-	ErrFailedToUpdateUser    = "Failed to update user"
-	ErrFailedToDeleteUser    = "Failed to delete user"
-	ErrMissingSearchQuery    = "Missing search query"
-	ErrSearchFailed          = "Search failed"
-	ErrMethodNotAllowed      = "Method not allowed"
-	ErrUsernameExists        = "username already exists"
-	ErrEmailExists           = "email already exists"
-	ErrNotImplemented        = "Not implemented"
-	ErrServiceNotAvailable   = "User service not available"
+	ErrInvalidRequestBody  = "Invalid request body"
+	ErrMissingSearchQuery  = "Missing search query"
+	ErrSearchFailed        = "Search failed"
+	ErrMethodNotAllowed    = "Method not allowed"
+	ErrNotImplemented      = "Not implemented"
+	ErrServiceNotAvailable = "User service not available"
 )
 
 // Success message constants
 const (
-	MsgUserCreated     = "User created successfully"
-	MsgUserRetrieved   = "User retrieved successfully"
-	MsgUsersRetrieved  = "Users retrieved successfully"
-	MsgUserUpdated     = "User updated successfully"
-	MsgUserDeleted     = "User deleted successfully"
-	MsgSearchCompleted = "Search completed successfully"
 	MsgStatsRetrieved  = "Statistics retrieved successfully"
+	MsgConfigRetrieved = "Configuration retrieved successfully"
 )
 
 // API route constants
@@ -45,7 +31,7 @@ const (
 
 // Handler holds the dependencies for API handlers
 type Handler struct {
-	// Removed userService dependency for now
+	// Any implementaion specific variables to be added
 }
 
 // NewHandler creates a new Handler instance
@@ -59,8 +45,7 @@ func (h *Handler) SetupRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/health", h.HealthCheck)
 
 	mux.HandleFunc("/api/v1/stats", h.GetStats)
-	mux.HandleFunc("/api/v1/users/search", h.SearchUsers)
-	mux.HandleFunc("/api/v1/users/", h.HandleUsers)
+	mux.HandleFunc("/api/v1/config/", h.HandleConfigs)
 }
 
 // Helper functions for JSON responses and middleware
@@ -104,7 +89,7 @@ func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 // GetStats handles statistics requests
 func (h *Handler) GetStats(w http.ResponseWriter, r *http.Request) {
 	stats := map[string]interface{}{
-		"total_users": 0, // Stub implementation
+		"total_messages": 0, // Stub implementation
 	}
 
 	writeJSON(w, http.StatusOK, models.SuccessResponse{
@@ -113,12 +98,8 @@ func (h *Handler) GetStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Note: Middleware functions (CORS and Logging) are now implemented
-// as methods on the Handler struct and applied within individual handlers.
-// This provides better control and eliminates the dependency on Gin framework.
-
-// HandleUsers handles user-related requests
-func (h *Handler) HandleUsers(w http.ResponseWriter, r *http.Request) {
+// handles config related requests
+func (h *Handler) HandleConfigs(w http.ResponseWriter, r *http.Request) {
 	// Apply CORS middleware
 	h.corsMiddleware(w, r)
 	if r.Method == "OPTIONS" {
@@ -127,46 +108,15 @@ func (h *Handler) HandleUsers(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		// Stub implementation for getting users
-		users := []interface{}{} // Empty list for now
+		// Stub implementation for reading info
+		data := []interface{}{} // Empty list for now
 		writeJSON(w, http.StatusOK, models.SuccessResponse{
-			Message: MsgUsersRetrieved,
-			Data:    users,
+			Message: MsgConfigRetrieved,
+			Data:    data,
 		})
 	default:
 		writeJSON(w, http.StatusMethodNotAllowed, models.ErrorResponse{
 			Error: ErrMethodNotAllowed,
 		})
 	}
-}
-
-// SearchUsers handles user search requests
-func (h *Handler) SearchUsers(w http.ResponseWriter, r *http.Request) {
-	// Apply CORS middleware
-	h.corsMiddleware(w, r)
-	if r.Method == "OPTIONS" {
-		return
-	}
-
-	if r.Method != "GET" {
-		writeJSON(w, http.StatusMethodNotAllowed, models.ErrorResponse{
-			Error: ErrMethodNotAllowed,
-		})
-		return
-	}
-
-	query := r.URL.Query().Get("q")
-	if query == "" {
-		writeJSON(w, http.StatusBadRequest, models.ErrorResponse{
-			Error: ErrMissingSearchQuery,
-		})
-		return
-	}
-
-	// Stub implementation for user search
-	users := []interface{}{} // Empty search results for now
-	writeJSON(w, http.StatusOK, models.SuccessResponse{
-		Message: MsgSearchCompleted,
-		Data:    users,
-	})
 }
