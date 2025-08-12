@@ -15,21 +15,24 @@ endef
 # Local build tags - safely append 'local' to existing BUILD_TAGS
 LOCAL_BUILD_TAGS = $(call append_tag,local)
 
+# Coverage enforcement always uses local tags for consistency and reliability
+COVERAGE_BUILD_TAGS = $(LOCAL_BUILD_TAGS)
+
 # Default target
 help:
 	@echo "Golang Component Skeleton - Root Makefile"
 	@echo "========================================"
 	@echo ""
 	@echo "Available targets:"
-	@echo "  start           - Build with enforced combined coverage (production mode, default)"
-	@echo "  start-local     - Build with enforced combined coverage (local development mode)"
+	@echo "  start           - Build with enforced combined coverage (always uses local mode)"
+	@echo "  start-local     - Build with enforced combined coverage (alias for start)"
 	@echo "  build           - Build all modules (production mode)"
 	@echo "  build-local     - Build all modules (local development mode)"
-	@echo "  build-with-coverage - Build with coverage enforcement (production mode)"
+	@echo "  build-with-coverage - Build with coverage enforcement (always uses local mode)"
 	@echo "  test            - Run all tests (production mode)"
 	@echo "  test-local      - Run all tests (local development mode)"
-	@echo "  coverage        - Generate combined component coverage (component + shared)"
-	@echo "  coverage-enforce- Enforce component coverage threshold ($(SERVICE_COVERAGE_THRESHOLD)%)"
+	@echo "  coverage        - Generate combined component coverage (always uses local mode)"
+	@echo "  coverage-enforce- Enforce component coverage threshold ($(SERVICE_COVERAGE_THRESHOLD)%, always uses local mode)"
 	@echo "  run-component     - Build with coverage enforcement and run the main component (production)"
 	@echo "  run-component-local - Build with coverage enforcement and run the main component (local dev)"
 	@echo "  run-component-dev - Build without coverage enforcement and run (for development)"
@@ -45,6 +48,11 @@ help:
 	@echo "  lint            - Lint code in all projects"
 	@echo "  ci              - Full CI pipeline with coverage enforcement"
 	@echo "  help            - Show this help"
+	@echo ""
+	@echo "Coverage Build Policy:"
+	@echo "  🔧 All coverage-related targets use 'local' build tags for consistency"
+	@echo "  🔧 This ensures reliable testing without external dependencies (Kafka, etc.)"
+	@echo "  🔧 Production builds can still use different tags via BUILD_TAGS variable"
 	@echo ""
 	@echo "Service Coverage Scope:"
 	@echo "  ✅ component/*     - Main business logic (included)"
@@ -87,6 +95,7 @@ coverage: component-coverage shared-coverage
 	@echo "COMBINED SERVICE COVERAGE REPORT"
 	@echo "=========================================="
 	@echo "Scope: component/* + shared/* (excludes testrunner/*)"
+	@echo "Build Tags: $(COVERAGE_BUILD_TAGS) (always uses local for consistency)"
 	@echo ""
 	@echo "📊 Service Module Coverage:"
 	@cd component && go tool cover -func=component_coverage.tmp | tail -1 || echo "No component coverage file"
@@ -145,6 +154,7 @@ coverage-enforce: component-coverage shared-coverage
 	@echo "SERVICE COVERAGE ENFORCEMENT"
 	@echo "=========================================="
 	@echo "Scope: component/* + shared/* (excludes testrunner/*)"
+	@echo "Build Tags: $(COVERAGE_BUILD_TAGS) (always uses local for consistency)"
 	@echo "Threshold: $(SERVICE_COVERAGE_THRESHOLD)%"
 	@echo ""
 	@rm -f coverage.out; \
@@ -250,7 +260,7 @@ component-build-local:
 	@cd component && $(MAKE) build BUILD_TAGS="$(LOCAL_BUILD_TAGS)"
 
 component-build-with-coverage: component-coverage shared-coverage
-	@echo "Building component with coverage enforcement..."
+	@echo "Building component with coverage enforcement (always uses local tags)..."
 	@SERVICE_COV=$$(cd component && go tool cover -func=component_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
 	if [ -z "$$SERVICE_COV" ]; then SERVICE_COV="0"; fi; \
 	SHARED_COV=$$(cd shared && go tool cover -func=shared_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
@@ -269,21 +279,21 @@ component-build-with-coverage: component-coverage shared-coverage
 		COMBINED_COV=$$(go tool cover -func=coverage.out 2>&1 | grep "total:" | awk '{print $$3}' | sed 's/%//'); \
 		if [ -z "$$COMBINED_COV" ]; then COMBINED_COV="0"; fi; \
 	fi; \
-	echo "🎯 Service Coverage: $$SERVICE_COV% | Shared: $$SHARED_COV% | Combined: $$COMBINED_COV%"; \
+	echo "🎯 Service Coverage: $$SERVICE_COV% | Shared: $$SHARED_COV% | Combined: $$COMBINED_COV% (local tags)"; \
 	if [ $$(echo "$$COMBINED_COV >= $(SERVICE_COVERAGE_THRESHOLD)" | bc -l) -eq 1 ]; then \
 		echo "✅ Coverage $$COMBINED_COV% meets $(SERVICE_COVERAGE_THRESHOLD)% threshold - proceeding with build"; \
 		echo "📁 Coverage files preserved for org tools:"; \
 		echo "   • component/component_coverage.tmp"; \
 		echo "   • shared/shared_coverage.tmp"; \
 		echo "   • coverage.out"; \
-		cd component && $(MAKE) build BUILD_TAGS="$(BUILD_TAGS)"; \
+		cd component && $(MAKE) build BUILD_TAGS="$(LOCAL_BUILD_TAGS)"; \
 	else \
 		echo "❌ Coverage $$COMBINED_COV% below $(SERVICE_COVERAGE_THRESHOLD)% threshold - build blocked"; \
 		exit 1; \
 	fi
 
-component-build-with-coverage-local: component-coverage-local shared-coverage-local
-	@echo "Building component with coverage enforcement (local development mode)..."
+component-build-with-coverage-local: component-coverage shared-coverage
+	@echo "Building component with coverage enforcement (local development mode - same as default now)..."
 	@SERVICE_COV=$$(cd component && go tool cover -func=component_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
 	if [ -z "$$SERVICE_COV" ]; then SERVICE_COV="0"; fi; \
 	SHARED_COV=$$(cd shared && go tool cover -func=shared_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
@@ -309,15 +319,15 @@ component-build-with-coverage-local: component-coverage-local shared-coverage-lo
 		echo "   • component/component_coverage.tmp"; \
 		echo "   • shared/shared_coverage.tmp"; \
 		echo "   • coverage.out"; \
-		cd component && $(MAKE) build BUILD_TAGS="$(LOCAL_BUILD_TAGS)"; \
+		cd component && $(MAKE) build BUILD_TAGS="$(COVERAGE_BUILD_TAGS)"; \
 	else \
 		echo "❌ Coverage $$COMBINED_COV% below $(SERVICE_COVERAGE_THRESHOLD)% threshold - build blocked"; \
 		exit 1; \
 	fi
 
 component-coverage:
-	@echo "Running component coverage..."
-	@cd component && $(MAKE) coverage BUILD_TAGS="$(BUILD_TAGS)"
+	@echo "Running component coverage (always uses local tags for consistency)..."
+	@cd component && $(MAKE) coverage BUILD_TAGS="$(COVERAGE_BUILD_TAGS)"
 
 component-coverage-local:
 	@echo "Running component coverage (local development mode)..."
@@ -434,8 +444,8 @@ shared-test-local:
 	@cd shared && $(MAKE) test BUILD_TAGS="$(LOCAL_BUILD_TAGS)"
 
 shared-coverage:
-	@echo "Running shared module coverage..."
-	@cd shared && $(MAKE) coverage BUILD_TAGS="$(BUILD_TAGS)"
+	@echo "Running shared module coverage (always uses local tags for consistency)..."
+	@cd shared && $(MAKE) coverage BUILD_TAGS="$(COVERAGE_BUILD_TAGS)"
 
 shared-coverage-local:
 	@echo "Running shared module coverage (local development mode)..."

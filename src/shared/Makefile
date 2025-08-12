@@ -16,6 +16,14 @@ COVERAGE_THRESHOLD=85
 COVERAGE_OUT=shared_coverage.tmp
 COVERAGE_HTML=coverage.html
 
+# Build tags support (can be passed from parent Makefile)
+BUILD_TAGS ?=
+ifneq ($(BUILD_TAGS),)
+	BUILD_FLAGS = -tags $(BUILD_TAGS)
+else
+	BUILD_FLAGS =
+endif
+
 # Default target
 help:
 	@echo "Shared Module Makefile"
@@ -39,18 +47,18 @@ help:
 # Build the module (verify compilation)
 build:
 	@echo "Building shared module..."
-	@$(GOBUILD) ./...
+	@$(GOBUILD) $(BUILD_FLAGS) ./...
 	@echo "Build completed successfully"
 
 # Run all tests
 test:
 	@echo "Running tests..."
-	@$(GOTEST) -v ./...
+	@$(GOTEST) $(BUILD_FLAGS) -v ./...
 
 # Run tests with coverage
 coverage:
 	@echo "Running tests with coverage..."
-	@$(GOTEST) -coverprofile=$(COVERAGE_OUT) ./...
+	@$(GOTEST) $(BUILD_FLAGS) -coverprofile=$(COVERAGE_OUT) ./...
 	@$(GOCMD) tool cover -func=$(COVERAGE_OUT)
 
 # Generate HTML coverage report

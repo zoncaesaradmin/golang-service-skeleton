@@ -10,6 +10,14 @@ COVERAGE_THRESHOLD=80
 COVERAGE_OUT=component_coverage.tmp
 COVERAGE_HTML=coverage.html
 
+# Build tags support (can be passed from parent Makefile)
+BUILD_TAGS ?=
+ifneq ($(BUILD_TAGS),)
+	BUILD_FLAGS = -tags $(BUILD_TAGS)
+else
+	BUILD_FLAGS =
+endif
+
 # Default target
 all: clean deps fmt vet lint test build
 
@@ -17,7 +25,7 @@ all: clean deps fmt vet lint test build
 build:
 	@echo "Building $(BINARY_NAME)..."
 	@mkdir -p bin
-	go build -o $(BINARY_PATH) $(MAIN_PATH)
+	go build $(BUILD_FLAGS) -o $(BINARY_PATH) $(MAIN_PATH)
 	@echo "Build completed: $(BINARY_PATH)"
 
 # Run the component
@@ -42,12 +50,12 @@ run-local-coverage:
 # Run tests
 test:
 	@echo "Running tests..."
-	go test -v ./...
+	go test $(BUILD_FLAGS) -v ./...
 
 # Run tests with coverage
 coverage:
 	@echo "Running tests with coverage..."
-	go test -coverprofile=$(COVERAGE_OUT) ./...
+	go test $(BUILD_FLAGS) -coverprofile=$(COVERAGE_OUT) ./...
 	go tool cover -func=$(COVERAGE_OUT)
 
 # Generate HTML coverage report
