@@ -1,5 +1,5 @@
-# Root Makefile for Katharos Project
-.PHONY: help package package-local pre_build post_build clean test test-local test-run test-run-local test-build test-clean test-coverage test-setup test-help run-local run-enhanced dev-setup stop
+# Simplified Katharos Project Makefile
+.PHONY: help dev dev-run dev-clean test-coverage build clean package package-local pre_build post_build
 
 # Default ENTRYPOINT_MODE if not set
 ENTRYPOINT_MODE ?= start
@@ -17,43 +17,127 @@ LOCAL_BUILD_TAGS = $(call append_tag,local)
 
 # Default target
 help:
-	@echo "Katharos Project - Root Makefile"
-	@echo "================================"
+help:
+	@echo "Katharos Project - Simplified Makefile"
+	@echo "====================================="
 	@echo ""
-	@echo "🚀 Quick Local Development:"
-	@echo "  run-local     - Run application locally (uses .env file)"
-	@echo "  run-enhanced  - Run with enhanced development script"
-	@echo "  dev-setup     - Setup development environment (.env file)"
-	@echo "  stop          - Stop running application instances"
+	@echo "🚀 LOCAL DEVELOPMENT (Mac/PC):"
+	@echo "  dev          - Full development workflow:"
+	@echo "                 • Build component with enforced coverage"
+	@echo "                 • Build testrunner (no coverage)"
+	@echo "                 • Run integration tests"
+	@echo "                 • Generate reports"
+	@echo "                 • Auto cleanup"
 	@echo ""
-	@echo "📦 Build & Package:"
-	@echo "  package       - Run specified ENTRYPOINT_MODE target in src/ (production mode, default)"
-	@echo "  package-local - Run specified ENTRYPOINT_MODE target in src/ (local development mode)"
-	@echo "  pre_build     - Pre-build target (depends on package)"
-	@echo "  post_build    - Post-build target (depends on clean)"
-	@echo "  clean         - Clean target"
+	@echo "  dev-run      - Quick development iteration:"
+	@echo "                 • Use existing binaries"
+	@echo "                 • Run integration tests only"
+	@echo "                 • Faster for testing changes"
 	@echo ""
-	@echo "🧪 Test Infrastructure (in test/ directory):"
-	@echo "  test          - Build components and run integration tests (primary workflow)"
-	@echo "  test-local    - Same as test (local dev mode - default behavior)"
-	@echo "  test-run      - Run tests with existing binaries (quick workflow)"
-	@echo "  test-build    - Build components only (no tests)"
-	@echo "  test-clean    - Clean test artifacts and logs"
-	@echo "  test-coverage - Generate coverage report from latest test run"
-	@echo "  test-setup    - Setup test environment"
-	@echo "  test-help     - Show detailed test help"
+	@echo "  dev-clean    - Development cleanup:"
+	@echo "                 • Kill all processes"
+	@echo "                 • Clean artifacts and logs"
+	@echo "                 • Reset environment"
+	@echo ""
+	@echo "  test-coverage- Generate coverage report from latest test run"
+	@echo "                 • Convert binary coverage data to HTML"
+	@echo "                 • Show coverage summary"
+	@echo ""
+	@echo "🏭 PRODUCTION BUILD:"
+	@echo "  build        - Production build with enforced coverage:"
+	@echo "                 • Build all components with coverage enforcement"
+	@echo "                 • Ready for deployment"
+	@echo "                 • No test execution"
+	@echo ""
+	@echo "📦 CI/CD & BUILD SYSTEM:"
+	@echo "  package      - Run specified ENTRYPOINT_MODE target in src/ (production mode)"
+	@echo "  package-local- Run specified ENTRYPOINT_MODE target in src/ (local development mode)"
+	@echo "  pre_build    - Pre-build target (depends on package)"
+	@echo "  post_build   - Post-build target (depends on clean)"
+	@echo ""
+	@echo "🧹 CLEANUP:"
+	@echo "  clean        - Clean all build artifacts"
 	@echo ""
 	@echo "Parameters:"
 	@echo "  ENTRYPOINT_MODE - Mode to pass to src/Makefile (default: start)"
 	@echo "  BUILD_TAGS      - Additional build tags to use (empty by default)"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make run-local                     # Quick local development run"
-	@echo "  make dev-setup && make run-enhanced # Full development setup"
+	@echo "  make dev                           # Full local development cycle"
+	@echo "  make dev-run                       # Quick test run"
+	@echo "  make test-coverage                 # Generate coverage report from latest test"
+	@echo "  make build                         # Production build"
 	@echo "  make package                       # Uses default ENTRYPOINT_MODE=start (production)"
 	@echo "  make package-local                 # Uses default ENTRYPOINT_MODE=start (local dev)"
-	@echo "  make test                          # Build and run integration tests"
-	@echo "  make test-run                      # Quick test run with existing binaries"
+	@echo "  make package ENTRYPOINT_MODE=test  # Run tests via CI/CD"
+
+# ==============================================================================
+# LOCAL DEVELOPMENT WORKFLOW
+# ==============================================================================
+
+# Full development workflow
+dev: dev-clean
+	@echo "🚀 Starting full development workflow..."
+	@echo ""
+	@echo "📋 Workflow Steps:"
+	@echo "  1. Setup environment and directories"
+	@echo "  2. Build component with enforced coverage"
+	@echo "  3. Build testrunner (no coverage)"
+	@echo "  4. Run integration tests"
+	@echo "  5. Generate coverage and test reports"
+	@echo "  6. Auto cleanup processes"
+	@echo ""
+	@cd test && ./run_tests_local.sh build
+	@echo ""
+	@echo "✅ Development workflow completed!"
+	@echo "📁 Check test/results/ for reports and logs"
+
+# Quick development iteration (use existing binaries)
+dev-run:
+	@echo "⚡ Quick development run (using existing binaries)..."
+	@cd test && ./run_tests_local.sh run
+	@echo "✅ Quick run completed!"
+
+# Development cleanup
+dev-clean:
+	@echo "🧹 Cleaning development environment..."
+	@pkill -f "component" 2>/dev/null || true
+	@pkill -f "testrunner" 2>/dev/null || true
+	@rm -rf test/results/ test/coverage/ test/*.pid 2>/dev/null || true
+	@rm -rf /tmp/katharos-messagebus* 2>/dev/null || true
+	@echo "✅ Development environment cleaned"
+
+# Generate coverage report from latest test run (standalone)
+test-coverage:
+	@echo "📊 Generating coverage report from latest test run..."
+	@if [ -f "test/results/coverage.out" ]; then \
+		echo "✅ Using existing coverage data..."; \
+		cd src/component && \
+		go tool cover -html=../../test/results/coverage.out -o=../../test/results/coverage.html && \
+		go tool cover -func=../../test/results/coverage.out > ../../test/results/coverage_summary.txt && \
+		cd ../../ && \
+		echo "✅ Coverage report updated: test/results/coverage.html"; \
+		echo "📋 Coverage summary:"; \
+		go tool cover -func=test/results/coverage.out | tail -1; \
+	elif [ -d "test/coverage" ] && [ -n "$$(ls -A test/coverage 2>/dev/null)" ]; then \
+		echo "✅ Processing raw coverage data..."; \
+		mkdir -p test/results && \
+		cd src/component && \
+		go tool covdata textfmt -i=../../test/coverage -o=../../test/results/coverage.out && \
+		go tool cover -html=../../test/results/coverage.out -o=../../test/results/coverage.html && \
+		go tool cover -func=../../test/results/coverage.out > ../../test/results/coverage_summary.txt && \
+		cd ../../ && \
+		echo "✅ Coverage report: test/results/coverage.html"; \
+		echo "📋 Coverage summary:"; \
+		go tool cover -func=test/results/coverage.out | tail -1; \
+	else \
+		echo "❌ No coverage data found. Run 'make dev' first."; \
+		exit 1; \
+	fi
+
+# ==============================================================================
+# CI/CD & BUILD SYSTEM TARGETS
+# ==============================================================================
 
 # Package target - runs the specified ENTRYPOINT_MODE in src/ (production mode)
 package:
@@ -69,151 +153,31 @@ package-local:
 pre_build: package
 	@echo "Pre-build completed"
 
-# Clean target
-clean:
-	@echo "Cleaning project..."
-	@$(MAKE) -C src clean
-	@echo "✅ Clean completed"
-
 # Post-build target that depends on clean
 post_build: clean
 	@echo "Post-build completed"
 
 # ==============================================================================
-# TEST INFRASTRUCTURE (test/ directory)
+# PRODUCTION BUILD
 # ==============================================================================
 
-# Primary test workflow - build and run integration tests
-test:
-	@echo "🚀 Running integration tests (build + test)..."
-	@cd test && ./run_tests_local.sh build
-
-# Alias for test (local development is the default mode)
-test-local: test
-
-# Quick test run with existing binaries
-test-run:
-	@echo "⚡ Running tests with existing binaries..."
-	@cd test && ./run_tests_local.sh run
-
-# Alias for test-run in local mode
-test-run-local: test-run
-
-# Build components only (no tests)
-test-build:
-	@echo "🔨 Building components for testing..."
-	@cd test && ./run_tests_local.sh build > /dev/null 2>&1 || true
-	@echo "✅ Test build completed"
-
-# Clean test artifacts
-test-clean:
-	@echo "🧹 Cleaning test artifacts..."
-	@cd test && rm -rf results/ coverage/ *.pid 2>/dev/null || true
-	@echo "✅ Test artifacts cleaned"
-
-# Generate coverage report from latest test run
-test-coverage:
-	@echo "📊 Generating coverage report..."
-	@cd test && \
-	if [ -d "coverage" ] && [ -n "$$(ls -A coverage 2>/dev/null)" ]; then \
-		mkdir -p results && \
-		cd ../src/component && \
-		go tool covdata textfmt -i=../../test/coverage -o=../../test/results/coverage.out && \
-		go tool cover -html=../../test/results/coverage.out -o=../../test/results/coverage.html && \
-		cd ../../test && \
-		echo "✅ Coverage report: test/results/coverage.html"; \
-		go tool cover -func=results/coverage.out | tail -1; \
-	else \
-		echo "❌ No coverage data found. Run 'make test' first."; \
-	fi
-
-# Setup test environment
-test-setup:
-	@echo "🛠️  Setting up test environment..."
-	@cd src && go mod download
-	@cd src/component && go mod download
-	@cd src/testrunner && go mod download  
-	@cd src/shared && go mod download
-	@echo "✅ Test environment setup completed"
-
-# Help for test targets
-test-help:
-	@echo "📚 Katharos Test Infrastructure (test/ directory):"
-	@echo ""
-	@echo "🎯 Primary Commands:"
-	@echo "  make test          - Build components and run integration tests (main workflow)"
-	@echo "  make test-run      - Run tests with existing binaries (quick iteration)"
-	@echo ""
-	@echo "🔨 Building:"
-	@echo "  make test-build    - Build components only (no tests)"
-	@echo "  make test-clean    - Clean test artifacts and logs"
-	@echo ""
-	@echo "📊 Reports:"
-	@echo "  make test-coverage - Generate coverage report from latest test run"
-	@echo ""
-	@echo "⚙️  Setup:"
-	@echo "  make test-setup    - Setup test environment and dependencies"
-	@echo ""
-	@echo "🚀 Script Interface:"
-	@echo "  cd test && ./run_tests_local.sh build  - Full workflow"
-	@echo "  cd test && ./run_tests_local.sh run    - Quick run"
-	@echo ""
-	@echo "📁 Output Directories (in test/):"
-	@echo "  • results/         - Test reports and logs"
-	@echo "  • results/logs/    - Component and testrunner logs"
-	@echo "  • coverage/        - Coverage data"
-	@echo ""
-	@echo "ℹ️  The test infrastructure is now in test/ parallel to src/"
-	@echo "ℹ️  Use 'make help' for original makefile commands"
+# Production build with enforced coverage
+build:
+	@echo "🏭 Production build with enforced coverage..."
+	@$(MAKE) -C src coverage-enforce
+	@$(MAKE) -C src component-build BUILD_TAGS="$(BUILD_TAGS)"
+	@$(MAKE) -C src testrunner-build BUILD_TAGS="$(BUILD_TAGS)"
+	@echo "✅ Production build completed with enforced coverage!"
 
 # ==============================================================================
-# LOCAL DEVELOPMENT TARGETS
+# CLEANUP
 # ==============================================================================
 
-# Setup development environment
-dev-setup:
-	@echo "🛠️  Setting up development environment..."
-	@if [ ! -f .env ]; then \
-		if [ -f .env.example ]; then \
-			cp .env.example .env; \
-			echo "📝 Created .env file from template"; \
-			echo "⚠️  Please review and update .env file with your settings"; \
-		else \
-			echo "❌ .env.example not found"; \
-			exit 1; \
-		fi \
-	else \
-		echo "✅ .env file already exists"; \
-	fi
-	@echo "✅ Development setup completed"
+# Clean all artifacts
+clean:
+	@echo "🧹 Cleaning all build artifacts..."
+	@$(MAKE) -C src clean
+	@rm -rf test/results/ test/coverage/ test/*.pid 2>/dev/null || true
+	@rm -rf /tmp/katharos-messagebus* 2>/dev/null || true
+	@echo "✅ All artifacts cleaned"
 
-# Build and run application locally (simple version)
-run-local: dev-setup
-	@echo "🚀 Building and running katharos locally..."
-	@mkdir -p bin
-	@echo "🔨 Building application..."
-	@cd src/component && go build -tags=local -o ../../bin/katharos ./cmd
-	@echo "✅ Build completed: bin/katharos"
-	@echo "🏃 Starting application (uses .env file)..."
-	@./bin/katharos
-
-# Run application with enhanced development script
-run-enhanced: dev-setup
-	@echo "🚀 Running katharos with enhanced development script..."
-	@./run-local-enhanced.sh
-
-# Stop running application instances
-stop:
-	@echo "🛑 Stopping katharos instances..."
-	@pkill -f "katharos" || echo "ℹ️  No instances found"
-	@echo "✅ Stop completed"
-
-# Quick development build only
-build-local:
-	@echo "🔨 Building katharos for local development..."
-	@mkdir -p bin
-	@cd src/component && go build -tags=local -o ../../bin/katharos ./cmd
-	@echo "✅ Build completed: bin/katharos"
-
-# Development workflow - clean, build, and run
-dev: clean build-local run-local
