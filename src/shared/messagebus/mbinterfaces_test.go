@@ -46,7 +46,7 @@ func TestInterfaces(t *testing.T) {
 	assert.NotNil(t, producer)
 	assert.Implements(t, (*Producer)(nil), producer)
 
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 	assert.NotNil(t, consumer)
 	assert.Implements(t, (*Consumer)(nil), consumer)
 }
@@ -90,10 +90,7 @@ func TestProducerInterfaceCompliance(t *testing.T) {
 func TestConsumerInterfaceCompliance(t *testing.T) {
 	// This test ensures that our Consumer interface has the expected methods
 	// We test this by creating a real consumer and checking its methods
-	producer := NewProducer()
-	defer producer.Close()
-
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 	defer consumer.Close()
 
 	// These should compile if the interface is correctly implemented

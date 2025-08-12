@@ -5,6 +5,7 @@ package messagebus
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -12,6 +13,11 @@ import (
 )
 
 const testTopic = "test-topic"
+
+// cleanupMessageBusDir removes all message files to ensure tests start clean
+func cleanupMessageBusDir() {
+	os.RemoveAll("/tmp/katharos-messagebus")
+}
 
 // Test LocalProducer.NewProducer
 func TestNewLocalProducer(t *testing.T) {
@@ -22,13 +28,16 @@ func TestNewLocalProducer(t *testing.T) {
 
 // Test LocalProducer.Send
 func TestLocalProducerSend(t *testing.T) {
+	// Clean up any existing messages from previous tests
+	cleanupMessageBusDir()
+
 	producer := NewProducer()
 	assert.NotNil(t, producer)
 
-		Topic:   testTopic,
+	ctx := context.Background()
+	message := &Message{
+		Topic:   "test-topic",
 		Key:     "test-key",
-		Value:   []byte("test-value"),
-		Headers: map[string]string{"header1": "value1"},
 		Value:   []byte("test-value"),
 		Headers: map[string]string{"header1": "value1"},
 	}
@@ -41,38 +50,33 @@ func TestLocalProducerSend(t *testing.T) {
 
 // Test LocalConsumer.NewConsumer
 func TestNewLocalConsumer(t *testing.T) {
-	producer := NewProducer()
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 	assert.NotNil(t, consumer)
 	assert.IsType(t, &LocalConsumer{}, consumer)
 }
 
 // Test LocalConsumer.Subscribe
 func TestLocalConsumer_Subscribe(t *testing.T) {
-	producer := NewProducer()
-	err := consumer.Subscribe([]string{testTopic})
-	assert.NoError(t, err)
+	consumer := NewConsumer()
 	err := consumer.Subscribe([]string{"test-topic"})
 	assert.NoError(t, err)
 }
 
 // Test LocalConsumer.Poll
 func TestLocalConsumer_Poll(t *testing.T) {
-	producer := NewProducer()
-	consumer := NewConsumer(producer)
-
-	err := consumer.Subscribe([]string{"test-topic"})
+	consumer := NewConsumer()
+	msg, err := consumer.Poll(time.Second)
 	assert.NoError(t, err)
-
-	message, err := consumer.Poll(100 * time.Millisecond)
-	assert.NoError(t, err)
-	assert.Nil(t, message) // No messages available initially
+	assert.Nil(t, msg)
 }
 
 // Test integration between producer and consumer
 func TestLocalProducerConsumerIntegration(t *testing.T) {
+	// Clean up any existing messages from previous tests
+	cleanupMessageBusDir()
+
 	producer := NewProducer()
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 
 	ctx := context.Background()
 
@@ -109,22 +113,20 @@ func TestLocalProducer_Close(t *testing.T) {
 
 // Test LocalConsumer.Close
 func TestLocalConsumer_Close(t *testing.T) {
-	producer := NewProducer()
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 	err := consumer.Close()
 	assert.NoError(t, err)
 }
 
 // Test LocalConsumer.Commit
 func TestLocalConsumer_Commit(t *testing.T) {
-	producer := NewProducer()
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 
-		Topic:     testTopic,
+	ctx := context.Background()
+	message := &Message{
+		Topic:     "test-topic",
 		Key:       "test-key",
 		Value:     []byte("test-value"),
-		Offset:    5,
-		Partition: 0,
 		Offset:    5,
 		Partition: 0,
 	}
@@ -157,25 +159,24 @@ func (m *MockProducer) Close() error {
 	return nil
 }
 
-// Test NewConsumer with non-LocalProducer (edge case)
-func TestNewConsumer_WithNonLocalProducer(t *testing.T) {
-	// Create a mock producer that's not a LocalProducer
-	mockProducer := &MockProducer{}
+// Test that NewConsumer creates independent consumers
+func TestNewConsumer_Independence(t *testing.T) {
+	consumer1 := NewConsumer()
+	consumer2 := NewConsumer()
 
-	consumer := NewConsumer(mockProducer)
-	assert.NotNil(t, consumer)
-	assert.IsType(t, &LocalConsumer{}, consumer)
-
-	// Verify it created its own LocalProducer internally
-	localConsumer := consumer.(*LocalConsumer)
-	assert.NotNil(t, localConsumer.producer)
-	assert.IsType(t, &LocalProducer{}, localConsumer.producer)
+	assert.NotNil(t, consumer1)
+	assert.NotNil(t, consumer2)
+	// Test that they are different instances (pointer comparison)
+	assert.True(t, consumer1 != consumer2, "Consumers should be different instances")
 }
 
 // Test multiple messages in same topic
 func TestLocalProducerConsumer_MultipleMessages(t *testing.T) {
+	// Clean up any existing messages from previous tests
+	cleanupMessageBusDir()
+
 	producer := NewProducer()
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 
 	ctx := context.Background()
 
@@ -216,7 +217,7 @@ func TestLocalProducerConsumer_MultipleMessages(t *testing.T) {
 // Test multiple topics
 func TestLocalProducerConsumer_MultipleTopics(t *testing.T) {
 	producer := NewProducer()
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 
 	ctx := context.Background()
 
@@ -252,8 +253,11 @@ func TestLocalProducerConsumer_MultipleTopics(t *testing.T) {
 
 // Test Subscribe multiple times (updates subscription)
 func TestLocalConsumer_Subscribe_Multiple(t *testing.T) {
+	// Clean up any existing messages from previous tests
+	cleanupMessageBusDir()
+
+	consumer := NewConsumer()
 	producer := NewProducer()
-	consumer := NewConsumer(producer)
 
 	// First subscription
 	err := consumer.Subscribe([]string{"topic1", "topic2"})
@@ -319,7 +323,7 @@ func TestLocalProducer_TimestampAssignment(t *testing.T) {
 // Test message headers preservation
 func TestLocalProducerConsumer_HeaderPreservation(t *testing.T) {
 	producer := NewProducer()
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 
 	ctx := context.Background()
 

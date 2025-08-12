@@ -165,7 +165,7 @@ type KafkaConsumer struct {
 }
 
 // NewConsumer creates a new Kafka consumer
-func NewConsumer(producer Producer) Consumer {
+func NewConsumer() Consumer {
 	config := &kafka.ConfigMap{
 		"bootstrap.servers":  "localhost:9092", // Default, should be configurable
 		"group.id":           "default-group",

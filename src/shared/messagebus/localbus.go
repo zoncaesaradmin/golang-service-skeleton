@@ -116,7 +116,7 @@ type LocalConsumer struct {
 }
 
 // NewConsumer creates a new local consumer
-func NewConsumer(producer Producer) Consumer {
+func NewConsumer() Consumer {
 	return &LocalConsumer{
 		lastRead: make(map[string]int64),
 	}

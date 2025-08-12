@@ -28,8 +28,7 @@ type InputHandler struct {
 
 // NewInputHandler creates a new input handler
 func NewInputHandler(config InputConfig, logger logging.Logger) *InputHandler {
-	producer := messagebus.NewProducer()
-	consumer := messagebus.NewConsumer(producer)
+	consumer := messagebus.NewConsumer()
 
 	return &InputHandler{
 		consumer: consumer,

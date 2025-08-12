@@ -26,16 +26,12 @@ func TestNewProducer(t *testing.T) {
 
 // Test KafkaConsumer initialization
 func TestNewConsumer(t *testing.T) {
-	producer := NewProducer()
-	consumer := NewConsumer(producer)
+	consumer := NewConsumer()
 	assert.NotNil(t, consumer)
 
 	// Cleanup
 	if consumer != nil {
 		consumer.Close()
-	}
-	if producer != nil {
-		producer.Close()
 	}
 }
 

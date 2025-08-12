@@ -29,7 +29,7 @@ func NewTestHarness(cfg config.MessageBusConfig) (TestHarness, error) {
 
 func NewLocalHarness(cfg config.MessageBusConfig) *LocalHarness {
 	producer := messagebus.NewProducer()
-	consumer := messagebus.NewConsumer(producer)
+	consumer := messagebus.NewConsumer()
 
 	return &LocalHarness{
 		producer: producer,
