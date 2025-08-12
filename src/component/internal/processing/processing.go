@@ -4,15 +4,17 @@ import (
 	"compmodule/internal/config"
 	"compmodule/internal/models"
 	"fmt"
+	"log"
 	"sharedmodule/logging"
 	"time"
 )
 
 type ProcConfig struct {
-	Input     InputConfig
-	Processor ProcessorConfig
-	Output    OutputConfig
-	Channels  ChannelConfig
+	Input        InputConfig
+	Processor    ProcessorConfig
+	Output       OutputConfig
+	Channels     ChannelConfig
+	LoggerConfig logging.LoggerConfig
 }
 
 type ChannelConfig struct {
@@ -23,6 +25,7 @@ type ChannelConfig struct {
 type Pipeline struct {
 	config        ProcConfig
 	logger        logging.Logger
+	plogger       logging.Logger
 	inputHandler  *InputHandler
 	processor     *Processor
 	outputHandler *OutputHandler
@@ -38,6 +41,7 @@ func NewPipeline(config ProcConfig, logger logging.Logger) *Pipeline {
 	return &Pipeline{
 		config:        config,
 		logger:        logger,
+		plogger:       initPipelineLogger(config.LoggerConfig),
 		inputHandler:  inputHandler,
 		processor:     processor,
 		outputHandler: outputHandler,
@@ -126,31 +130,95 @@ func DefaultConfig(cfg *config.Config) ProcConfig {
 				InputBufferSize:  1000,
 				OutputBufferSize: 1000,
 			},
+			LoggerConfig: logging.LoggerConfig{
+				Level:         logging.InfoLevel,
+				FileName:      "/tmp/katharos-pipeline.log",
+				LoggerName:    "pipeline",
+				ComponentName: "processing",
+				ServiceName:   "katharos",
+			},
 		}
 	}
 
+	// Check if Processing configuration exists (check for empty input topics)
+	processing := cfg.Processing
+	if len(processing.Input.Topics) == 0 {
+		// If Processing is empty/nil, use defaults but fill LoggerConfig from main config
+		procConfig := ProcConfig{
+			Input: InputConfig{
+				Topics:            []string{"input-topic"},
+				PollTimeout:       1 * time.Second,
+				ChannelBufferSize: 1000,
+			},
+			Processor: ProcessorConfig{
+				ProcessingDelay: 10 * time.Millisecond,
+				BatchSize:       100,
+			},
+			Output: OutputConfig{
+				OutputTopic:       "output-topic",
+				BatchSize:         50,
+				FlushTimeout:      5 * time.Second,
+				ChannelBufferSize: 1000,
+			},
+			Channels: ChannelConfig{
+				InputBufferSize:  1000,
+				OutputBufferSize: 1000,
+			},
+		}
+
+		// Use PloggerConfig if available, otherwise use defaults
+		if processing.PloggerConfig.FilePath != "" {
+			procConfig.LoggerConfig = processing.PloggerConfig.ConvertToLoggerConfig()
+		} else {
+			procConfig.LoggerConfig = logging.LoggerConfig{
+				Level:         logging.InfoLevel,
+				FileName:      "/tmp/katharos-pipeline.log",
+				LoggerName:    "pipeline",
+				ComponentName: "processing",
+				ServiceName:   "katharos",
+			}
+		}
+		return procConfig
+	}
+
 	// Convert config processing configuration to ProcConfig
-	return ProcConfig{
+	procConfig := ProcConfig{
 		Input: InputConfig{
-			Topics:            cfg.Processing.Input.Topics,
-			PollTimeout:       cfg.Processing.Input.PollTimeout,
-			ChannelBufferSize: cfg.Processing.Input.ChannelBufferSize,
+			Topics:            processing.Input.Topics,
+			PollTimeout:       processing.Input.PollTimeout,
+			ChannelBufferSize: processing.Input.ChannelBufferSize,
 		},
 		Processor: ProcessorConfig{
-			ProcessingDelay: cfg.Processing.Processor.ProcessingDelay,
-			BatchSize:       cfg.Processing.Processor.BatchSize,
+			ProcessingDelay: processing.Processor.ProcessingDelay,
+			BatchSize:       processing.Processor.BatchSize,
 		},
 		Output: OutputConfig{
-			OutputTopic:       cfg.Processing.Output.OutputTopic,
-			BatchSize:         cfg.Processing.Output.BatchSize,
-			FlushTimeout:      cfg.Processing.Output.FlushTimeout,
-			ChannelBufferSize: cfg.Processing.Output.ChannelBufferSize,
+			OutputTopic:       processing.Output.OutputTopic,
+			BatchSize:         processing.Output.BatchSize,
+			FlushTimeout:      processing.Output.FlushTimeout,
+			ChannelBufferSize: processing.Output.ChannelBufferSize,
 		},
 		Channels: ChannelConfig{
-			InputBufferSize:  cfg.Processing.Channels.InputBufferSize,
-			OutputBufferSize: cfg.Processing.Channels.OutputBufferSize,
+			InputBufferSize:  processing.Channels.InputBufferSize,
+			OutputBufferSize: processing.Channels.OutputBufferSize,
 		},
 	}
+
+	// Handle PloggerConfig
+	if processing.PloggerConfig.FilePath != "" {
+		procConfig.LoggerConfig = processing.PloggerConfig.ConvertToLoggerConfig()
+	} else {
+		// Use default pipeline logger configuration
+		procConfig.LoggerConfig = logging.LoggerConfig{
+			Level:         logging.InfoLevel,
+			FileName:      "/tmp/katharos-pipeline.log",
+			LoggerName:    "pipeline",
+			ComponentName: "processing",
+			ServiceName:   "katharos",
+		}
+	}
+
+	return procConfig
 }
 
 func ValidateConfig(config ProcConfig) error {
@@ -188,5 +256,19 @@ func ValidateConfig(config ProcConfig) error {
 		return fmt.Errorf("output buffer size must be positive")
 	}
 
+	// Validate Plogger configuration using the logging package's validation
+	if err := config.LoggerConfig.Validate(); err != nil {
+		return fmt.Errorf("plogger configuration validation failed: %w", err)
+	}
+
 	return nil
+}
+
+func initPipelineLogger(cfg logging.LoggerConfig) logging.Logger {
+	// Use the provided configuration directly
+	logger, err := logging.NewLogger(&cfg)
+	if err != nil {
+		log.Fatalf("Failed to create pipeline logger: %v", err)
+	}
+	return logger
 }

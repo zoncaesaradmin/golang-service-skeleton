@@ -118,22 +118,10 @@ func loadConfig() *config.Config {
 }
 
 func initLogger(cfg *config.Config) logging.Logger {
-	// Determine log file path from configuration
-	logFilePath := cfg.Logging.FilePath
-	if logFilePath == "" {
-		logFilePath = "/tmp/katharos-component.log"
-	}
+	// Convert config logging configuration to logger config
+	loggerConfig := cfg.Logging.ConvertToLoggerConfig()
 
-	// Initialize logger with configurable path
-	loggerConfig := &logging.LoggerConfig{
-		Level:         logging.InfoLevel,
-		FileName:      logFilePath,
-		LoggerName:    "katharos-component",
-		ComponentName: "main",
-		ServiceName:   "katharos-component",
-	}
-
-	logger, err := logging.NewLogger(loggerConfig)
+	logger, err := logging.NewLogger(&loggerConfig)
 	if err != nil {
 		log.Fatalf("Failed to create logger: %v", err)
 	}

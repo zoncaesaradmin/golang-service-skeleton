@@ -19,6 +19,9 @@ logging:
   level: "info"                  # Log level: debug, info, warn, error (env: LOG_LEVEL)
   format: "json"                 # Log format: json, text (env: LOG_FORMAT)
   file_path: "/tmp/katharos-component.log"  # Log file path (env: LOG_FILE_PATH)
+  logger_name: "katharos-component"         # Logger name identifier (env: LOG_LOGGER_NAME)
+  component_name: "main"                    # Component name for structured logging (env: LOG_COMPONENT_NAME)
+  service_name: "katharos-component"        # Service name for structured logging (env: LOG_SERVICE_NAME)
 
 # Processing pipeline configuration
 processing:
@@ -41,6 +44,14 @@ processing:
   channels:
     input_buffer_size: 1000      # Pipeline input buffer size (env: PROCESSING_CHANNELS_INPUT_BUFFER_SIZE)
     output_buffer_size: 1000     # Pipeline output buffer size (env: PROCESSING_CHANNELS_OUTPUT_BUFFER_SIZE)
+  
+  # Pipeline-specific logger configuration (separate from main application logger)
+  logging:
+    level: "info"                # Pipeline log level: debug, info, warn, error, fatal, panic (env: PROCESSING_PLOGGER_LEVEL)
+    file_path: "/tmp/katharos-pipeline.log"  # Pipeline log file path (env: PROCESSING_PLOGGER_FILE_NAME)
+    logger_name: "pipeline"      # Pipeline logger name identifier (env: PROCESSING_PLOGGER_LOGGER_NAME)
+    component_name: "processing" # Pipeline logger component name (env: PROCESSING_PLOGGER_COMPONENT_NAME)
+    service_name: "katharos"     # Pipeline logger service name (env: PROCESSING_PLOGGER_SERVICE_NAME)
 
 # Configuration Notes:
 # 
@@ -69,3 +80,8 @@ processing:
 #    - All processing delays, batch sizes, and buffer sizes can be customized
 #    - Topic names and timeouts are also configurable
 #    - Environment variables can override any processing configuration value
+#    - Pipeline logger is separate from main application logger:
+#      * Main logger logs application-level events (startup, shutdown, API requests)
+#      * Pipeline logger logs processing-specific events (message processing, pipeline stats)
+#      * Both loggers can have different log levels and output files
+#      * This separation helps with debugging and monitoring specific to data processing
