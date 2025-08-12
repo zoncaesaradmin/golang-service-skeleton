@@ -13,13 +13,12 @@ import (
 	"katharos/testrunner/internal/validation"
 )
 
-
 // Orchestrator manages the execution of test scenarios
 type Orchestrator struct {
-	config      *config.Config
-	harness     harness.TestHarness
+	config         *config.Config
+	harness        harness.TestHarness
 	processManager *process.Manager
-	validator   *validation.Validator
+	validator      *validation.Validator
 }
 
 // NewOrchestrator creates a new orchestrator instance
@@ -37,10 +36,10 @@ func NewOrchestrator(cfg *config.Config) (*Orchestrator, error) {
 	validator := validation.NewValidator(cfg.Validation)
 
 	return &Orchestrator{
-		config:      cfg,
-		harness:     h,
+		config:         cfg,
+		harness:        h,
 		processManager: pm,
-		validator:   validator,
+		validator:      validator,
 	}, nil
 }
 

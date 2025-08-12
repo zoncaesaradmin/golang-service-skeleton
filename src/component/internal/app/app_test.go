@@ -19,36 +19,38 @@ func newMockLogger() *mockLogger {
 	}
 }
 
-func (m *mockLogger) SetLevel(level logging.Level) {}
-func (m *mockLogger) GetLevel() logging.Level { return logging.InfoLevel }
-func (m *mockLogger) IsLevelEnabled(level logging.Level) bool { return true }
-func (m *mockLogger) Debug(msg string) { m.logCalls = append(m.logCalls, "DEBUG: "+msg) }
-func (m *mockLogger) Info(msg string) { m.logCalls = append(m.logCalls, "INFO: "+msg) }
-func (m *mockLogger) Warn(msg string) { m.logCalls = append(m.logCalls, "WARN: "+msg) }
-func (m *mockLogger) Error(msg string) { m.logCalls = append(m.logCalls, "ERROR: "+msg) }
-func (m *mockLogger) Fatal(msg string) { m.logCalls = append(m.logCalls, "FATAL: "+msg) }
-func (m *mockLogger) Panic(msg string) { m.logCalls = append(m.logCalls, "PANIC: "+msg) }
-func (m *mockLogger) Debugf(format string, args ...interface{}) {}
-func (m *mockLogger) Infof(format string, args ...interface{}) {}
-func (m *mockLogger) Warnf(format string, args ...interface{}) {}
-func (m *mockLogger) Errorf(format string, args ...interface{}) {}
-func (m *mockLogger) Fatalf(format string, args ...interface{}) {}
-func (m *mockLogger) Panicf(format string, args ...interface{}) {}
+func (m *mockLogger) SetLevel(level logging.Level)                    {}
+func (m *mockLogger) GetLevel() logging.Level                         { return logging.InfoLevel }
+func (m *mockLogger) IsLevelEnabled(level logging.Level) bool         { return true }
+func (m *mockLogger) Debug(msg string)                                { m.logCalls = append(m.logCalls, "DEBUG: "+msg) }
+func (m *mockLogger) Info(msg string)                                 { m.logCalls = append(m.logCalls, "INFO: "+msg) }
+func (m *mockLogger) Warn(msg string)                                 { m.logCalls = append(m.logCalls, "WARN: "+msg) }
+func (m *mockLogger) Error(msg string)                                { m.logCalls = append(m.logCalls, "ERROR: "+msg) }
+func (m *mockLogger) Fatal(msg string)                                { m.logCalls = append(m.logCalls, "FATAL: "+msg) }
+func (m *mockLogger) Panic(msg string)                                { m.logCalls = append(m.logCalls, "PANIC: "+msg) }
+func (m *mockLogger) Debugf(format string, args ...interface{})       {}
+func (m *mockLogger) Infof(format string, args ...interface{})        {}
+func (m *mockLogger) Warnf(format string, args ...interface{})        {}
+func (m *mockLogger) Errorf(format string, args ...interface{})       {}
+func (m *mockLogger) Fatalf(format string, args ...interface{})       {}
+func (m *mockLogger) Panicf(format string, args ...interface{})       {}
 func (m *mockLogger) Debugw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLogger) Infow(msg string, keysAndValues ...interface{}) {}
-func (m *mockLogger) Warnw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLogger) Errorw(msg string, keysAndValues ...interface{}) { m.logCalls = append(m.logCalls, "ERRORW: "+msg) }
-func (m *mockLogger) Fatalw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLogger) Panicw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLogger) WithFields(fields logging.Fields) logging.Logger { return m }
-func (m *mockLogger) WithField(key string, value interface{}) logging.Logger { return m }
-func (m *mockLogger) WithError(err error) logging.Logger { return m }
-func (m *mockLogger) WithContext(ctx context.Context) logging.Logger { return m }
-func (m *mockLogger) Log(level logging.Level, msg string) {}
-func (m *mockLogger) Logf(level logging.Level, format string, args ...interface{}) {}
+func (m *mockLogger) Infow(msg string, keysAndValues ...interface{})  {}
+func (m *mockLogger) Warnw(msg string, keysAndValues ...interface{})  {}
+func (m *mockLogger) Errorw(msg string, keysAndValues ...interface{}) {
+	m.logCalls = append(m.logCalls, "ERRORW: "+msg)
+}
+func (m *mockLogger) Fatalw(msg string, keysAndValues ...interface{})                    {}
+func (m *mockLogger) Panicw(msg string, keysAndValues ...interface{})                    {}
+func (m *mockLogger) WithFields(fields logging.Fields) logging.Logger                    { return m }
+func (m *mockLogger) WithField(key string, value interface{}) logging.Logger             { return m }
+func (m *mockLogger) WithError(err error) logging.Logger                                 { return m }
+func (m *mockLogger) WithContext(ctx context.Context) logging.Logger                     { return m }
+func (m *mockLogger) Log(level logging.Level, msg string)                                {}
+func (m *mockLogger) Logf(level logging.Level, format string, args ...interface{})       {}
 func (m *mockLogger) Logw(level logging.Level, msg string, keysAndValues ...interface{}) {}
-func (m *mockLogger) Clone() logging.Logger { return m }
-func (m *mockLogger) Close() error { return nil }
+func (m *mockLogger) Clone() logging.Logger                                              { return m }
+func (m *mockLogger) Close() error                                                       { return nil }
 
 func TestNewApplication(t *testing.T) {
 	cfg := &config.Config{

@@ -11,8 +11,8 @@ import (
 
 // TestReport represents a complete test execution report
 type TestReport struct {
-	Timestamp time.Time             `json:"timestamp"`
-	Results   []types.TestResult    `json:"results"`
+	Timestamp time.Time          `json:"timestamp"`
+	Results   []types.TestResult `json:"results"`
 }
 
 // Reporter handles test result reporting

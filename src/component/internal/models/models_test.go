@@ -19,23 +19,23 @@ func TestNewChannelMessage(t *testing.T) {
 	testData := []byte("test data")
 	source := "test-source"
 	msgType := ChannelMessageTypeData
-	
+
 	before := time.Now()
 	msg := NewChannelMessage(msgType, testData, source)
 	after := time.Now()
-	
+
 	if msg == nil {
 		t.Fatal("NewChannelMessage returned nil")
 	}
-	
+
 	if msg.Type != msgType {
 		t.Errorf("Expected type %s, got %s", msgType, msg.Type)
 	}
-	
+
 	if string(msg.Data) != string(testData) {
 		t.Errorf("Expected data %s, got %s", string(testData), string(msg.Data))
 	}
-	
+
 	// Check timestamp is within reasonable bounds
 	if msg.Timestamp.Before(before) || msg.Timestamp.After(after) {
 		t.Errorf("Timestamp %v not within expected range %v - %v", msg.Timestamp, before, after)
@@ -45,21 +45,21 @@ func TestNewChannelMessage(t *testing.T) {
 func TestNewDataMessage(t *testing.T) {
 	testData := []byte("test data payload")
 	source := "data-source"
-	
+
 	msg := NewDataMessage(testData, source)
-	
+
 	if msg == nil {
 		t.Fatal("NewDataMessage returned nil")
 	}
-	
+
 	if msg.Type != ChannelMessageTypeData {
 		t.Errorf("Expected type %s, got %s", ChannelMessageTypeData, msg.Type)
 	}
-	
+
 	if string(msg.Data) != string(testData) {
 		t.Errorf("Expected data %s, got %s", string(testData), string(msg.Data))
 	}
-	
+
 	if msg.Timestamp.IsZero() {
 		t.Error("Expected timestamp to be set, got zero value")
 	}
@@ -68,21 +68,21 @@ func TestNewDataMessage(t *testing.T) {
 func TestNewControlMessage(t *testing.T) {
 	testData := []byte("start")
 	source := "control-source"
-	
+
 	msg := NewControlMessage(testData, source)
-	
+
 	if msg == nil {
 		t.Fatal("NewControlMessage returned nil")
 	}
-	
+
 	if msg.Type != ChannelMessageTypeControl {
 		t.Errorf("Expected type %s, got %s", ChannelMessageTypeControl, msg.Type)
 	}
-	
+
 	if string(msg.Data) != string(testData) {
 		t.Errorf("Expected data %s, got %s", string(testData), string(msg.Data))
 	}
-	
+
 	if msg.Timestamp.IsZero() {
 		t.Error("Expected timestamp to be set, got zero value")
 	}
@@ -91,19 +91,19 @@ func TestNewControlMessage(t *testing.T) {
 func TestChannelMessageMethods(t *testing.T) {
 	dataMsg := &ChannelMessage{Type: ChannelMessageTypeData}
 	controlMsg := &ChannelMessage{Type: ChannelMessageTypeControl}
-	
+
 	if !dataMsg.IsDataMessage() {
 		t.Error("Expected IsDataMessage() to return true for data message")
 	}
-	
+
 	if controlMsg.IsDataMessage() {
 		t.Error("Expected IsDataMessage() to return false for control message")
 	}
-	
+
 	if dataMsg.IsControlMessage() {
 		t.Error("Expected IsControlMessage() to return false for data message")
 	}
-	
+
 	if !controlMsg.IsControlMessage() {
 		t.Error("Expected IsControlMessage() to return true for control message")
 	}
@@ -116,7 +116,7 @@ func TestErrorResponse(t *testing.T) {
 			Message: "Invalid input provided",
 			Code:    400,
 		}
-		
+
 		if err.Error != "validation_error" {
 			t.Errorf("Expected error 'validation_error', got %s", err.Error)
 		}
@@ -127,12 +127,12 @@ func TestErrorResponse(t *testing.T) {
 			t.Errorf("Expected code 400, got %d", err.Code)
 		}
 	})
-	
+
 	t.Run("creates error response with minimal fields", func(t *testing.T) {
 		err := ErrorResponse{
 			Error: "simple_error",
 		}
-		
+
 		if err.Error != "simple_error" {
 			t.Errorf("Expected error 'simple_error', got %s", err.Error)
 		}
@@ -150,7 +150,7 @@ func TestSuccessResponse(t *testing.T) {
 		resp := SuccessResponse{
 			Message: "Operation completed successfully",
 		}
-		
+
 		if resp.Message != "Operation completed successfully" {
 			t.Errorf("Expected message 'Operation completed successfully', got %s", resp.Message)
 		}
@@ -158,14 +158,14 @@ func TestSuccessResponse(t *testing.T) {
 			t.Errorf("Expected nil data, got %v", resp.Data)
 		}
 	})
-	
+
 	t.Run("creates success response with data", func(t *testing.T) {
 		data := map[string]string{"key": "value"}
 		resp := SuccessResponse{
 			Message: "Success",
 			Data:    data,
 		}
-		
+
 		if resp.Message != "Success" {
 			t.Errorf("Expected message 'Success', got %s", resp.Message)
 		}
@@ -183,7 +183,7 @@ func TestHealthResponse(t *testing.T) {
 			Timestamp: timestamp,
 			Version:   "1.0.0",
 		}
-		
+
 		if health.Status != "healthy" {
 			t.Errorf("Expected status 'healthy', got %s", health.Status)
 		}
@@ -194,17 +194,17 @@ func TestHealthResponse(t *testing.T) {
 			t.Errorf("Expected version '1.0.0', got %s", health.Version)
 		}
 	})
-	
+
 	t.Run("creates health response with different statuses", func(t *testing.T) {
 		statuses := []string{"healthy", "unhealthy", "degraded"}
-		
+
 		for _, status := range statuses {
 			health := HealthResponse{
 				Status:    status,
 				Timestamp: time.Now(),
 				Version:   "test",
 			}
-			
+
 			if health.Status != status {
 				t.Errorf("Expected status %s, got %s", status, health.Status)
 			}
@@ -215,36 +215,36 @@ func TestHealthResponse(t *testing.T) {
 func TestChannelMessageEdgeCases(t *testing.T) {
 	t.Run("NewChannelMessage with nil data", func(t *testing.T) {
 		msg := NewChannelMessage(ChannelMessageTypeControl, nil, "test-source")
-		
+
 		if msg.Type != ChannelMessageTypeControl {
 			t.Errorf("Expected type %s, got %s", ChannelMessageTypeControl, msg.Type)
 		}
-		
+
 		if msg.Data != nil {
 			t.Errorf("Expected nil data, got %v", msg.Data)
 		}
 	})
-	
+
 	t.Run("NewDataMessage with empty data", func(t *testing.T) {
 		msg := NewDataMessage([]byte{}, "source")
-		
+
 		if msg.Type != ChannelMessageTypeData {
 			t.Errorf("Expected type %s, got %s", ChannelMessageTypeData, msg.Type)
 		}
-		
+
 		if len(msg.Data) != 0 {
 			t.Errorf("Expected empty data, got %v", msg.Data)
 		}
 	})
-	
+
 	t.Run("methods work with constructed messages", func(t *testing.T) {
 		dataMsg := NewDataMessage([]byte("test"), "source")
 		controlMsg := NewControlMessage([]byte("stop"), "source")
-		
+
 		if !dataMsg.IsDataMessage() || dataMsg.IsControlMessage() {
 			t.Error("Data message type methods returned incorrect values")
 		}
-		
+
 		if controlMsg.IsDataMessage() || !controlMsg.IsControlMessage() {
 			t.Error("Control message type methods returned incorrect values")
 		}
@@ -254,26 +254,26 @@ func TestChannelMessageEdgeCases(t *testing.T) {
 func TestMessageTimestamps(t *testing.T) {
 	t.Run("all constructors set timestamps", func(t *testing.T) {
 		before := time.Now()
-		
+
 		dataMsg := NewDataMessage([]byte("data"), "source")
 		controlMsg := NewControlMessage([]byte("control"), "source")
 		channelMsg := NewChannelMessage(ChannelMessageTypeData, []byte("test"), "source")
-		
+
 		after := time.Now()
-		
+
 		messages := []*ChannelMessage{dataMsg, controlMsg, channelMsg}
-		
+
 		for i, msg := range messages {
 			if msg.Timestamp.Before(before) || msg.Timestamp.After(after) {
 				t.Errorf("Message %d timestamp %v not within range %v - %v", i, msg.Timestamp, before, after)
 			}
 		}
 	})
-	
+
 	t.Run("timestamps are unique for rapid creation", func(t *testing.T) {
 		msg1 := NewDataMessage([]byte("data1"), "source")
 		msg2 := NewDataMessage([]byte("data2"), "source")
-		
+
 		// Allow for very small time differences (nanosecond precision)
 		if msg1.Timestamp.Equal(msg2.Timestamp) {
 			// This might happen in very fast systems, which is acceptable
@@ -289,7 +289,7 @@ func TestResponseTypesIntegration(t *testing.T) {
 			&SuccessResponse{Message: "test"},
 			&HealthResponse{Status: "test"},
 		}
-		
+
 		for i, resp := range responses {
 			if resp == nil {
 				t.Errorf("Response %d is nil", i)
@@ -301,7 +301,7 @@ func TestResponseTypesIntegration(t *testing.T) {
 func TestJSONSerialization(t *testing.T) {
 	// Add encoding/json import at the top of the file if not already present
 	// This test requires: import "encoding/json"
-	
+
 	t.Run("ChannelMessage JSON serialization", func(t *testing.T) {
 		timestamp := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
 		msg := &ChannelMessage{
@@ -309,21 +309,21 @@ func TestJSONSerialization(t *testing.T) {
 			Timestamp: timestamp,
 			Data:      []byte("test data"),
 		}
-		
+
 		// Note: JSON marshaling of []byte fields encodes them as base64
 		// So "test data" becomes "dGVzdCBkYXRh" in base64
 		jsonBytes, err := json.Marshal(msg)
 		if err != nil {
 			t.Fatalf("Failed to marshal ChannelMessage: %v", err)
 		}
-		
+
 		// Verify we can unmarshal it back
 		var unmarshaled ChannelMessage
 		err = json.Unmarshal(jsonBytes, &unmarshaled)
 		if err != nil {
 			t.Fatalf("Failed to unmarshal ChannelMessage: %v", err)
 		}
-		
+
 		if unmarshaled.Type != msg.Type {
 			t.Errorf("Expected type %s, got %s", msg.Type, unmarshaled.Type)
 		}
@@ -334,25 +334,25 @@ func TestJSONSerialization(t *testing.T) {
 			t.Errorf("Expected data %s, got %s", string(msg.Data), string(unmarshaled.Data))
 		}
 	})
-	
+
 	t.Run("ErrorResponse JSON serialization", func(t *testing.T) {
 		resp := ErrorResponse{
 			Error:   "test_error",
 			Message: "Test message",
 			Code:    500,
 		}
-		
+
 		jsonBytes, err := json.Marshal(resp)
 		if err != nil {
 			t.Fatalf("Failed to marshal ErrorResponse: %v", err)
 		}
-		
+
 		var unmarshaled ErrorResponse
 		err = json.Unmarshal(jsonBytes, &unmarshaled)
 		if err != nil {
 			t.Fatalf("Failed to unmarshal ErrorResponse: %v", err)
 		}
-		
+
 		if unmarshaled.Error != resp.Error {
 			t.Errorf("Expected error %s, got %s", resp.Error, unmarshaled.Error)
 		}
@@ -363,24 +363,24 @@ func TestJSONSerialization(t *testing.T) {
 			t.Errorf("Expected code %d, got %d", resp.Code, unmarshaled.Code)
 		}
 	})
-	
+
 	t.Run("SuccessResponse JSON serialization", func(t *testing.T) {
 		resp := SuccessResponse{
 			Message: "Test success",
 			Data:    map[string]int{"count": 42},
 		}
-		
+
 		jsonBytes, err := json.Marshal(resp)
 		if err != nil {
 			t.Fatalf("Failed to marshal SuccessResponse: %v", err)
 		}
-		
+
 		var unmarshaled SuccessResponse
 		err = json.Unmarshal(jsonBytes, &unmarshaled)
 		if err != nil {
 			t.Fatalf("Failed to unmarshal SuccessResponse: %v", err)
 		}
-		
+
 		if unmarshaled.Message != resp.Message {
 			t.Errorf("Expected message %s, got %s", resp.Message, unmarshaled.Message)
 		}
@@ -389,7 +389,7 @@ func TestJSONSerialization(t *testing.T) {
 			t.Error("Expected data to be present")
 		}
 	})
-	
+
 	t.Run("HealthResponse JSON serialization", func(t *testing.T) {
 		timestamp := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
 		resp := HealthResponse{
@@ -397,18 +397,18 @@ func TestJSONSerialization(t *testing.T) {
 			Timestamp: timestamp,
 			Version:   "1.0.0",
 		}
-		
+
 		jsonBytes, err := json.Marshal(resp)
 		if err != nil {
 			t.Fatalf("Failed to marshal HealthResponse: %v", err)
 		}
-		
+
 		var unmarshaled HealthResponse
 		err = json.Unmarshal(jsonBytes, &unmarshaled)
 		if err != nil {
 			t.Fatalf("Failed to unmarshal HealthResponse: %v", err)
 		}
-		
+
 		if unmarshaled.Status != resp.Status {
 			t.Errorf("Expected status %s, got %s", resp.Status, unmarshaled.Status)
 		}

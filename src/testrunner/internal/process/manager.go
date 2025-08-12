@@ -49,9 +49,9 @@ func (m *Manager) StartComponent() error {
 	m.process = exec.Command(m.config.BinaryPath)
 	m.process.Stdout = os.Stdout
 	m.process.Stderr = os.Stderr
-	
+
 	// Set environment variables
-	m.process.Env = append(os.Environ(), 
+	m.process.Env = append(os.Environ(),
 		fmt.Sprintf("PORT=%d", m.config.Port),
 		"ENVIRONMENT=test",
 	)

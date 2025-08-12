@@ -12,36 +12,37 @@ import (
 // mockLoggerForProcessor implements the logging.Logger interface for testing
 type mockLoggerForProcessor struct{}
 
-func (m *mockLoggerForProcessor) SetLevel(level logging.Level) {}
-func (m *mockLoggerForProcessor) GetLevel() logging.Level { return logging.InfoLevel }
-func (m *mockLoggerForProcessor) IsLevelEnabled(level logging.Level) bool { return true }
-func (m *mockLoggerForProcessor) Debug(msg string) {}
-func (m *mockLoggerForProcessor) Info(msg string) {}
-func (m *mockLoggerForProcessor) Warn(msg string) {}
-func (m *mockLoggerForProcessor) Error(msg string) {}
-func (m *mockLoggerForProcessor) Fatal(msg string) {}
-func (m *mockLoggerForProcessor) Panic(msg string) {}
-func (m *mockLoggerForProcessor) Debugf(format string, args ...interface{}) {}
-func (m *mockLoggerForProcessor) Infof(format string, args ...interface{}) {}
-func (m *mockLoggerForProcessor) Warnf(format string, args ...interface{}) {}
-func (m *mockLoggerForProcessor) Errorf(format string, args ...interface{}) {}
-func (m *mockLoggerForProcessor) Fatalf(format string, args ...interface{}) {}
-func (m *mockLoggerForProcessor) Panicf(format string, args ...interface{}) {}
-func (m *mockLoggerForProcessor) Debugw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLoggerForProcessor) Infow(msg string, keysAndValues ...interface{}) {}
-func (m *mockLoggerForProcessor) Warnw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLoggerForProcessor) Errorw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLoggerForProcessor) Fatalw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLoggerForProcessor) Panicw(msg string, keysAndValues ...interface{}) {}
-func (m *mockLoggerForProcessor) WithFields(fields logging.Fields) logging.Logger { return m }
-func (m *mockLoggerForProcessor) WithField(key string, value interface{}) logging.Logger { return m }
-func (m *mockLoggerForProcessor) WithError(err error) logging.Logger { return m }
-func (m *mockLoggerForProcessor) WithContext(ctx context.Context) logging.Logger { return m }
-func (m *mockLoggerForProcessor) Log(level logging.Level, msg string) {}
+func (m *mockLoggerForProcessor) SetLevel(level logging.Level)                                 {}
+func (m *mockLoggerForProcessor) GetLevel() logging.Level                                      { return logging.InfoLevel }
+func (m *mockLoggerForProcessor) IsLevelEnabled(level logging.Level) bool                      { return true }
+func (m *mockLoggerForProcessor) Debug(msg string)                                             {}
+func (m *mockLoggerForProcessor) Info(msg string)                                              {}
+func (m *mockLoggerForProcessor) Warn(msg string)                                              {}
+func (m *mockLoggerForProcessor) Error(msg string)                                             {}
+func (m *mockLoggerForProcessor) Fatal(msg string)                                             {}
+func (m *mockLoggerForProcessor) Panic(msg string)                                             {}
+func (m *mockLoggerForProcessor) Debugf(format string, args ...interface{})                    {}
+func (m *mockLoggerForProcessor) Infof(format string, args ...interface{})                     {}
+func (m *mockLoggerForProcessor) Warnf(format string, args ...interface{})                     {}
+func (m *mockLoggerForProcessor) Errorf(format string, args ...interface{})                    {}
+func (m *mockLoggerForProcessor) Fatalf(format string, args ...interface{})                    {}
+func (m *mockLoggerForProcessor) Panicf(format string, args ...interface{})                    {}
+func (m *mockLoggerForProcessor) Debugw(msg string, keysAndValues ...interface{})              {}
+func (m *mockLoggerForProcessor) Infow(msg string, keysAndValues ...interface{})               {}
+func (m *mockLoggerForProcessor) Warnw(msg string, keysAndValues ...interface{})               {}
+func (m *mockLoggerForProcessor) Errorw(msg string, keysAndValues ...interface{})              {}
+func (m *mockLoggerForProcessor) Fatalw(msg string, keysAndValues ...interface{})              {}
+func (m *mockLoggerForProcessor) Panicw(msg string, keysAndValues ...interface{})              {}
+func (m *mockLoggerForProcessor) WithFields(fields logging.Fields) logging.Logger              { return m }
+func (m *mockLoggerForProcessor) WithField(key string, value interface{}) logging.Logger       { return m }
+func (m *mockLoggerForProcessor) WithError(err error) logging.Logger                           { return m }
+func (m *mockLoggerForProcessor) WithContext(ctx context.Context) logging.Logger               { return m }
+func (m *mockLoggerForProcessor) Log(level logging.Level, msg string)                          {}
 func (m *mockLoggerForProcessor) Logf(level logging.Level, format string, args ...interface{}) {}
-func (m *mockLoggerForProcessor) Logw(level logging.Level, msg string, keysAndValues ...interface{}) {}
+func (m *mockLoggerForProcessor) Logw(level logging.Level, msg string, keysAndValues ...interface{}) {
+}
 func (m *mockLoggerForProcessor) Clone() logging.Logger { return m }
-func (m *mockLoggerForProcessor) Close() error { return nil }
+func (m *mockLoggerForProcessor) Close() error          { return nil }
 
 func TestProcessorConfig(t *testing.T) {
 	config := ProcessorConfig{
