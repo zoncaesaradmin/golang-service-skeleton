@@ -2,10 +2,10 @@ package processing
 
 import (
 	"context"
-	"testing"
-	"time"
 	"sharedmodule/logging"
 	"sharedmodule/messagebus"
+	"testing"
+	"time"
 )
 
 // mockConsumer implements the messagebus.Consumer interface for testing
@@ -64,36 +64,38 @@ func (m *mockProducerForInput) Close() error {
 // mockLoggerForInput implements the logging.Logger interface for input tests
 type mockLoggerForInput struct{}
 
-func (m *mockLoggerForInput) SetLevel(level logging.Level) { /* mock */ }
-func (m *mockLoggerForInput) GetLevel() logging.Level { return logging.InfoLevel }
-func (m *mockLoggerForInput) IsLevelEnabled(level logging.Level) bool { return true }
-func (m *mockLoggerForInput) Debug(msg string) { /* mock */ }
-func (m *mockLoggerForInput) Info(msg string) { /* mock */ }
-func (m *mockLoggerForInput) Warn(msg string) { /* mock */ }
-func (m *mockLoggerForInput) Error(msg string) { /* mock */ }
-func (m *mockLoggerForInput) Fatal(msg string) { /* mock */ }
-func (m *mockLoggerForInput) Panic(msg string) { /* mock */ }
-func (m *mockLoggerForInput) Debugf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Infof(format string, args ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Warnf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Errorf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Fatalf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Panicf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Debugw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Infow(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Warnw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Errorw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Fatalw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Panicw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) WithFields(fields logging.Fields) logging.Logger { return m }
+func (m *mockLoggerForInput) SetLevel(level logging.Level)                           { /* mock */ }
+func (m *mockLoggerForInput) GetLevel() logging.Level                                { return logging.InfoLevel }
+func (m *mockLoggerForInput) IsLevelEnabled(level logging.Level) bool                { return true }
+func (m *mockLoggerForInput) Debug(msg string)                                       { /* mock */ }
+func (m *mockLoggerForInput) Info(msg string)                                        { /* mock */ }
+func (m *mockLoggerForInput) Warn(msg string)                                        { /* mock */ }
+func (m *mockLoggerForInput) Error(msg string)                                       { /* mock */ }
+func (m *mockLoggerForInput) Fatal(msg string)                                       { /* mock */ }
+func (m *mockLoggerForInput) Panic(msg string)                                       { /* mock */ }
+func (m *mockLoggerForInput) Debugf(format string, args ...interface{})              { /* mock */ }
+func (m *mockLoggerForInput) Infof(format string, args ...interface{})               { /* mock */ }
+func (m *mockLoggerForInput) Warnf(format string, args ...interface{})               { /* mock */ }
+func (m *mockLoggerForInput) Errorf(format string, args ...interface{})              { /* mock */ }
+func (m *mockLoggerForInput) Fatalf(format string, args ...interface{})              { /* mock */ }
+func (m *mockLoggerForInput) Panicf(format string, args ...interface{})              { /* mock */ }
+func (m *mockLoggerForInput) Debugw(msg string, fields ...interface{})               { /* mock */ }
+func (m *mockLoggerForInput) Infow(msg string, fields ...interface{})                { /* mock */ }
+func (m *mockLoggerForInput) Warnw(msg string, fields ...interface{})                { /* mock */ }
+func (m *mockLoggerForInput) Errorw(msg string, fields ...interface{})               { /* mock */ }
+func (m *mockLoggerForInput) Fatalw(msg string, fields ...interface{})               { /* mock */ }
+func (m *mockLoggerForInput) Panicw(msg string, fields ...interface{})               { /* mock */ }
+func (m *mockLoggerForInput) WithFields(fields logging.Fields) logging.Logger        { return m }
 func (m *mockLoggerForInput) WithField(key string, value interface{}) logging.Logger { return m }
-func (m *mockLoggerForInput) WithError(err error) logging.Logger { return m }
-func (m *mockLoggerForInput) WithContext(ctx context.Context) logging.Logger { return m }
-func (m *mockLoggerForInput) Log(level logging.Level, msg string) { /* mock */ }
-func (m *mockLoggerForInput) Logf(level logging.Level, format string, args ...interface{}) { /* mock */ }
-func (m *mockLoggerForInput) Logw(level logging.Level, msg string, keysAndValues ...interface{}) { /* mock */ }
+func (m *mockLoggerForInput) WithError(err error) logging.Logger                     { return m }
+func (m *mockLoggerForInput) WithContext(ctx context.Context) logging.Logger         { return m }
+func (m *mockLoggerForInput) Log(level logging.Level, msg string)                    { /* mock */ }
+func (m *mockLoggerForInput) Logf(level logging.Level, format string, args ...interface{}) { /* mock */
+}
+func (m *mockLoggerForInput) Logw(level logging.Level, msg string, keysAndValues ...interface{}) { /* mock */
+}
 func (m *mockLoggerForInput) Clone() logging.Logger { return &mockLoggerForInput{} }
-func (m *mockLoggerForInput) Close() error { return nil }
+func (m *mockLoggerForInput) Close() error          { return nil }
 
 func TestInputConfig(t *testing.T) {
 	config := InputConfig{
@@ -117,7 +119,6 @@ func TestInputConfig(t *testing.T) {
 }
 
 func TestNewInputHandler(t *testing.T) {
-	producer := &mockProducerForInput{}
 	config := InputConfig{
 		Topics:            []string{"input-topic"},
 		PollTimeout:       1 * time.Second,
@@ -125,7 +126,7 @@ func TestNewInputHandler(t *testing.T) {
 	}
 	logger := &mockLoggerForInput{}
 
-	handler := NewInputHandler(producer, config, logger)
+	handler := NewInputHandler(config, logger)
 
 	if handler == nil {
 		t.Fatal("Expected input handler to be created, got nil")
@@ -145,7 +146,6 @@ func TestNewInputHandler(t *testing.T) {
 }
 
 func TestInputHandlerGetInputChannel(t *testing.T) {
-	producer := &mockProducerForInput{}
 	config := InputConfig{
 		Topics:            []string{"test-topic"},
 		PollTimeout:       1 * time.Second,
@@ -153,7 +153,7 @@ func TestInputHandlerGetInputChannel(t *testing.T) {
 	}
 	logger := &mockLoggerForInput{}
 
-	handler := NewInputHandler(producer, config, logger)
+	handler := NewInputHandler(config, logger)
 	channel := handler.GetInputChannel()
 
 	if channel == nil {
@@ -170,7 +170,6 @@ func TestInputHandlerGetInputChannel(t *testing.T) {
 }
 
 func TestInputHandlerGetStats(t *testing.T) {
-	producer := &mockProducerForInput{}
 	config := InputConfig{
 		Topics:            []string{"topic1", "topic2"},
 		PollTimeout:       3 * time.Second,
@@ -178,7 +177,7 @@ func TestInputHandlerGetStats(t *testing.T) {
 	}
 	logger := &mockLoggerForInput{}
 
-	handler := NewInputHandler(producer, config, logger)
+	handler := NewInputHandler(config, logger)
 	stats := handler.GetStats()
 
 	if stats == nil {
@@ -211,9 +210,7 @@ func TestInputHandlerGetStats(t *testing.T) {
 	}
 }
 
-
 func TestInputHandlerStartSuccess(t *testing.T) {
-	producer := &mockProducerForInput{}
 	config := InputConfig{
 		Topics:            []string{"test-topic"},
 		PollTimeout:       100 * time.Millisecond,
@@ -221,8 +218,8 @@ func TestInputHandlerStartSuccess(t *testing.T) {
 	}
 	logger := &mockLoggerForInput{}
 
-	handler := NewInputHandler(producer, config, logger)
-	
+	handler := NewInputHandler(config, logger)
+
 	// Mock the consumer to avoid actual Kafka calls
 	mockConsumer := &mockConsumer{}
 	handler.consumer = mockConsumer
@@ -245,7 +242,6 @@ func TestInputHandlerStartSuccess(t *testing.T) {
 }
 
 func TestInputHandlerStop(t *testing.T) {
-	producer := &mockProducerForInput{}
 	config := InputConfig{
 		Topics:            []string{"test-topic"},
 		PollTimeout:       100 * time.Millisecond,
@@ -253,8 +249,8 @@ func TestInputHandlerStop(t *testing.T) {
 	}
 	logger := &mockLoggerForInput{}
 
-	handler := NewInputHandler(producer, config, logger)
-	
+	handler := NewInputHandler(config, logger)
+
 	// Mock the consumer
 	mockConsumer := &mockConsumer{}
 	handler.consumer = mockConsumer
@@ -322,10 +318,9 @@ func TestInputConfigEdgeCases(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			producer := &mockProducerForInput{}
 			logger := &mockLoggerForInput{}
 
-			handler := NewInputHandler(producer, tc.config, logger)
+			handler := NewInputHandler(tc.config, logger)
 			if handler == nil && tc.valid {
 				t.Errorf("Expected valid config to create handler, got nil")
 			}
@@ -345,4 +340,3 @@ func TestInputConfigEdgeCases(t *testing.T) {
 		})
 	}
 }
-

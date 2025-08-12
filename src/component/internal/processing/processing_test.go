@@ -146,7 +146,6 @@ func TestProcessorApplyProcessing(t *testing.T) {
 }
 
 func TestNewOutputHandler(t *testing.T) {
-	producer := &mockProducer{}
 	config := OutputConfig{
 		OutputTopic:       "output-topic",
 		BatchSize:         10,
@@ -155,7 +154,7 @@ func TestNewOutputHandler(t *testing.T) {
 	}
 	logger := &mockLogger{}
 
-	handler := NewOutputHandler(producer, config, logger)
+	handler := NewOutputHandler(config, logger)
 
 	if handler == nil {
 		t.Fatal("Expected output handler to be created, got nil")
@@ -233,7 +232,6 @@ func TestProcessorGetStats(t *testing.T) {
 }
 
 func TestOutputHandlerGetStats(t *testing.T) {
-	producer := &mockProducer{}
 	config := OutputConfig{
 		OutputTopic:       "output-topic",
 		BatchSize:         10,
@@ -242,7 +240,7 @@ func TestOutputHandlerGetStats(t *testing.T) {
 	}
 	logger := &mockLogger{}
 
-	handler := NewOutputHandler(producer, config, logger)
+	handler := NewOutputHandler(config, logger)
 
 	stats := handler.GetStats()
 	if stats == nil {

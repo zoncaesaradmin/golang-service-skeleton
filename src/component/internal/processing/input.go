@@ -27,9 +27,12 @@ type InputHandler struct {
 }
 
 // NewInputHandler creates a new input handler
-func NewInputHandler(producer messagebus.Producer, config InputConfig, logger logging.Logger) *InputHandler {
+func NewInputHandler(config InputConfig, logger logging.Logger) *InputHandler {
+	producer := messagebus.NewProducer()
+	consumer := messagebus.NewConsumer(producer)
+
 	return &InputHandler{
-		consumer: messagebus.NewConsumer(producer),
+		consumer: consumer,
 		config:   config,
 		logger:   logger,
 		inputCh:  make(chan *models.ChannelMessage, config.ChannelBufferSize),

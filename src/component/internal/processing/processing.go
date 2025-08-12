@@ -5,7 +5,6 @@ import (
 	"compmodule/internal/models"
 	"fmt"
 	"sharedmodule/logging"
-	"sharedmodule/messagebus"
 	"time"
 )
 
@@ -24,7 +23,6 @@ type ChannelConfig struct {
 type Pipeline struct {
 	config        ProcConfig
 	logger        logging.Logger
-	producer      messagebus.Producer
 	inputHandler  *InputHandler
 	processor     *Processor
 	outputHandler *OutputHandler
@@ -33,16 +31,13 @@ type Pipeline struct {
 }
 
 func NewPipeline(config ProcConfig, logger logging.Logger) *Pipeline {
-	producer := messagebus.NewProducer()
-
-	inputHandler := NewInputHandler(producer, config.Input, logger.WithField("component", "input"))
-	outputHandler := NewOutputHandler(producer, config.Output, logger.WithField("component", "output"))
+	inputHandler := NewInputHandler(config.Input, logger.WithField("component", "input"))
+	outputHandler := NewOutputHandler(config.Output, logger.WithField("component", "output"))
 	processor := NewProcessor(config.Processor, logger.WithField("component", "processor"), inputHandler.GetInputChannel(), outputHandler.GetOutputChannel())
 
 	return &Pipeline{
 		config:        config,
 		logger:        logger,
-		producer:      producer,
 		inputHandler:  inputHandler,
 		processor:     processor,
 		outputHandler: outputHandler,

@@ -25,8 +25,9 @@ type OutputHandler struct {
 	cancel   context.CancelFunc
 }
 
-func NewOutputHandler(producer messagebus.Producer, config OutputConfig, logger logging.Logger) *OutputHandler {
+func NewOutputHandler(config OutputConfig, logger logging.Logger) *OutputHandler {
 	ctx, cancel := context.WithCancel(context.Background())
+	producer := messagebus.NewProducer()
 
 	return &OutputHandler{
 		config:   config,
