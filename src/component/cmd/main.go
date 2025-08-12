@@ -26,16 +26,21 @@ func main() {
 	// Create application instance
 	application := app.NewApplication(cfg, logger)
 
+	// Start the application and its processing pipeline
+	if err := application.Start(); err != nil {
+		logger.Fatalf("Failed to start application: %v", err)
+	}
+
 	// Initialize handlers and setup HTTP mux
-	mux := setupRouter()
+	mux := setupRouter(logger)
 
 	// Start server
 	startServer(mux, cfg, application)
 }
 
-func setupRouter() *http.ServeMux {
+func setupRouter(logger logging.Logger) *http.ServeMux {
 
-	handler := api.NewHandler()
+	handler := api.NewHandler(logger)
 	mux := http.NewServeMux()
 
 	// Setup routes

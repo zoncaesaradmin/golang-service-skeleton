@@ -63,7 +63,8 @@ func (m *mockLogger) Clone() logging.Logger { return &mockLogger{} }
 func (m *mockLogger) Close() error          { return nil }
 
 func TestSetupRouter(t *testing.T) {
-	mux := setupRouter()
+	logger := &mockLogger{}
+	mux := setupRouter(logger)
 
 	if mux == nil {
 		t.Fatal("expected mux to not be nil")
@@ -99,7 +100,8 @@ func TestSetupRouter(t *testing.T) {
 func TestSetupRouterWithNilHandler(t *testing.T) {
 	// Test setupRouter function - it creates its own handler internally
 	// This test verifies that setupRouter works correctly
-	mux := setupRouter()
+	logger := &mockLogger{}
+	mux := setupRouter(logger)
 
 	// The function should always return a valid mux since it creates the handler internally
 	if mux == nil {
@@ -155,7 +157,7 @@ func TestServerConfiguration(t *testing.T) {
 			// Create test server configuration
 			logger := &mockLogger{}
 			application := app.NewApplication(tc.config, logger)
-			mux := setupRouter()
+			mux := setupRouter(logger)
 
 			// Create server with same configuration as startServer
 			srv := &http.Server{
@@ -242,7 +244,8 @@ func TestApplicationInitialization(t *testing.T) {
 }
 
 func TestHandlerInitialization(t *testing.T) {
-	handler := api.NewHandler()
+	logger := &mockLogger{}
+	handler := api.NewHandler(logger)
 
 	if handler == nil {
 		t.Fatal("expected handler to not be nil")
@@ -305,7 +308,7 @@ func TestIntegrationComponents(t *testing.T) {
 	cfg := config.LoadConfig()
 	logger := &mockLogger{}
 	application := app.NewApplication(cfg, logger)
-	mux := setupRouter()
+	mux := setupRouter(logger)
 
 	// Test that we can make requests through the complete stack
 	req, err := http.NewRequest("GET", healthEndpoint, nil)
@@ -398,15 +401,17 @@ func TestConfigLoadingDefault(t *testing.T) {
 
 // Benchmark tests for performance
 func BenchmarkSetupRouter(b *testing.B) {
+	logger := &mockLogger{}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		mux := setupRouter()
+		mux := setupRouter(logger)
 		_ = mux
 	}
 }
 
 func BenchmarkHealthCheckRequest(b *testing.B) {
-	mux := setupRouter()
+	logger := &mockLogger{}
+	mux := setupRouter(logger)
 
 	req, _ := http.NewRequest("GET", healthEndpoint, nil)
 

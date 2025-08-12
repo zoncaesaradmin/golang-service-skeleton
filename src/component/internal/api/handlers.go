@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"compmodule/internal/models"
+	"sharedmodule/logging"
 )
 
 // Error message constants
@@ -31,12 +32,15 @@ const (
 
 // Handler holds the dependencies for API handlers
 type Handler struct {
-	// Any implementaion specific variables to be added
+	logger logging.Logger
+	// Any implementation specific variables to be added
 }
 
 // NewHandler creates a new Handler instance
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(logger logging.Logger) *Handler {
+	return &Handler{
+		logger: logger,
+	}
 }
 
 // SetupRoutes sets up the API routes
@@ -72,6 +76,9 @@ func (h *Handler) corsMiddleware(w http.ResponseWriter, r *http.Request) {
 
 // HealthCheck handles health check requests
 func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	h.logger.Infow("HealthCheck handler entry", "method", r.Method, "path", r.URL.Path, "remote_addr", r.RemoteAddr)
+	defer h.logger.Infow("HealthCheck handler exit", "method", r.Method, "path", r.URL.Path)
+
 	// Apply CORS middleware
 	h.corsMiddleware(w, r)
 	if r.Method == "OPTIONS" {
@@ -88,6 +95,9 @@ func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 
 // GetStats handles statistics requests
 func (h *Handler) GetStats(w http.ResponseWriter, r *http.Request) {
+	h.logger.Infow("GetStats handler entry", "method", r.Method, "path", r.URL.Path, "remote_addr", r.RemoteAddr)
+	defer h.logger.Infow("GetStats handler exit", "method", r.Method, "path", r.URL.Path)
+
 	stats := map[string]interface{}{
 		"total_messages": 0, // Stub implementation
 	}
@@ -100,6 +110,9 @@ func (h *Handler) GetStats(w http.ResponseWriter, r *http.Request) {
 
 // handles config related requests
 func (h *Handler) HandleConfigs(w http.ResponseWriter, r *http.Request) {
+	h.logger.Infow("HandleConfigs handler entry", "method", r.Method, "path", r.URL.Path, "remote_addr", r.RemoteAddr)
+	defer h.logger.Infow("HandleConfigs handler exit", "method", r.Method, "path", r.URL.Path)
+
 	// Apply CORS middleware
 	h.corsMiddleware(w, r)
 	if r.Method == "OPTIONS" {
@@ -115,6 +128,7 @@ func (h *Handler) HandleConfigs(w http.ResponseWriter, r *http.Request) {
 			Data:    data,
 		})
 	default:
+		h.logger.Warnw("Method not allowed", "method", r.Method, "path", r.URL.Path)
 		writeJSON(w, http.StatusMethodNotAllowed, models.ErrorResponse{
 			Error: ErrMethodNotAllowed,
 		})

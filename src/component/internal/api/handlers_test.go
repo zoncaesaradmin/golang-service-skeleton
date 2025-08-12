@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"compmodule/internal/models"
+	"sharedmodule/logging"
 )
 
 const (
@@ -18,15 +20,53 @@ const (
 	jsonContentType   = "application/json"
 )
 
+// Mock logger for testing
+type mockLogger struct{}
+
+func (m *mockLogger) SetLevel(level logging.Level)                           { /* no-op for testing */ }
+func (m *mockLogger) GetLevel() logging.Level                                { return logging.InfoLevel }
+func (m *mockLogger) IsLevelEnabled(level logging.Level) bool                { return true }
+func (m *mockLogger) Debug(msg string)                                       { /* no-op for testing */ }
+func (m *mockLogger) Info(msg string)                                        { /* no-op for testing */ }
+func (m *mockLogger) Warn(msg string)                                        { /* no-op for testing */ }
+func (m *mockLogger) Error(msg string)                                       { /* no-op for testing */ }
+func (m *mockLogger) Fatal(msg string)                                       { /* no-op for testing */ }
+func (m *mockLogger) Panic(msg string)                                       { /* no-op for testing */ }
+func (m *mockLogger) Debugf(format string, args ...interface{})              { /* no-op for testing */ }
+func (m *mockLogger) Infof(format string, args ...interface{})               { /* no-op for testing */ }
+func (m *mockLogger) Warnf(format string, args ...interface{})               { /* no-op for testing */ }
+func (m *mockLogger) Errorf(format string, args ...interface{})              { /* no-op for testing */ }
+func (m *mockLogger) Fatalf(format string, args ...interface{})              { /* no-op for testing */ }
+func (m *mockLogger) Panicf(format string, args ...interface{})              { /* no-op for testing */ }
+func (m *mockLogger) Debugw(msg string, keysAndValues ...interface{})        { /* no-op for testing */ }
+func (m *mockLogger) Infow(msg string, keysAndValues ...interface{})         { /* no-op for testing */ }
+func (m *mockLogger) Warnw(msg string, keysAndValues ...interface{})         { /* no-op for testing */ }
+func (m *mockLogger) Errorw(msg string, keysAndValues ...interface{})        { /* no-op for testing */ }
+func (m *mockLogger) Fatalw(msg string, keysAndValues ...interface{})        { /* no-op for testing */ }
+func (m *mockLogger) Panicw(msg string, keysAndValues ...interface{})        { /* no-op for testing */ }
+func (m *mockLogger) WithFields(fields logging.Fields) logging.Logger        { return m }
+func (m *mockLogger) WithField(key string, value interface{}) logging.Logger { return m }
+func (m *mockLogger) WithError(err error) logging.Logger                     { return m }
+func (m *mockLogger) WithContext(ctx context.Context) logging.Logger         { return m }
+func (m *mockLogger) Log(level logging.Level, msg string)                    { /* no-op for testing */ }
+func (m *mockLogger) Logf(level logging.Level, format string, args ...interface{}) { /* no-op for testing */
+}
+func (m *mockLogger) Logw(level logging.Level, msg string, keysAndValues ...interface{}) { /* no-op for testing */
+}
+func (m *mockLogger) Clone() logging.Logger { return &mockLogger{} }
+func (m *mockLogger) Close() error          { return nil }
+
 func TestNewHandler(t *testing.T) {
-	handler := NewHandler()
+	logger := &mockLogger{}
+	handler := NewHandler(logger)
 	if handler == nil {
 		t.Fatal("NewHandler() returned nil")
 	}
 }
 
 func TestHealthCheck(t *testing.T) {
-	handler := NewHandler()
+	logger := &mockLogger{}
+	handler := NewHandler(logger)
 	req := httptest.NewRequest(http.MethodGet, testHealthPath, nil)
 	rr := httptest.NewRecorder()
 
@@ -58,7 +98,8 @@ func TestHealthCheck(t *testing.T) {
 }
 
 func TestGetStats(t *testing.T) {
-	handler := NewHandler()
+	logger := &mockLogger{}
+	handler := NewHandler(logger)
 	req := httptest.NewRequest(http.MethodGet, testStatsPath, nil)
 	rr := httptest.NewRecorder()
 
@@ -109,7 +150,8 @@ func TestWriteJSON(t *testing.T) {
 }
 
 func TestHealthCheckOPTIONS(t *testing.T) {
-	handler := NewHandler()
+	logger := &mockLogger{}
+	handler := NewHandler(logger)
 	req := httptest.NewRequest(http.MethodOptions, testHealthPath, nil)
 	rr := httptest.NewRecorder()
 
@@ -135,7 +177,8 @@ func TestHealthCheckOPTIONS(t *testing.T) {
 }
 
 func TestSetupRoutes(t *testing.T) {
-	handler := NewHandler()
+	logger := &mockLogger{}
+	handler := NewHandler(logger)
 	mux := http.NewServeMux()
 
 	// Setup routes
@@ -164,7 +207,8 @@ func TestSetupRoutes(t *testing.T) {
 }
 
 func TestGetStatsResponseData(t *testing.T) {
-	handler := NewHandler()
+	logger := &mockLogger{}
+	handler := NewHandler(logger)
 	req := httptest.NewRequest(http.MethodGet, testStatsPath, nil)
 	rr := httptest.NewRecorder()
 
@@ -191,7 +235,8 @@ func TestGetStatsResponseData(t *testing.T) {
 }
 
 func TestHandleConfigs(t *testing.T) {
-	handler := NewHandler()
+	logger := &mockLogger{}
+	handler := NewHandler(logger)
 
 	t.Run("GET request", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, testConfigPath, nil)

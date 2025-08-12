@@ -1,10 +1,10 @@
 {
-    "go.buildTags": "",
+    "go.buildTags": "local",
     "gopls": {
-        "buildFlags": []
+        "buildFlags": ["-tags=local"]
     },
     "go.toolsEnvVars": {
-        "GOFLAGS": ""
+        "GOFLAGS": "-tags=local"
     },
     "files.exclude": {
         "**/service": true,
