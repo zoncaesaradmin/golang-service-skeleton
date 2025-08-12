@@ -14,15 +14,6 @@ server:
   read_timeout: 10               # Read timeout in seconds (env: SERVER_READ_TIMEOUT)
   write_timeout: 10              # Write timeout in seconds (env: SERVER_WRITE_TIMEOUT)
 
-# Database configuration
-# Note: Currently used for future database integration
-database:
-  host: "localhost"              # Database host (env: DB_HOST)
-  port: 5432                     # Database port (env: DB_PORT)
-  username: "katharos_user"      # Database username (env: DB_USERNAME)
-  password: "katharos_pass"      # Database password (env: DB_PASSWORD)
-  database: "katharos_db"        # Database name (env: DB_DATABASE)
-
 # Logging configuration
 logging:
   level: "info"                  # Log level: debug, info, warn, error (env: LOG_LEVEL)

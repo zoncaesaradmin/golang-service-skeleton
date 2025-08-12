@@ -11,9 +11,8 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	Server   ServerConfig   `yaml:"server"`
-	Database DatabaseConfig `yaml:"database"`
-	Logging  LoggingConfig  `yaml:"logging"`
+	Server  ServerConfig  `yaml:"server"`
+	Logging LoggingConfig `yaml:"logging"`
 }
 
 // ServerConfig holds server-related configuration
@@ -22,15 +21,6 @@ type ServerConfig struct {
 	Port         int    `yaml:"port"`
 	ReadTimeout  int    `yaml:"read_timeout"`
 	WriteTimeout int    `yaml:"write_timeout"`
-}
-
-// DatabaseConfig holds database-related configuration
-type DatabaseConfig struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Database string `yaml:"database"`
 }
 
 // LoggingConfig holds logging-related configuration
@@ -48,13 +38,6 @@ func LoadConfig() *Config {
 			Port:         utils.GetEnvInt("SERVER_PORT", 8080),
 			ReadTimeout:  utils.GetEnvInt("SERVER_READ_TIMEOUT", 10),
 			WriteTimeout: utils.GetEnvInt("SERVER_WRITE_TIMEOUT", 10),
-		},
-		Database: DatabaseConfig{
-			Host:     utils.GetEnv("DB_HOST", "localhost"),
-			Port:     utils.GetEnvInt("DB_PORT", 5432),
-			Username: utils.GetEnv("DB_USERNAME", "user"),
-			Password: utils.GetEnv("DB_PASSWORD", "password"),
-			Database: utils.GetEnv("DB_DATABASE", "mydb"),
 		},
 		Logging: LoggingConfig{
 			Level:    utils.GetEnv("LOG_LEVEL", "info"),
@@ -111,23 +94,6 @@ func overrideWithEnvVars(config *Config) {
 	}
 	if writeTimeout := utils.GetEnvInt("SERVER_WRITE_TIMEOUT", -1); writeTimeout != -1 {
 		config.Server.WriteTimeout = writeTimeout
-	}
-
-	// Database configuration overrides
-	if host := utils.GetEnv("DB_HOST", ""); host != "" {
-		config.Database.Host = host
-	}
-	if port := utils.GetEnvInt("DB_PORT", -1); port != -1 {
-		config.Database.Port = port
-	}
-	if username := utils.GetEnv("DB_USERNAME", ""); username != "" {
-		config.Database.Username = username
-	}
-	if password := utils.GetEnv("DB_PASSWORD", ""); password != "" {
-		config.Database.Password = password
-	}
-	if database := utils.GetEnv("DB_DATABASE", ""); database != "" {
-		config.Database.Database = database
 	}
 
 	// Logging configuration overrides

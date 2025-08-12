@@ -14,11 +14,78 @@ import (
 	"compmodule/internal/api"
 	"compmodule/internal/app"
 	"compmodule/internal/config"
-	"compmodule/internal/processing"
 	"sharedmodule/logging"
 )
 
 func main() {
+	cfg := loadConfig()
+
+	logger := initLogger(cfg)
+	defer logger.Close()
+
+	// Create application instance
+	application := app.NewApplication(cfg, logger)
+
+	// Initialize handlers and setup HTTP mux
+	handler := api.NewHandler()
+	mux := setupRouter(handler)
+
+	// Start server
+	startServer(logger, mux, cfg, application)
+}
+
+func setupRouter(handler *api.Handler) *http.ServeMux {
+	mux := http.NewServeMux()
+
+	// Setup routes
+	handler.SetupRoutes(mux)
+
+	return mux
+}
+
+func startServer(logger logging.Logger, mux *http.ServeMux, cfg *config.Config, application *app.Application) {
+
+	// Create server
+	srv := &http.Server{
+		Addr:         fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port),
+		Handler:      mux,
+		ReadTimeout:  time.Duration(cfg.Server.ReadTimeout) * time.Second,
+		WriteTimeout: time.Duration(cfg.Server.WriteTimeout) * time.Second,
+	}
+
+	// Start server in a goroutine
+	go func() {
+		logger.Infof("Starting http server on %s:%d", cfg.Server.Host, cfg.Server.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	logger.Info("Shutting down application ...")
+
+	// Give outstanding requests a 10-second deadline to complete
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Shutdown the server
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Errorf("Server forced to shutdown: %v", err)
+	}
+
+	// Shutdown the application
+	if err := application.Shutdown(); err != nil {
+		logger.Errorf("Application shutdown error: %v", err)
+	}
+
+	logger.Info("Server exited")
+}
+
+func loadConfig() *config.Config {
 	// Load configuration using absolute paths based on HOME_DIR environment variable
 	homeDir := os.Getenv("HOME_DIR")
 	if homeDir == "" {
@@ -40,6 +107,10 @@ func main() {
 		log.Printf("No configuration file found, using environment variables and defaults")
 	}
 
+	return cfg
+}
+
+func initLogger(cfg *config.Config) logging.Logger {
 	// Determine log file path from configuration
 	logFilePath := cfg.Logging.FilePath
 	if logFilePath == "" {
@@ -59,102 +130,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create logger: %v", err)
 	}
-	defer logger.Close()
-
-	// Log the configuration being used (without sensitive data)
-	logger.Infof("Starting katharos-component on %s:%d", cfg.Server.Host, cfg.Server.Port)
-	logger.Infof("Logging to: %s", logFilePath)
-
-	// Create application instance
-	application := app.NewApplication(cfg, logger)
-
-	// Initialize handlers (without user service for now)
-	handler := api.NewHandler()
-
-	// Setup HTTP mux
-	mux := setupRouter(handler)
-
-	// Start processing pipeline for message bus communication
-	processingConfig := processing.Config{
-		Input: processing.InputConfig{
-			Topics:            []string{"test_input"},
-			PollTimeout:       1 * time.Second,
-			ChannelBufferSize: 100,
-		},
-		Processor: processing.ProcessorConfig{
-			ProcessingDelay: 10 * time.Millisecond,
-			BatchSize:       10,
-		},
-		Output: processing.OutputConfig{
-			OutputTopic:       "test_output",
-			BatchSize:         10,
-			FlushTimeout:      1 * time.Second,
-			ChannelBufferSize: 100,
-		},
-	}
-
-	pipeline := processing.NewPipeline(processingConfig, logger)
-	if err := pipeline.Start(); err != nil {
-		logger.Fatalf("Failed to start processing pipeline: %v", err)
-	}
-
-	// Start server
-	startServer(mux, cfg, application, pipeline)
-}
-
-func setupRouter(handler *api.Handler) *http.ServeMux {
-	mux := http.NewServeMux()
-
-	// Setup routes
-	handler.SetupRoutes(mux)
-
-	return mux
-}
-
-func startServer(mux *http.ServeMux, cfg *config.Config, application *app.Application, pipeline *processing.Pipeline) {
-	logger := application.Logger()
-
-	// Create server
-	srv := &http.Server{
-		Addr:         fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port),
-		Handler:      mux,
-		ReadTimeout:  time.Duration(cfg.Server.ReadTimeout) * time.Second,
-		WriteTimeout: time.Duration(cfg.Server.WriteTimeout) * time.Second,
-	}
-
-	// Start server in a goroutine
-	go func() {
-		logger.Infof("Starting server on %s:%d", cfg.Server.Host, cfg.Server.Port)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatalf("Failed to start server: %v", err)
-		}
-	}()
-
-	// Wait for interrupt signal to gracefully shutdown the server
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-
-	logger.Info("Shutting down server...")
-
-	// Give outstanding requests a 30-second deadline to complete
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	// Shutdown the server
-	if err := srv.Shutdown(ctx); err != nil {
-		logger.Errorf("Server forced to shutdown: %v", err)
-	}
-
-	// Shutdown the processing pipeline
-	if err := pipeline.Stop(); err != nil {
-		logger.Errorf("Pipeline shutdown error: %v", err)
-	}
-
-	// Shutdown the application
-	if err := application.Shutdown(); err != nil {
-		logger.Errorf("Application shutdown error: %v", err)
-	}
-
-	logger.Info("Server exited")
+	return logger
 }

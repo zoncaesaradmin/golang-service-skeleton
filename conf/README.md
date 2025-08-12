@@ -8,7 +8,7 @@ This document explains the configuration system for the Katharos component and t
 - **Location**: `/conf/config.yaml` (root of project)
 - **Purpose**: Main configuration file for the component (production and development)
 - **Tracked**: Yes (committed to git)
-- **Usage**: Contains settings for server, database, logging, etc.
+- **Usage**: Contains settings for server, logging, etc.
 
 ### Test Configuration: `conf/testconfig.yaml`
 - **Location**: `/conf/testconfig.yaml` (root of project)
@@ -40,14 +40,6 @@ server:
   port: 8080                     # SERVER_PORT
   read_timeout: 10               # SERVER_READ_TIMEOUT
   write_timeout: 10              # SERVER_WRITE_TIMEOUT
-
-# Database configuration
-database:
-  host: "localhost"              # DB_HOST
-  port: 5432                     # DB_PORT
-  username: "katharos_user"      # DB_USERNAME
-  password: "katharos_pass"      # DB_PASSWORD
-  database: "katharos_db"        # DB_DATABASE
 
 # Logging configuration
 logging:

@@ -109,17 +109,11 @@ config.local.yml
 # ==============================================================================
 
 # Obsolete directories
-src/service/
-service/
 
 # Obsolete scripts
-test_service.sh
-src/test_service.sh
 test_component.sh
-src/test_component.sh
 
 # Obsolete documentation
-**/ASYNC_IMPLEMENTATION.md
 
 # Empty or placeholder test files
 **/coverage_improvement_test.go
@@ -133,4 +127,3 @@ src/test_component.sh
 
 # Test results and coverage
 test/results/
-src/test/
