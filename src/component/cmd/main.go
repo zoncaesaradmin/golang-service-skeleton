@@ -15,9 +15,16 @@ import (
 	"compmodule/internal/app"
 	"compmodule/internal/config"
 	"sharedmodule/logging"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env file for local development (ignored in production)
+	loadEnvFile()
+
+	// Log environment info
+	logEnvironmentInfo()
 	cfg := loadConfig()
 
 	logger := initLogger(cfg)
@@ -126,4 +133,74 @@ func initLogger(cfg *config.Config) logging.Logger {
 		log.Fatalf("Failed to create logger: %v", err)
 	}
 	return logger
+}
+
+// loadEnvFile loads .env file for local development
+// In production (Docker/K8s), environment variables are set directly
+func loadEnvFile() {
+	// Determine if we're in a containerized environment
+	if isRunningInContainer() {
+		log.Println("Running in container - using system environment variables")
+		return
+	}
+
+	// Try to load .env file from workspace root for local development
+	envPaths := []string{
+		".env",             // Current directory
+		"../../../.env",    // From component/cmd back to workspace root
+		"../../../../.env", // Alternative path
+		filepath.Join(os.Getenv("HOME_DIR"), ".env"), // Using HOME_DIR if set
+	}
+
+	for _, envPath := range envPaths {
+		if _, err := os.Stat(envPath); err == nil {
+			if err := godotenv.Load(envPath); err == nil {
+				log.Printf("✅ Loaded environment from: %s", envPath)
+				return
+			} else {
+				log.Printf("❌ Failed to load .env from %s: %v", envPath, err)
+			}
+		}
+	}
+
+	// If no .env file found, that's fine for production
+	log.Println("ℹ️  No .env file found - using system environment variables")
+}
+
+// isRunningInContainer detects if the application is running in a container
+func isRunningInContainer() bool {
+	// Check for common container environment indicators
+	if os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
+		return true // Running in Kubernetes
+	}
+	if os.Getenv("CONTAINER") == "true" {
+		return true // Explicit container flag
+	}
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		return true // Docker container
+	}
+	return false
+}
+
+// logEnvironmentInfo logs information about the current environment
+func logEnvironmentInfo() {
+	appEnv := getEnvWithDefault("APP_ENV", "production")
+	appName := getEnvWithDefault("APP_NAME", "katharos")
+	appVersion := getEnvWithDefault("APP_VERSION", "unknown")
+
+	log.Printf("🚀 Starting %s v%s in %s environment", appName, appVersion, appEnv)
+
+	if isRunningInContainer() {
+		log.Println("📦 Running in containerized environment")
+	} else {
+		log.Println("💻 Running in local development environment")
+	}
+}
+
+// getEnvWithDefault gets an environment variable with a default value
+func getEnvWithDefault(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }

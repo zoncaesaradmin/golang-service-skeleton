@@ -49,13 +49,13 @@ run-local-coverage:
 
 # Run tests
 test:
-	@echo "Running tests..."
-	go test $(BUILD_FLAGS) -v ./...
+	@echo "Running tests with HOME_DIR set to repository root..."
+	@HOME_DIR="$$(cd ../../ && pwd)" go test $(BUILD_FLAGS) -v ./...
 
 # Run tests with coverage
 coverage:
-	@echo "Running tests with coverage..."
-	go test $(BUILD_FLAGS) -coverprofile=$(COVERAGE_OUT) ./...
+	@echo "Running tests with coverage and HOME_DIR set to repository root..."
+	@HOME_DIR="$$(cd ../../ && pwd)" go test $(BUILD_FLAGS) -coverprofile=$(COVERAGE_OUT) ./...
 	go tool cover -func=$(COVERAGE_OUT)
 
 # Generate HTML coverage report

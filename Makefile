@@ -1,5 +1,5 @@
 # Root Makefile for Katharos Project
-.PHONY: help package package-local pre_build post_build clean test test-local test-run test-run-local test-build test-clean test-coverage test-setup test-help
+.PHONY: help package package-local pre_build post_build clean test test-local test-run test-run-local test-build test-clean test-coverage test-setup test-help run-local run-enhanced dev-setup stop
 
 # Default ENTRYPOINT_MODE if not set
 ENTRYPOINT_MODE ?= start
@@ -20,36 +20,40 @@ help:
 	@echo "Katharos Project - Root Makefile"
 	@echo "================================"
 	@echo ""
-	@echo "Available targets:"
-	@echo "  package      - Run specified ENTRYPOINT_MODE target in src/ (production mode, default)"
-	@echo "  package-local - Run specified ENTRYPOINT_MODE target in src/ (local development mode)"
-	@echo "  pre_build    - Pre-build target (depends on package)"
-	@echo "  post_build   - Post-build target (depends on clean)"
-	@echo "  clean        - Clean target"
-	@echo "  help         - Show this help"
+	@echo "🚀 Quick Local Development:"
+	@echo "  run-local     - Run application locally (uses .env file)"
+	@echo "  run-enhanced  - Run with enhanced development script"
+	@echo "  dev-setup     - Setup development environment (.env file)"
+	@echo "  stop          - Stop running application instances"
 	@echo ""
-	@echo " Test Infrastructure (in test/ directory):"
-	@echo "  test         - Build components and run integration tests (primary workflow)"
-	@echo "  test-local   - Same as test (local dev mode - default behavior)"
-	@echo "  test-run     - Run tests with existing binaries (quick workflow)"
-	@echo "  test-build   - Build components only (no tests)"
-	@echo "  test-clean   - Clean test artifacts and logs"
-	@echo "  test-coverage- Generate coverage report from latest test run"
-	@echo "  test-setup   - Setup test environment"
-	@echo "  test-help    - Show detailed test help"
+	@echo "📦 Build & Package:"
+	@echo "  package       - Run specified ENTRYPOINT_MODE target in src/ (production mode, default)"
+	@echo "  package-local - Run specified ENTRYPOINT_MODE target in src/ (local development mode)"
+	@echo "  pre_build     - Pre-build target (depends on package)"
+	@echo "  post_build    - Post-build target (depends on clean)"
+	@echo "  clean         - Clean target"
+	@echo ""
+	@echo "🧪 Test Infrastructure (in test/ directory):"
+	@echo "  test          - Build components and run integration tests (primary workflow)"
+	@echo "  test-local    - Same as test (local dev mode - default behavior)"
+	@echo "  test-run      - Run tests with existing binaries (quick workflow)"
+	@echo "  test-build    - Build components only (no tests)"
+	@echo "  test-clean    - Clean test artifacts and logs"
+	@echo "  test-coverage - Generate coverage report from latest test run"
+	@echo "  test-setup    - Setup test environment"
+	@echo "  test-help     - Show detailed test help"
 	@echo ""
 	@echo "Parameters:"
 	@echo "  ENTRYPOINT_MODE - Mode to pass to src/Makefile (default: start)"
 	@echo "  BUILD_TAGS      - Additional build tags to use (empty by default)"
 	@echo ""
 	@echo "Examples:"
+	@echo "  make run-local                     # Quick local development run"
+	@echo "  make dev-setup && make run-enhanced # Full development setup"
 	@echo "  make package                       # Uses default ENTRYPOINT_MODE=start (production)"
 	@echo "  make package-local                 # Uses default ENTRYPOINT_MODE=start (local dev)"
 	@echo "  make test                          # Build and run integration tests"
 	@echo "  make test-run                      # Quick test run with existing binaries"
-	@echo "  make package ENTRYPOINT_MODE=build    # Uses ENTRYPOINT_MODE=build (production)"
-	@echo "  make package-local ENTRYPOINT_MODE=test # Uses ENTRYPOINT_MODE=test (local dev)"
-	@echo "  make package-local BUILD_TAGS=\"debug test\" # Appends 'local' to existing tags"
 
 # Package target - runs the specified ENTRYPOINT_MODE in src/ (production mode)
 package:
@@ -161,3 +165,55 @@ test-help:
 	@echo ""
 	@echo "ℹ️  The test infrastructure is now in test/ parallel to src/"
 	@echo "ℹ️  Use 'make help' for original makefile commands"
+
+# ==============================================================================
+# LOCAL DEVELOPMENT TARGETS
+# ==============================================================================
+
+# Setup development environment
+dev-setup:
+	@echo "🛠️  Setting up development environment..."
+	@if [ ! -f .env ]; then \
+		if [ -f .env.example ]; then \
+			cp .env.example .env; \
+			echo "📝 Created .env file from template"; \
+			echo "⚠️  Please review and update .env file with your settings"; \
+		else \
+			echo "❌ .env.example not found"; \
+			exit 1; \
+		fi \
+	else \
+		echo "✅ .env file already exists"; \
+	fi
+	@echo "✅ Development setup completed"
+
+# Build and run application locally (simple version)
+run-local: dev-setup
+	@echo "🚀 Building and running katharos locally..."
+	@mkdir -p bin
+	@echo "🔨 Building application..."
+	@cd src/component && go build -tags=local -o ../../bin/katharos ./cmd
+	@echo "✅ Build completed: bin/katharos"
+	@echo "🏃 Starting application (uses .env file)..."
+	@./bin/katharos
+
+# Run application with enhanced development script
+run-enhanced: dev-setup
+	@echo "🚀 Running katharos with enhanced development script..."
+	@./run-local-enhanced.sh
+
+# Stop running application instances
+stop:
+	@echo "🛑 Stopping katharos instances..."
+	@pkill -f "katharos" || echo "ℹ️  No instances found"
+	@echo "✅ Stop completed"
+
+# Quick development build only
+build-local:
+	@echo "🔨 Building katharos for local development..."
+	@mkdir -p bin
+	@cd src/component && go build -tags=local -o ../../bin/katharos ./cmd
+	@echo "✅ Build completed: bin/katharos"
+
+# Development workflow - clean, build, and run
+dev: clean build-local run-local

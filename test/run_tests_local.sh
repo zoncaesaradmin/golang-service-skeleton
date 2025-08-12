@@ -117,6 +117,10 @@ run_component() {
     export GOCOVERDIR="$COVERAGE_DIR"
     export LOG_FILE_PATH="$LOGS_DIR/component.log"
     
+    # Set test-specific topics for integration testing
+    export PROCESSING_INPUT_TOPICS="test_input"
+    export PROCESSING_OUTPUT_TOPIC="test_output"
+    
     # Use make run-local-coverage which automatically sets HOME_DIR and builds with local tags + coverage
     # Run in background and capture stdout/stderr
     make run-local-coverage > "$LOGS_DIR/component_stdout.log" 2> "$LOGS_DIR/component_stderr.log" &

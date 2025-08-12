@@ -16,7 +16,7 @@ const testTopic = "test-topic"
 
 // cleanupMessageBusDir removes all message files to ensure tests start clean
 func cleanupMessageBusDir() {
-	os.RemoveAll("/tmp/katharos-messagebus")
+	os.RemoveAll("/tmp/katharos-messagebus-test")
 }
 
 // Test LocalProducer.NewProducer
