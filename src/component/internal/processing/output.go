@@ -27,7 +27,7 @@ type OutputHandler struct {
 
 func NewOutputHandler(config OutputConfig, logger logging.Logger) *OutputHandler {
 	ctx, cancel := context.WithCancel(context.Background())
-	producer := messagebus.NewProducer()
+	producer := messagebus.NewProducer("kafkaproducer.yaml")
 
 	return &OutputHandler{
 		config:   config,

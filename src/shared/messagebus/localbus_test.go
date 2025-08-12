@@ -21,7 +21,7 @@ func cleanupMessageBusDir() {
 
 // Test LocalProducer.NewProducer
 func TestNewLocalProducer(t *testing.T) {
-	producer := NewProducer()
+	producer := NewProducer("test_producer_config.yaml")
 	assert.NotNil(t, producer)
 	assert.IsType(t, &LocalProducer{}, producer)
 }
@@ -31,7 +31,7 @@ func TestLocalProducerSend(t *testing.T) {
 	// Clean up any existing messages from previous tests
 	cleanupMessageBusDir()
 
-	producer := NewProducer()
+	producer := NewProducer("test_producer_config.yaml")
 	assert.NotNil(t, producer)
 
 	ctx := context.Background()
@@ -50,21 +50,21 @@ func TestLocalProducerSend(t *testing.T) {
 
 // Test LocalConsumer.NewConsumer
 func TestNewLocalConsumer(t *testing.T) {
-	consumer := NewConsumer()
+	consumer := NewConsumer("test_consumer_config.yaml")
 	assert.NotNil(t, consumer)
 	assert.IsType(t, &LocalConsumer{}, consumer)
 }
 
 // Test LocalConsumer.Subscribe
 func TestLocalConsumer_Subscribe(t *testing.T) {
-	consumer := NewConsumer()
+	consumer := NewConsumer("test_consumer_config.yaml")
 	err := consumer.Subscribe([]string{"test-topic"})
 	assert.NoError(t, err)
 }
 
 // Test LocalConsumer.Poll
 func TestLocalConsumer_Poll(t *testing.T) {
-	consumer := NewConsumer()
+	consumer := NewConsumer("test_consumer_config.yaml")
 	msg, err := consumer.Poll(time.Second)
 	assert.NoError(t, err)
 	assert.Nil(t, msg)
@@ -75,8 +75,8 @@ func TestLocalProducerConsumerIntegration(t *testing.T) {
 	// Clean up any existing messages from previous tests
 	cleanupMessageBusDir()
 
-	producer := NewProducer()
-	consumer := NewConsumer()
+	producer := NewProducer("test_producer_config.yaml")
+	consumer := NewConsumer("test_consumer_config.yaml")
 
 	ctx := context.Background()
 
@@ -106,21 +106,21 @@ func TestLocalProducerConsumerIntegration(t *testing.T) {
 
 // Test LocalProducer.Close
 func TestLocalProducer_Close(t *testing.T) {
-	producer := NewProducer()
+	producer := NewProducer("test_producer_config.yaml")
 	err := producer.Close()
 	assert.NoError(t, err)
 }
 
 // Test LocalConsumer.Close
 func TestLocalConsumer_Close(t *testing.T) {
-	consumer := NewConsumer()
+	consumer := NewConsumer("test_consumer_config.yaml")
 	err := consumer.Close()
 	assert.NoError(t, err)
 }
 
 // Test LocalConsumer.Commit
 func TestLocalConsumer_Commit(t *testing.T) {
-	consumer := NewConsumer()
+	consumer := NewConsumer("test_consumer_config.yaml")
 
 	ctx := context.Background()
 	message := &Message{
@@ -161,8 +161,8 @@ func (m *MockProducer) Close() error {
 
 // Test that NewConsumer creates independent consumers
 func TestNewConsumer_Independence(t *testing.T) {
-	consumer1 := NewConsumer()
-	consumer2 := NewConsumer()
+	consumer1 := NewConsumer("test_consumer_config.yaml")
+	consumer2 := NewConsumer("test_consumer_config.yaml")
 
 	assert.NotNil(t, consumer1)
 	assert.NotNil(t, consumer2)
@@ -175,8 +175,8 @@ func TestLocalProducerConsumer_MultipleMessages(t *testing.T) {
 	// Clean up any existing messages from previous tests
 	cleanupMessageBusDir()
 
-	producer := NewProducer()
-	consumer := NewConsumer()
+	producer := NewProducer("test_producer_config.yaml")
+	consumer := NewConsumer("test_consumer_config.yaml")
 
 	ctx := context.Background()
 
@@ -216,8 +216,8 @@ func TestLocalProducerConsumer_MultipleMessages(t *testing.T) {
 
 // Test multiple topics
 func TestLocalProducerConsumer_MultipleTopics(t *testing.T) {
-	producer := NewProducer()
-	consumer := NewConsumer()
+	producer := NewProducer("test_producer_config.yaml")
+	consumer := NewConsumer("test_consumer_config.yaml")
 
 	ctx := context.Background()
 
@@ -256,8 +256,8 @@ func TestLocalConsumer_Subscribe_Multiple(t *testing.T) {
 	// Clean up any existing messages from previous tests
 	cleanupMessageBusDir()
 
-	consumer := NewConsumer()
-	producer := NewProducer()
+	consumer := NewConsumer("test_consumer_config.yaml")
+	producer := NewProducer("test_producer_config.yaml")
 
 	// First subscription
 	err := consumer.Subscribe([]string{"topic1", "topic2"})
@@ -298,7 +298,7 @@ func TestLocalConsumer_Subscribe_Multiple(t *testing.T) {
 
 // Test message timestamp assignment
 func TestLocalProducer_TimestampAssignment(t *testing.T) {
-	producer := NewProducer()
+	producer := NewProducer("test_producer_config.yaml")
 	ctx := context.Background()
 
 	beforeTime := time.Now()
@@ -322,8 +322,8 @@ func TestLocalProducer_TimestampAssignment(t *testing.T) {
 
 // Test message headers preservation
 func TestLocalProducerConsumer_HeaderPreservation(t *testing.T) {
-	producer := NewProducer()
-	consumer := NewConsumer()
+	producer := NewProducer("test_producer_config.yaml")
+	consumer := NewConsumer("test_consumer_config.yaml")
 
 	ctx := context.Background()
 

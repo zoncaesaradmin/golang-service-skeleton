@@ -42,11 +42,11 @@ func TestMessage_HeaderManipulation(t *testing.T) {
 // Interface compliance test
 func TestInterfaces(t *testing.T) {
 	// Test that we can create instances that implement the interfaces
-	producer := NewProducer()
+	producer := NewProducer("test_producer_config.yaml")
 	assert.NotNil(t, producer)
 	assert.Implements(t, (*Producer)(nil), producer)
 
-	consumer := NewConsumer()
+	consumer := NewConsumer("test_consumer_config.yaml")
 	assert.NotNil(t, consumer)
 	assert.Implements(t, (*Consumer)(nil), consumer)
 }
@@ -79,7 +79,7 @@ func TestSendResultCreation(t *testing.T) {
 func TestProducerInterfaceCompliance(t *testing.T) {
 	// This test ensures that our Producer interface has the expected methods
 	// We test this by creating a real producer and checking its methods
-	producer := NewProducer()
+	producer := NewProducer("test_producer_config.yaml")
 	defer producer.Close()
 
 	// These should compile if the interface is correctly implemented
@@ -90,7 +90,7 @@ func TestProducerInterfaceCompliance(t *testing.T) {
 func TestConsumerInterfaceCompliance(t *testing.T) {
 	// This test ensures that our Consumer interface has the expected methods
 	// We test this by creating a real consumer and checking its methods
-	consumer := NewConsumer()
+	consumer := NewConsumer("test_consumer_config.yaml")
 	defer consumer.Close()
 
 	// These should compile if the interface is correctly implemented

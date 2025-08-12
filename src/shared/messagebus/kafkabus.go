@@ -16,11 +16,29 @@ type KafkaProducer struct {
 	producer *kafka.Producer
 }
 
-// NewProducer creates a new Kafka producer
-func NewProducer() Producer {
-	config := &kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092", // Default, should be configurable
+// NewProducer creates a new Kafka producer with configuration from YAML file
+func NewProducer(configPath string) Producer {
+	// Load configuration from YAML file
+	configMap, err := LoadProducerConfigMap(configPath)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load producer config: %v", err))
 	}
+
+	// Create Kafka config map with values from YAML
+	config := &kafka.ConfigMap{}
+
+	// Set values from config file, with fallback defaults
+	config.SetKey("bootstrap.servers", GetStringValue(configMap, "bootstrap.servers", "localhost:9092"))
+	config.SetKey("client.id", GetStringValue(configMap, "client.id", "katharos-producer"))
+	config.SetKey("acks", GetStringValue(configMap, "acks", "all"))
+	config.SetKey("retries", GetIntValue(configMap, "retries", 3))
+	config.SetKey("batch.size", GetIntValue(configMap, "batch.size", 16384))
+	config.SetKey("linger.ms", GetIntValue(configMap, "linger.ms", 1))
+	config.SetKey("buffer.memory", GetIntValue(configMap, "buffer.memory", 33554432))
+	config.SetKey("compression.type", GetStringValue(configMap, "compression.type", "none"))
+	config.SetKey("security.protocol", GetStringValue(configMap, "security.protocol", "PLAINTEXT"))
+	config.SetKey("max.in.flight.requests.per.connection", GetIntValue(configMap, "max.in.flight.requests.per.connection", 5))
+	config.SetKey("enable.idempotence", GetBoolValue(configMap, "enable.idempotence", false))
 
 	producer, err := kafka.NewProducer(config)
 	if err != nil {
@@ -164,14 +182,29 @@ type KafkaConsumer struct {
 	consumer *kafka.Consumer
 }
 
-// NewConsumer creates a new Kafka consumer
-func NewConsumer() Consumer {
-	config := &kafka.ConfigMap{
-		"bootstrap.servers":  "localhost:9092", // Default, should be configurable
-		"group.id":           "default-group",
-		"auto.offset.reset":  "earliest",
-		"enable.auto.commit": false, // Manual commit
+// NewConsumer creates a new Kafka consumer with configuration from YAML file
+func NewConsumer(configPath string) Consumer {
+	// Load configuration from YAML file
+	configMap, err := LoadConsumerConfigMap(configPath)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load consumer config: %v", err))
 	}
+
+	// Create Kafka config map with values from YAML
+	config := &kafka.ConfigMap{}
+
+	// Set values from config file, with fallback defaults
+	config.SetKey("bootstrap.servers", GetStringValue(configMap, "bootstrap.servers", "localhost:9092"))
+	config.SetKey("group.id", GetStringValue(configMap, "group.id", "default-group"))
+	config.SetKey("auto.offset.reset", GetStringValue(configMap, "auto.offset.reset", "earliest"))
+	config.SetKey("enable.auto.commit", GetBoolValue(configMap, "enable.auto.commit", false))
+	config.SetKey("session.timeout.ms", GetIntValue(configMap, "session.timeout.ms", 30000))
+	config.SetKey("heartbeat.interval.ms", GetIntValue(configMap, "heartbeat.interval.ms", 10000))
+	config.SetKey("fetch.min.bytes", GetIntValue(configMap, "fetch.min.bytes", 1))
+	config.SetKey("fetch.max.wait.ms", GetIntValue(configMap, "fetch.max.wait.ms", 500))
+	config.SetKey("max.partition.fetch.bytes", GetIntValue(configMap, "max.partition.fetch.bytes", 1048576))
+	config.SetKey("client.id", GetStringValue(configMap, "client.id", "katharos-consumer"))
+	config.SetKey("security.protocol", GetStringValue(configMap, "security.protocol", "PLAINTEXT"))
 
 	consumer, err := kafka.NewConsumer(config)
 	if err != nil {

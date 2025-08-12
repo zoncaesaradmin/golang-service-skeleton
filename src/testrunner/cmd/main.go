@@ -235,8 +235,8 @@ func executeScenarioViaMessageBus(scenario testdata.TestScenario) types.TestResu
 	}
 
 	// Create producer and consumer
-	producer := messagebus.NewProducer()
-	consumer := messagebus.NewConsumer()
+	producer := messagebus.NewProducer("kafkaproducer.yaml")
+	consumer := messagebus.NewConsumer("kafkaconsumer.yaml")
 
 	// Subscribe to output topic
 	if err := consumer.Subscribe([]string{"test_output"}); err != nil {

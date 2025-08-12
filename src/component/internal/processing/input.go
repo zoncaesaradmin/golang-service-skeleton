@@ -28,7 +28,8 @@ type InputHandler struct {
 
 // NewInputHandler creates a new input handler
 func NewInputHandler(config InputConfig, logger logging.Logger) *InputHandler {
-	consumer := messagebus.NewConsumer()
+	// Use simple filename - path resolution is handled by messagebus config loader
+	consumer := messagebus.NewConsumer("kafkaconsumer.yaml")
 
 	return &InputHandler{
 		consumer: consumer,

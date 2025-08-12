@@ -30,8 +30,21 @@ type LocalProducer struct {
 	// No internal state needed - all state is in files
 }
 
-// NewProducer creates a new local producer
-func NewProducer() Producer {
+// NewProducer creates a new local producer with configuration from YAML file
+func NewProducer(configPath string) Producer {
+	// Load configuration from YAML file
+	configMap, err := LoadProducerConfigMap(configPath)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load producer config: %v", err))
+	}
+
+	// Update messageBusDir if specified in config
+	if baseDir := GetStringValue(configMap, "local.base.dir", ""); baseDir != "" {
+		messageBusDir = baseDir
+		// Ensure the directory exists
+		os.MkdirAll(messageBusDir, 0755)
+	}
+
 	return &LocalProducer{}
 }
 
@@ -115,11 +128,27 @@ type LocalConsumer struct {
 	mutex    sync.RWMutex
 }
 
-// NewConsumer creates a new local consumer
-func NewConsumer() Consumer {
-	return &LocalConsumer{
+// NewConsumer creates a new local consumer with configuration from YAML file
+func NewConsumer(configPath string) Consumer {
+	// Load configuration from YAML file
+	configMap, err := LoadConsumerConfigMap(configPath)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load consumer config: %v", err))
+	}
+
+	// Create local consumer with configuration
+	consumer := &LocalConsumer{
 		lastRead: make(map[string]int64),
 	}
+
+	// Update messageBusDir if specified in config
+	if baseDir := GetStringValue(configMap, "local.base.dir", ""); baseDir != "" {
+		messageBusDir = baseDir
+		// Ensure the directory exists
+		os.MkdirAll(messageBusDir, 0755)
+	}
+
+	return consumer
 }
 
 // Subscribe subscribes to topics

@@ -15,7 +15,7 @@ const contentTypeJSON = "application/json"
 
 // Test KafkaProducer initialization
 func TestNewProducer(t *testing.T) {
-	producer := NewProducer()
+	producer := NewProducer("test_producer_config.yaml")
 	assert.NotNil(t, producer)
 
 	// Cleanup
@@ -26,7 +26,7 @@ func TestNewProducer(t *testing.T) {
 
 // Test KafkaConsumer initialization
 func TestNewConsumer(t *testing.T) {
-	consumer := NewConsumer()
+	consumer := NewConsumer("test_consumer_config.yaml")
 	assert.NotNil(t, consumer)
 
 	// Cleanup
