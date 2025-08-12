@@ -1,14 +1,15 @@
 package processing
 
 import (
+	"compmodule/internal/config"
+	"compmodule/internal/models"
 	"fmt"
 	"sharedmodule/logging"
 	"sharedmodule/messagebus"
-	"compmodule/internal/models"
 	"time"
 )
 
-type Config struct {
+type ProcConfig struct {
 	Input     InputConfig
 	Processor ProcessorConfig
 	Output    OutputConfig
@@ -21,7 +22,7 @@ type ChannelConfig struct {
 }
 
 type Pipeline struct {
-	config        Config
+	config        ProcConfig
 	logger        logging.Logger
 	producer      messagebus.Producer
 	inputHandler  *InputHandler
@@ -31,9 +32,9 @@ type Pipeline struct {
 	outputCh      chan<- *models.ChannelMessage
 }
 
-func NewPipeline(config Config, logger logging.Logger) *Pipeline {
+func NewPipeline(config ProcConfig, logger logging.Logger) *Pipeline {
 	producer := messagebus.NewProducer()
-	
+
 	inputHandler := NewInputHandler(producer, config.Input, logger.WithField("component", "input"))
 	outputHandler := NewOutputHandler(producer, config.Output, logger.WithField("component", "output"))
 	processor := NewProcessor(config.Processor, logger.WithField("component", "processor"), inputHandler.GetInputChannel(), outputHandler.GetOutputChannel())
@@ -107,31 +108,57 @@ func (p *Pipeline) GetStats() map[string]interface{} {
 	}
 }
 
-func DefaultConfig() Config {
-	return Config{
+func DefaultConfig(cfg *config.Config) ProcConfig {
+	if cfg == nil {
+		// Return hardcoded defaults if no config is provided
+		return ProcConfig{
+			Input: InputConfig{
+				Topics:            []string{"input-topic"},
+				PollTimeout:       1 * time.Second,
+				ChannelBufferSize: 1000,
+			},
+			Processor: ProcessorConfig{
+				ProcessingDelay: 10 * time.Millisecond,
+				BatchSize:       100,
+			},
+			Output: OutputConfig{
+				OutputTopic:       "output-topic",
+				BatchSize:         50,
+				FlushTimeout:      5 * time.Second,
+				ChannelBufferSize: 1000,
+			},
+			Channels: ChannelConfig{
+				InputBufferSize:  1000,
+				OutputBufferSize: 1000,
+			},
+		}
+	}
+
+	// Convert config processing configuration to ProcConfig
+	return ProcConfig{
 		Input: InputConfig{
-			Topics:            []string{"input-topic"},
-			PollTimeout:       1 * time.Second,
-			ChannelBufferSize: 1000,
+			Topics:            cfg.Processing.Input.Topics,
+			PollTimeout:       cfg.Processing.Input.PollTimeout,
+			ChannelBufferSize: cfg.Processing.Input.ChannelBufferSize,
 		},
 		Processor: ProcessorConfig{
-			ProcessingDelay: 10 * time.Millisecond,
-			BatchSize:       100,
+			ProcessingDelay: cfg.Processing.Processor.ProcessingDelay,
+			BatchSize:       cfg.Processing.Processor.BatchSize,
 		},
 		Output: OutputConfig{
-			OutputTopic:       "output-topic",
-			BatchSize:         50,
-			FlushTimeout:      5 * time.Second,
-			ChannelBufferSize: 1000,
+			OutputTopic:       cfg.Processing.Output.OutputTopic,
+			BatchSize:         cfg.Processing.Output.BatchSize,
+			FlushTimeout:      cfg.Processing.Output.FlushTimeout,
+			ChannelBufferSize: cfg.Processing.Output.ChannelBufferSize,
 		},
 		Channels: ChannelConfig{
-			InputBufferSize:  1000,
-			OutputBufferSize: 1000,
+			InputBufferSize:  cfg.Processing.Channels.InputBufferSize,
+			OutputBufferSize: cfg.Processing.Channels.OutputBufferSize,
 		},
 	}
 }
 
-func ValidateConfig(config Config) error {
+func ValidateConfig(config ProcConfig) error {
 	if len(config.Input.Topics) == 0 {
 		return fmt.Errorf("input topics cannot be empty")
 	}

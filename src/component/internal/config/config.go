@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"sharedmodule/utils"
 
@@ -11,8 +13,9 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	Server  ServerConfig  `yaml:"server"`
-	Logging LoggingConfig `yaml:"logging"`
+	Server     ServerConfig     `yaml:"server"`
+	Logging    LoggingConfig    `yaml:"logging"`
+	Processing ProcessingConfig `yaml:"processing"`
 }
 
 // ServerConfig holds server-related configuration
@@ -30,6 +33,41 @@ type LoggingConfig struct {
 	FilePath string `yaml:"file_path"`
 }
 
+// ProcessingConfig holds processing pipeline configuration
+type ProcessingConfig struct {
+	Input     InputConfig     `yaml:"input"`
+	Processor ProcessorConfig `yaml:"processor"`
+	Output    OutputConfig    `yaml:"output"`
+	Channels  ChannelConfig   `yaml:"channels"`
+}
+
+// InputConfig holds input handler configuration
+type InputConfig struct {
+	Topics            []string      `yaml:"topics"`
+	PollTimeout       time.Duration `yaml:"poll_timeout"`
+	ChannelBufferSize int           `yaml:"channel_buffer_size"`
+}
+
+// ProcessorConfig holds processor configuration
+type ProcessorConfig struct {
+	ProcessingDelay time.Duration `yaml:"processing_delay"`
+	BatchSize       int           `yaml:"batch_size"`
+}
+
+// OutputConfig holds output handler configuration
+type OutputConfig struct {
+	OutputTopic       string        `yaml:"output_topic"`
+	BatchSize         int           `yaml:"batch_size"`
+	FlushTimeout      time.Duration `yaml:"flush_timeout"`
+	ChannelBufferSize int           `yaml:"channel_buffer_size"`
+}
+
+// ChannelConfig holds channel buffer configuration
+type ChannelConfig struct {
+	InputBufferSize  int `yaml:"input_buffer_size"`
+	OutputBufferSize int `yaml:"output_buffer_size"`
+}
+
 // LoadConfig loads configuration from environment variables with defaults
 func LoadConfig() *Config {
 	config := &Config{
@@ -44,9 +82,42 @@ func LoadConfig() *Config {
 			Format:   utils.GetEnv("LOG_FORMAT", "json"),
 			FilePath: utils.GetEnv("LOG_FILE_PATH", "/tmp/katharos-component.log"),
 		},
+		Processing: ProcessingConfig{
+			Input: InputConfig{
+				Topics:            parseTopics(utils.GetEnv("PROCESSING_INPUT_TOPICS", "input-topic")),
+				PollTimeout:       time.Duration(utils.GetEnvInt("PROCESSING_INPUT_POLL_TIMEOUT_MS", 1000)) * time.Millisecond,
+				ChannelBufferSize: utils.GetEnvInt("PROCESSING_INPUT_BUFFER_SIZE", 1000),
+			},
+			Processor: ProcessorConfig{
+				ProcessingDelay: time.Duration(utils.GetEnvInt("PROCESSING_DELAY_MS", 10)) * time.Millisecond,
+				BatchSize:       utils.GetEnvInt("PROCESSING_BATCH_SIZE", 100),
+			},
+			Output: OutputConfig{
+				OutputTopic:       utils.GetEnv("PROCESSING_OUTPUT_TOPIC", "output-topic"),
+				BatchSize:         utils.GetEnvInt("PROCESSING_OUTPUT_BATCH_SIZE", 50),
+				FlushTimeout:      time.Duration(utils.GetEnvInt("PROCESSING_OUTPUT_FLUSH_TIMEOUT_MS", 5000)) * time.Millisecond,
+				ChannelBufferSize: utils.GetEnvInt("PROCESSING_OUTPUT_BUFFER_SIZE", 1000),
+			},
+			Channels: ChannelConfig{
+				InputBufferSize:  utils.GetEnvInt("PROCESSING_CHANNELS_INPUT_BUFFER_SIZE", 1000),
+				OutputBufferSize: utils.GetEnvInt("PROCESSING_CHANNELS_OUTPUT_BUFFER_SIZE", 1000),
+			},
+		},
 	}
 
 	return config
+}
+
+// parseTopics parses comma-separated topics from a string
+func parseTopics(topicsStr string) []string {
+	if topicsStr == "" {
+		return []string{}
+	}
+	topics := strings.Split(topicsStr, ",")
+	for i, topic := range topics {
+		topics[i] = strings.TrimSpace(topic)
+	}
+	return topics
 }
 
 // LoadConfigFromFile loads configuration from a YAML file with optional environment variable overrides
@@ -105,5 +176,40 @@ func overrideWithEnvVars(config *Config) {
 	}
 	if filePath := utils.GetEnv("LOG_FILE_PATH", ""); filePath != "" {
 		config.Logging.FilePath = filePath
+	}
+
+	// Processing configuration overrides
+	if topics := utils.GetEnv("PROCESSING_INPUT_TOPICS", ""); topics != "" {
+		config.Processing.Input.Topics = parseTopics(topics)
+	}
+	if pollTimeout := utils.GetEnvInt("PROCESSING_INPUT_POLL_TIMEOUT_MS", -1); pollTimeout != -1 {
+		config.Processing.Input.PollTimeout = time.Duration(pollTimeout) * time.Millisecond
+	}
+	if bufferSize := utils.GetEnvInt("PROCESSING_INPUT_BUFFER_SIZE", -1); bufferSize != -1 {
+		config.Processing.Input.ChannelBufferSize = bufferSize
+	}
+	if delay := utils.GetEnvInt("PROCESSING_DELAY_MS", -1); delay != -1 {
+		config.Processing.Processor.ProcessingDelay = time.Duration(delay) * time.Millisecond
+	}
+	if batchSize := utils.GetEnvInt("PROCESSING_BATCH_SIZE", -1); batchSize != -1 {
+		config.Processing.Processor.BatchSize = batchSize
+	}
+	if outputTopic := utils.GetEnv("PROCESSING_OUTPUT_TOPIC", ""); outputTopic != "" {
+		config.Processing.Output.OutputTopic = outputTopic
+	}
+	if outputBatchSize := utils.GetEnvInt("PROCESSING_OUTPUT_BATCH_SIZE", -1); outputBatchSize != -1 {
+		config.Processing.Output.BatchSize = outputBatchSize
+	}
+	if flushTimeout := utils.GetEnvInt("PROCESSING_OUTPUT_FLUSH_TIMEOUT_MS", -1); flushTimeout != -1 {
+		config.Processing.Output.FlushTimeout = time.Duration(flushTimeout) * time.Millisecond
+	}
+	if outputBufferSize := utils.GetEnvInt("PROCESSING_OUTPUT_BUFFER_SIZE", -1); outputBufferSize != -1 {
+		config.Processing.Output.ChannelBufferSize = outputBufferSize
+	}
+	if inputBufferSize := utils.GetEnvInt("PROCESSING_CHANNELS_INPUT_BUFFER_SIZE", -1); inputBufferSize != -1 {
+		config.Processing.Channels.InputBufferSize = inputBufferSize
+	}
+	if outputChannelBufferSize := utils.GetEnvInt("PROCESSING_CHANNELS_OUTPUT_BUFFER_SIZE", -1); outputChannelBufferSize != -1 {
+		config.Processing.Channels.OutputBufferSize = outputChannelBufferSize
 	}
 }

@@ -23,8 +23,8 @@ type Application struct {
 func NewApplication(cfg *config.Config, logger logging.Logger) *Application {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	// Create processing pipeline with default configuration
-	processingConfig := processing.DefaultConfig()
+	// Create processing pipeline with configuration from config file
+	processingConfig := processing.DefaultConfig(cfg)
 	processingPipeline := processing.NewPipeline(processingConfig, logger.WithField("module", "processing"))
 
 	return &Application{

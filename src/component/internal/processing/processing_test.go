@@ -1,48 +1,48 @@
 package processing
 
 import (
-	"context"
-	"encoding/json" 
-	"testing"
-	"time"
 	"compmodule/internal/models"
+	"context"
+	"encoding/json"
 	"sharedmodule/logging"
 	"sharedmodule/messagebus"
+	"testing"
+	"time"
 )
 
 // mockLogger implements the logging.Logger interface for testing
 type mockLogger struct{}
 
-func (m *mockLogger) SetLevel(level logging.Level) { /* mock */ }
-func (m *mockLogger) GetLevel() logging.Level { return logging.InfoLevel }
-func (m *mockLogger) IsLevelEnabled(level logging.Level) bool { return true }
-func (m *mockLogger) Debug(msg string) { /* mock */ }
-func (m *mockLogger) Info(msg string) { /* mock */ }
-func (m *mockLogger) Warn(msg string) { /* mock */ }
-func (m *mockLogger) Error(msg string) { /* mock */ }
-func (m *mockLogger) Fatal(msg string) { /* mock */ }
-func (m *mockLogger) Panic(msg string) { /* mock */ }
-func (m *mockLogger) Debugf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLogger) Infof(format string, args ...interface{}) { /* mock */ }
-func (m *mockLogger) Warnf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLogger) Errorf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLogger) Fatalf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLogger) Panicf(format string, args ...interface{}) { /* mock */ }
-func (m *mockLogger) Debugw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLogger) Infow(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLogger) Warnw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLogger) Errorw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLogger) Fatalw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLogger) Panicw(msg string, fields ...interface{}) { /* mock */ }
-func (m *mockLogger) WithFields(fields logging.Fields) logging.Logger { return m }
-func (m *mockLogger) WithField(key string, value interface{}) logging.Logger { return m }
-func (m *mockLogger) WithError(err error) logging.Logger { return m }
-func (m *mockLogger) WithContext(ctx context.Context) logging.Logger { return m }
-func (m *mockLogger) Log(level logging.Level, msg string) { /* mock */ }
-func (m *mockLogger) Logf(level logging.Level, format string, args ...interface{}) { /* mock */ }
+func (m *mockLogger) SetLevel(level logging.Level)                                       { /* mock */ }
+func (m *mockLogger) GetLevel() logging.Level                                            { return logging.InfoLevel }
+func (m *mockLogger) IsLevelEnabled(level logging.Level) bool                            { return true }
+func (m *mockLogger) Debug(msg string)                                                   { /* mock */ }
+func (m *mockLogger) Info(msg string)                                                    { /* mock */ }
+func (m *mockLogger) Warn(msg string)                                                    { /* mock */ }
+func (m *mockLogger) Error(msg string)                                                   { /* mock */ }
+func (m *mockLogger) Fatal(msg string)                                                   { /* mock */ }
+func (m *mockLogger) Panic(msg string)                                                   { /* mock */ }
+func (m *mockLogger) Debugf(format string, args ...interface{})                          { /* mock */ }
+func (m *mockLogger) Infof(format string, args ...interface{})                           { /* mock */ }
+func (m *mockLogger) Warnf(format string, args ...interface{})                           { /* mock */ }
+func (m *mockLogger) Errorf(format string, args ...interface{})                          { /* mock */ }
+func (m *mockLogger) Fatalf(format string, args ...interface{})                          { /* mock */ }
+func (m *mockLogger) Panicf(format string, args ...interface{})                          { /* mock */ }
+func (m *mockLogger) Debugw(msg string, fields ...interface{})                           { /* mock */ }
+func (m *mockLogger) Infow(msg string, fields ...interface{})                            { /* mock */ }
+func (m *mockLogger) Warnw(msg string, fields ...interface{})                            { /* mock */ }
+func (m *mockLogger) Errorw(msg string, fields ...interface{})                           { /* mock */ }
+func (m *mockLogger) Fatalw(msg string, fields ...interface{})                           { /* mock */ }
+func (m *mockLogger) Panicw(msg string, fields ...interface{})                           { /* mock */ }
+func (m *mockLogger) WithFields(fields logging.Fields) logging.Logger                    { return m }
+func (m *mockLogger) WithField(key string, value interface{}) logging.Logger             { return m }
+func (m *mockLogger) WithError(err error) logging.Logger                                 { return m }
+func (m *mockLogger) WithContext(ctx context.Context) logging.Logger                     { return m }
+func (m *mockLogger) Log(level logging.Level, msg string)                                { /* mock */ }
+func (m *mockLogger) Logf(level logging.Level, format string, args ...interface{})       { /* mock */ }
 func (m *mockLogger) Logw(level logging.Level, msg string, keysAndValues ...interface{}) { /* mock */ }
-func (m *mockLogger) Clone() logging.Logger { return &mockLogger{} }
-func (m *mockLogger) Close() error { return nil }
+func (m *mockLogger) Clone() logging.Logger                                              { return &mockLogger{} }
+func (m *mockLogger) Close() error                                                       { return nil }
 
 // mockProducer implements the messagebus.Producer interface for testing
 type mockProducer struct {
@@ -83,7 +83,7 @@ func (m *mockProducer) Close() error {
 }
 
 func TestConfigValidation(t *testing.T) {
-	config := DefaultConfig()
+	config := DefaultConfig(nil)
 	err := ValidateConfig(config)
 	if err != nil {
 		t.Errorf("Default config should be valid, got error: %v", err)
@@ -263,7 +263,6 @@ func TestOutputHandlerGetStats(t *testing.T) {
 	}
 }
 
-
 func TestProcessorApplyProcessingEdgeCases(t *testing.T) {
 	config := ProcessorConfig{
 		ProcessingDelay: 1 * time.Millisecond,
@@ -308,9 +307,8 @@ func TestProcessorApplyProcessingEdgeCases(t *testing.T) {
 	}
 }
 
-
 func TestSimpleNewPipeline(t *testing.T) {
-	config := DefaultConfig()
+	config := DefaultConfig(nil)
 	logger := &mockLogger{}
 
 	pipeline := NewPipeline(config, logger)
