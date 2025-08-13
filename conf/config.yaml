@@ -11,47 +11,47 @@
 server:
   host: "localhost"              # Server host (env: SERVER_HOST)
   port: 8080                     # Server port (env: SERVER_PORT)
-  read_timeout: 10               # Read timeout in seconds (env: SERVER_READ_TIMEOUT)
-  write_timeout: 10              # Write timeout in seconds (env: SERVER_WRITE_TIMEOUT)
+  readTimeout: 10                # Read timeout in seconds (env: SERVER_READ_TIMEOUT)
+  writeTimeout: 10               # Write timeout in seconds (env: SERVER_WRITE_TIMEOUT)
 
 # Logging configuration
 logging:
   level: "info"                  # Log level: debug, info, warn, error (env: LOG_LEVEL)
   format: "json"                 # Log format: json, text (env: LOG_FORMAT)
-  file_path: "/tmp/katharos-component.log"  # Log file path (env: LOG_FILE_PATH)
-  logger_name: "katharos-component"         # Logger name identifier (env: LOG_LOGGER_NAME)
-  component_name: "main"                    # Component name for structured logging (env: LOG_COMPONENT_NAME)
-  service_name: "katharos-component"        # Service name for structured logging (env: LOG_SERVICE_NAME)
+  filePath: "/tmp/katharos-component.log"  # Log file path (env: LOG_FILE_PATH)
+  loggerName: "katharos-component"         # Logger name identifier (env: LOG_LOGGER_NAME)
+  componentName: "main"                    # Component name for structured logging (env: LOG_COMPONENT_NAME)
+  serviceName: "katharos-component"        # Service name for structured logging (env: LOG_SERVICE_NAME)
 
 # Processing pipeline configuration
 processing:
   input:
     topics: 
       - "input-topic"            # Input topics (env: PROCESSING_INPUT_TOPICS - comma separated)
-    poll_timeout: 1000ms         # Poll timeout (env: PROCESSING_INPUT_POLL_TIMEOUT_MS)
-    channel_buffer_size: 1000    # Input channel buffer size (env: PROCESSING_INPUT_BUFFER_SIZE)
+    pollTimeout: 1000ms          # Poll timeout (env: PROCESSING_INPUT_POLL_TIMEOUT_MS)
+    channelBufferSize: 1000      # Input channel buffer size (env: PROCESSING_INPUT_BUFFER_SIZE)
   
   processor:
-    processing_delay: 10ms       # Processing delay per message (env: PROCESSING_DELAY_MS)
-    batch_size: 100              # Batch size for processing (env: PROCESSING_BATCH_SIZE)
+    processingDelay: 10ms        # Processing delay per message (env: PROCESSING_DELAY_MS)
+    batchSize: 100               # Batch size for processing (env: PROCESSING_BATCH_SIZE)
   
   output:
-    output_topic: "output-topic" # Output topic (env: PROCESSING_OUTPUT_TOPIC)
-    batch_size: 50               # Output batch size (env: PROCESSING_OUTPUT_BATCH_SIZE)
-    flush_timeout: 5000ms        # Flush timeout (env: PROCESSING_OUTPUT_FLUSH_TIMEOUT_MS)
-    channel_buffer_size: 1000    # Output channel buffer size (env: PROCESSING_OUTPUT_BUFFER_SIZE)
+    outputTopic: "output-topic"  # Output topic (env: PROCESSING_OUTPUT_TOPIC)
+    batchSize: 50                # Output batch size (env: PROCESSING_OUTPUT_BATCH_SIZE)
+    flushTimeout: 5000ms         # Flush timeout (env: PROCESSING_OUTPUT_FLUSH_TIMEOUT_MS)
+    channelBufferSize: 1000      # Output channel buffer size (env: PROCESSING_OUTPUT_BUFFER_SIZE)
   
   channels:
-    input_buffer_size: 1000      # Pipeline input buffer size (env: PROCESSING_CHANNELS_INPUT_BUFFER_SIZE)
-    output_buffer_size: 1000     # Pipeline output buffer size (env: PROCESSING_CHANNELS_OUTPUT_BUFFER_SIZE)
+    inputBufferSize: 1000        # Pipeline input buffer size (env: PROCESSING_CHANNELS_INPUT_BUFFER_SIZE)
+    outputBufferSize: 1000       # Pipeline output buffer size (env: PROCESSING_CHANNELS_OUTPUT_BUFFER_SIZE)
   
   # Pipeline-specific logger configuration (separate from main application logger)
   logging:
     level: "info"                # Pipeline log level: debug, info, warn, error, fatal, panic (env: PROCESSING_PLOGGER_LEVEL)
-    file_path: "/tmp/katharos-pipeline.log"  # Pipeline log file path (env: PROCESSING_PLOGGER_FILE_NAME)
-    logger_name: "pipeline"      # Pipeline logger name identifier (env: PROCESSING_PLOGGER_LOGGER_NAME)
-    component_name: "processing" # Pipeline logger component name (env: PROCESSING_PLOGGER_COMPONENT_NAME)
-    service_name: "katharos"     # Pipeline logger service name (env: PROCESSING_PLOGGER_SERVICE_NAME)
+    filePath: "/tmp/katharos-pipeline.log"  # Pipeline log file path (env: PROCESSING_PLOGGER_FILE_NAME)
+    loggerName: "pipeline"       # Pipeline logger name identifier (env: PROCESSING_PLOGGER_LOGGER_NAME)
+    componentName: "processing"  # Pipeline logger component name (env: PROCESSING_PLOGGER_COMPONENT_NAME)
+    serviceName: "katharos"      # Pipeline logger service name (env: PROCESSING_PLOGGER_SERVICE_NAME)
 
 # Configuration Notes:
 # 

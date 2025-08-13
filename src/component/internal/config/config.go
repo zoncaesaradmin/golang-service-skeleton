@@ -23,18 +23,18 @@ type Config struct {
 type ServerConfig struct {
 	Host         string `yaml:"host"`
 	Port         int    `yaml:"port"`
-	ReadTimeout  int    `yaml:"read_timeout"`
-	WriteTimeout int    `yaml:"write_timeout"`
+	ReadTimeout  int    `yaml:"readTimeout"`
+	WriteTimeout int    `yaml:"writeTimeout"`
 }
 
 // LoggingConfig holds logging-related configuration
 type LoggingConfig struct {
-	Level         string `yaml:"level"`          // Log level: debug, info, warn, error, fatal, panic
-	Format        string `yaml:"format"`         // Log format: json, text (not used in current implementation)
-	FilePath      string `yaml:"file_path"`      // Path to the log file
-	LoggerName    string `yaml:"logger_name"`    // Name identifier for the logger
-	ComponentName string `yaml:"component_name"` // Component/module name for structured logging
-	ServiceName   string `yaml:"service_name"`   // Service name for structured logging
+	Level         string `yaml:"level"`         // Log level: debug, info, warn, error, fatal, panic
+	Format        string `yaml:"format"`        // Log format: json, text (not used in current implementation)
+	FilePath      string `yaml:"filePath"`      // Path to the log file
+	LoggerName    string `yaml:"loggerName"`    // Name identifier for the logger
+	ComponentName string `yaml:"componentName"` // Component/module name for structured logging
+	ServiceName   string `yaml:"serviceName"`   // Service name for structured logging
 }
 
 // ProcessingConfig holds processing pipeline configuration
@@ -49,28 +49,28 @@ type ProcessingConfig struct {
 // InputConfig holds input handler configuration
 type InputConfig struct {
 	Topics            []string      `yaml:"topics"`
-	PollTimeout       time.Duration `yaml:"poll_timeout"`
-	ChannelBufferSize int           `yaml:"channel_buffer_size"`
+	PollTimeout       time.Duration `yaml:"pollTimeout"`
+	ChannelBufferSize int           `yaml:"channelBufferSize"`
 }
 
 // ProcessorConfig holds processor configuration
 type ProcessorConfig struct {
-	ProcessingDelay time.Duration `yaml:"processing_delay"`
-	BatchSize       int           `yaml:"batch_size"`
+	ProcessingDelay time.Duration `yaml:"processingDelay"`
+	BatchSize       int           `yaml:"batchSize"`
 }
 
 // OutputConfig holds output handler configuration
 type OutputConfig struct {
-	OutputTopic       string        `yaml:"output_topic"`
-	BatchSize         int           `yaml:"batch_size"`
-	FlushTimeout      time.Duration `yaml:"flush_timeout"`
-	ChannelBufferSize int           `yaml:"channel_buffer_size"`
+	OutputTopic       string        `yaml:"outputTopic"`
+	BatchSize         int           `yaml:"batchSize"`
+	FlushTimeout      time.Duration `yaml:"flushTimeout"`
+	ChannelBufferSize int           `yaml:"channelBufferSize"`
 }
 
 // ChannelConfig holds channel buffer configuration
 type ChannelConfig struct {
-	InputBufferSize  int `yaml:"input_buffer_size"`
-	OutputBufferSize int `yaml:"output_buffer_size"`
+	InputBufferSize  int `yaml:"inputBufferSize"`
+	OutputBufferSize int `yaml:"outputBufferSize"`
 }
 
 // LoadConfig loads configuration from environment variables with defaults

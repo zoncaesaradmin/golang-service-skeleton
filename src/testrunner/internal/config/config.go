@@ -18,7 +18,7 @@ type Config struct {
 
 // ComponentConfig contains component-specific settings
 type ComponentConfig struct {
-	BinaryPath string        `yaml:"binary_path"`
+	BinaryPath string        `yaml:"binaryPath"`
 	Port       int           `yaml:"port"`
 	Timeout    time.Duration `yaml:"timeout"`
 }
@@ -39,20 +39,20 @@ type KafkaConfig struct {
 
 // LocalConfig contains local message bus settings
 type LocalConfig struct {
-	BufferSize int `yaml:"buffer_size"`
+	BufferSize int `yaml:"bufferSize"`
 }
 
 // TestdataConfig contains test data settings
 type TestdataConfig struct {
-	ScenariosPath string `yaml:"scenarios_path"`
-	FixturesPath  string `yaml:"fixtures_path"`
+	ScenariosPath string `yaml:"scenariosPath"`
+	FixturesPath  string `yaml:"fixturesPath"`
 }
 
 // ValidationConfig contains validation settings
 type ValidationConfig struct {
 	Timeout    time.Duration `yaml:"timeout"`
-	MaxRetries int           `yaml:"max_retries"`
-	RetryDelay time.Duration `yaml:"retry_delay"`
+	MaxRetries int           `yaml:"maxRetries"`
+	RetryDelay time.Duration `yaml:"retryDelay"`
 }
 
 // LoadConfig loads configuration from a YAML file

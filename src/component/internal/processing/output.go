@@ -10,10 +10,10 @@ import (
 )
 
 type OutputConfig struct {
-	OutputTopic       string        `json:"output_topic"`
-	BatchSize         int           `json:"batch_size"`
-	FlushTimeout      time.Duration `json:"flush_timeout"`
-	ChannelBufferSize int           `json:"channel_buffer_size"`
+	OutputTopic       string        `json:"outputTopic"`
+	BatchSize         int           `json:"batchSize"`
+	FlushTimeout      time.Duration `json:"flushTimeout"`
+	ChannelBufferSize int           `json:"channelBufferSize"`
 }
 
 type OutputHandler struct {

@@ -12,8 +12,8 @@ import (
 // InputConfig holds configuration for the input handler
 type InputConfig struct {
 	Topics            []string      `json:"topics"`
-	PollTimeout       time.Duration `json:"poll_timeout"`
-	ChannelBufferSize int           `json:"channel_buffer_size"`
+	PollTimeout       time.Duration `json:"pollTimeout"`
+	ChannelBufferSize int           `json:"channelBufferSize"`
 }
 
 // InputHandler handles input processing - reads from Kafka and writes to input channel
