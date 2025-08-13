@@ -28,8 +28,8 @@ func NewTestHarness(cfg config.MessageBusConfig) (TestHarness, error) {
 }
 
 func NewLocalHarness(cfg config.MessageBusConfig) *LocalHarness {
-	producer := messagebus.NewProducer("kafkaproducer.yaml")
-	consumer := messagebus.NewConsumer("kafkaconsumer.yaml")
+	producer := messagebus.NewProducer("kafka-producer.yaml")
+	consumer := messagebus.NewConsumer("kafka-consumer.yaml")
 
 	return &LocalHarness{
 		producer: producer,
