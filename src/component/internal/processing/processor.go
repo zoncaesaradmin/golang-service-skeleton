@@ -78,20 +78,19 @@ func (p *Processor) processLoop() {
 func (p *Processor) processMessage(message *models.ChannelMessage) error {
 	p.logger.Debugw("Processing message", "type", message.Type, "size", len(message.Data))
 
-	// Only process data messages, forward others unchanged
+	// For non-data messages (control messages), forward them as-is
 	if !message.IsDataMessage() {
-		p.logger.Debugw("Forwarding non-data message", "type", message.Type)
-		select {
-		case p.outputCh <- message:
-			p.logger.Debug("Non-data message forwarded to output channel")
-		case <-p.ctx.Done():
-			return nil
-		default:
-			p.logger.Warn("Output channel full, dropping forwarded message")
+		outputMessage := &models.ChannelMessage{
+			Type:      message.Type,
+			Data:      message.Data,
+			Timestamp: message.Timestamp,
 		}
+
+		p.outputCh <- outputMessage
 		return nil
 	}
 
+	// For data messages, apply processing
 	var record ProcessingRecord
 	if err := json.Unmarshal(message.Data, &record); err != nil {
 		return fmt.Errorf("failed to unmarshal input record: %w", err)
@@ -110,14 +109,8 @@ func (p *Processor) processMessage(message *models.ChannelMessage) error {
 	// Create a new message with processed data
 	outputMessage := models.NewDataMessage(processedData, "processor")
 
-	select {
-	case p.outputCh <- outputMessage:
-		p.logger.Debug("Processed message sent to output channel")
-	case <-p.ctx.Done():
-		return nil
-	default:
-		p.logger.Warn("Output channel full, dropping processed message")
-	}
+	p.outputCh <- outputMessage
+	p.logger.Debug("Processed message sent to output channel")
 
 	return nil
 }
