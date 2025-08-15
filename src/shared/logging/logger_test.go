@@ -11,7 +11,7 @@ const (
 	testLoggerName       = "test-logger"
 	testServiceName      = "test-service"
 	testComponentName    = "test"
-	newLoggerErrorFmt    = "NewZerologLoggerWithConfig() error = %v"
+	newLoggerErrorFmt    = "NewlogLoggerWithConfig() error = %v"
 	logFileNotCreatedFmt = "Log file was not created: %v"
 	logFileEmptyMsg      = "Log file is empty"
 
@@ -441,7 +441,7 @@ func TestNewLoggerConfigValidationPath(t *testing.T) {
 }
 
 func TestNewLoggerZerologCreationFailure(t *testing.T) {
-	// Test the path where NewZerologLoggerWithConfig fails
+	// Test the path where NewlogLoggerWithConfig fails
 	config := &LoggerConfig{
 		Level:         InfoLevel,
 		FileName:      "/root/impossible/path/test.log", // Path that should fail

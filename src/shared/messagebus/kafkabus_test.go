@@ -26,7 +26,7 @@ func TestNewProducer(t *testing.T) {
 
 // Test KafkaConsumer initialization
 func TestNewConsumer(t *testing.T) {
-	consumer := NewConsumer("test_consumer_config.yaml")
+	consumer := NewConsumer("test_consumer_config.yaml", "")
 	assert.NotNil(t, consumer)
 
 	// Cleanup

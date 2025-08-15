@@ -129,7 +129,8 @@ type LocalConsumer struct {
 }
 
 // NewConsumer creates a new local consumer with configuration from YAML file
-func NewConsumer(configPath string) Consumer {
+// The cgroup parameter is ignored for local implementation as it's single consumer
+func NewConsumer(configPath string, cgroup string) Consumer {
 	// Load configuration from YAML file
 	configMap, err := LoadConsumerConfigMap(configPath)
 	if err != nil {

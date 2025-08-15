@@ -17,7 +17,7 @@ const (
 	debugMessage = "Debug message"
 )
 
-func TestNewZerologLoggerWithConfig(t *testing.T) {
+func TestNewlogLoggerWithConfig(t *testing.T) {
 	logFile := "/tmp/test_new_logger.log"
 	os.Remove(logFile)
 
@@ -29,7 +29,7 @@ func TestNewZerologLoggerWithConfig(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -54,7 +54,7 @@ func TestNewZerologLoggerWithConfig(t *testing.T) {
 	os.Remove(logFile)
 }
 
-func TestNewZerologLoggerWithConfigFileError(t *testing.T) {
+func TestNewlogLoggerWithConfigFileError(t *testing.T) {
 	config := &LoggerConfig{
 		Level:         InfoLevel,
 		FileName:      "/invalid/path/test.log",
@@ -63,12 +63,12 @@ func TestNewZerologLoggerWithConfigFileError(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err == nil {
 		if logger != nil {
 			logger.Close()
 		}
-		t.Error("NewZerologLoggerWithConfig() expected error for invalid file path but got none")
+		t.Error("NewlogLoggerWithConfig() expected error for invalid file path but got none")
 	}
 }
 
@@ -84,7 +84,7 @@ func TestZerologLoggerSetLevel(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -125,7 +125,7 @@ func TestZerologLoggerFormattedLogging(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -159,7 +159,7 @@ func TestZerologLoggerVariadicLogging(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -193,7 +193,7 @@ func TestZerologLoggerWithFields(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -235,7 +235,7 @@ func TestZerologLoggerWithError(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -272,7 +272,7 @@ func TestZerologLoggerWithContext(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -305,7 +305,7 @@ func TestZerologLoggerGenericLogging(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -341,7 +341,7 @@ func TestZerologLoggerClone(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -402,7 +402,7 @@ func TestZerologLoggerLevelConversion(t *testing.T) {
 				ServiceName:   testServiceName,
 			}
 
-			logger, err := NewZerologLoggerWithConfig(config)
+			logger, err := NewlogLoggerWithConfig(config)
 			if err != nil {
 				t.Fatalf(newLoggerErrorFmt, err)
 			}
@@ -430,7 +430,7 @@ func TestZerologLoggerClose(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -465,7 +465,7 @@ func TestZerologLoggerLevelFiltering(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -515,7 +515,7 @@ func TestZerologLoggerWarnErrorEdgeCases(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -558,7 +558,7 @@ func TestZerologLoggerLogMethodsEdgeCases(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -616,7 +616,7 @@ func TestZerologLoggerUnknownLevelHandling(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -666,7 +666,7 @@ func TestZerologLoggerComplexFieldCombinations(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}
@@ -717,7 +717,7 @@ func TestZerologLoggerLevelBoundaryTesting(t *testing.T) {
 		ServiceName:   testServiceName,
 	}
 
-	logger, err := NewZerologLoggerWithConfig(config)
+	logger, err := NewlogLoggerWithConfig(config)
 	if err != nil {
 		t.Fatalf(newLoggerErrorFmt, err)
 	}

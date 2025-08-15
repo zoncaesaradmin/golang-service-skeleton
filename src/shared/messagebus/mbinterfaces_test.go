@@ -46,7 +46,7 @@ func TestInterfaces(t *testing.T) {
 	assert.NotNil(t, producer)
 	assert.Implements(t, (*Producer)(nil), producer)
 
-	consumer := NewConsumer("test_consumer_config.yaml")
+	consumer := NewConsumer("test_consumer_config.yaml", "")
 	assert.NotNil(t, consumer)
 	assert.Implements(t, (*Consumer)(nil), consumer)
 }
@@ -90,7 +90,7 @@ func TestProducerInterfaceCompliance(t *testing.T) {
 func TestConsumerInterfaceCompliance(t *testing.T) {
 	// This test ensures that our Consumer interface has the expected methods
 	// We test this by creating a real consumer and checking its methods
-	consumer := NewConsumer("test_consumer_config.yaml")
+	consumer := NewConsumer("test_consumer_config.yaml", "")
 	defer consumer.Close()
 
 	// These should compile if the interface is correctly implemented

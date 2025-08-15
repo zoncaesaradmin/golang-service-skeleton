@@ -21,8 +21,8 @@ type ZerologLogger struct {
 	file     *os.File
 }
 
-// NewZerologLoggerWithConfig creates a new ZerologLogger with comprehensive configuration
-func NewZerologLoggerWithConfig(config *LoggerConfig) (*ZerologLogger, error) {
+// NewlogLoggerWithConfig creates a new ZerologLogger with comprehensive configuration
+func NewlogLoggerWithConfig(config *LoggerConfig) (*ZerologLogger, error) {
 	// Open the log file for writing (create if not exists, append if exists)
 	file, err := os.OpenFile(config.FileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {

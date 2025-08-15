@@ -183,7 +183,8 @@ type KafkaConsumer struct {
 }
 
 // NewConsumer creates a new Kafka consumer with configuration from YAML file
-func NewConsumer(configPath string) Consumer {
+// If cgroup is not empty, it overrides the group.id from config file
+func NewConsumer(configPath string, cgroup string) Consumer {
 	// Load configuration from YAML file
 	configMap, err := LoadConsumerConfigMap(configPath)
 	if err != nil {
@@ -195,7 +196,13 @@ func NewConsumer(configPath string) Consumer {
 
 	// Set values from config file, with fallback defaults
 	config.SetKey("bootstrap.servers", GetStringValue(configMap, "bootstrap.servers", "localhost:9092"))
-	config.SetKey("group.id", GetStringValue(configMap, "group.id", "default-group"))
+
+	// Use provided cgroup if not empty, otherwise use config file value
+	groupID := GetStringValue(configMap, "group.id", "default-group")
+	if cgroup != "" {
+		groupID = cgroup
+	}
+	config.SetKey("group.id", groupID)
 	config.SetKey("auto.offset.reset", GetStringValue(configMap, "auto.offset.reset", "earliest"))
 	config.SetKey("enable.auto.commit", GetBoolValue(configMap, "enable.auto.commit", false))
 	config.SetKey("session.timeout.ms", GetIntValue(configMap, "session.timeout.ms", 30000))
