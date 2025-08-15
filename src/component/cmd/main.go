@@ -108,20 +108,7 @@ func loadConfig() *config.Config {
 
 	// Load configuration from the centralized config file
 	configPath := filepath.Join(homeDir, "conf", "config.yaml")
-
-	cfg, err := config.LoadConfigFromFile(configPath)
-	if err != nil {
-		log.Fatalf("Failed to load configuration from %s: %v", configPath, err)
-	}
-	log.Printf("Loaded configuration from: %s", configPath)
-
-	// If no config file was found, use defaults
-	if cfg == nil {
-		cfg = config.LoadConfig()
-		log.Printf("No configuration file found, using environment variables and defaults")
-	}
-
-	return cfg
+	return config.LoadConfigWithDefaults(configPath)
 }
 
 func initLogger(cfg *config.Config) logging.Logger {

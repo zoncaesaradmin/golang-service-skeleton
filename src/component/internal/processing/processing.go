@@ -34,14 +34,15 @@ type Pipeline struct {
 }
 
 func NewPipeline(config ProcConfig, logger logging.Logger) *Pipeline {
-	inputHandler := NewInputHandler(config.Input, logger.WithField("component", "input"))
-	outputHandler := NewOutputHandler(config.Output, logger.WithField("component", "output"))
+	plogger := initPipelineLogger(config.LoggerConfig)
+	inputHandler := NewInputHandler(config.Input, plogger.WithField("component", "input"))
+	outputHandler := NewOutputHandler(config.Output, plogger.WithField("component", "output"))
 	processor := NewProcessor(config.Processor, logger.WithField("component", "processor"), inputHandler.GetInputChannel(), outputHandler.GetOutputChannel())
 
 	return &Pipeline{
 		config:        config,
 		logger:        logger,
-		plogger:       initPipelineLogger(config.LoggerConfig),
+		plogger:       plogger,
 		inputHandler:  inputHandler,
 		processor:     processor,
 		outputHandler: outputHandler,
