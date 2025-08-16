@@ -1,10 +1,10 @@
 package processing
 
 import (
-	"servicemodule/internal/models"
+	"servicegomodule/internal/models"
 	"context"
-	"sharedmodule/logging"
-	"sharedmodule/messagebus"
+	"sharedgomodule/logging"
+	"sharedgomodule/messagebus"
 	"testing"
 	"time"
 )

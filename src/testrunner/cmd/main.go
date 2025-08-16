@@ -10,11 +10,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"katharos/testrunner/internal/config"
-	"katharos/testrunner/internal/testdata"
-	"katharos/testrunner/internal/types"
-	"katharos/testrunner/internal/validation"
-	"sharedmodule/messagebus"
+	"testgomodule/internal/config"
+	"testgomodule/internal/testdata"
+	"testgomodule/internal/types"
+	"testgomodule/internal/validation"
+	"sharedgomodule/messagebus"
 
 	"gopkg.in/yaml.v2"
 )

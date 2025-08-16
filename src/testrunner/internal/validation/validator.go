@@ -3,7 +3,7 @@ package validation
 import (
 	"reflect"
 
-	"katharos/testrunner/internal/config"
+	"testgomodule/internal/config"
 )
 
 // ValidationResult represents the result of output validation

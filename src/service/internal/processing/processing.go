@@ -1,11 +1,11 @@
 package processing
 
 import (
-	"servicemodule/internal/config"
-	"servicemodule/internal/models"
+	"servicegomodule/internal/config"
+	"servicegomodule/internal/models"
 	"fmt"
 	"log"
-	"sharedmodule/logging"
+	"sharedgomodule/logging"
 	"time"
 )
 

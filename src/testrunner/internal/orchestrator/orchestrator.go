@@ -5,12 +5,12 @@ import (
 	"log"
 	"time"
 
-	"katharos/testrunner/internal/config"
-	"katharos/testrunner/internal/harness"
-	"katharos/testrunner/internal/process"
-	"katharos/testrunner/internal/testdata"
-	"katharos/testrunner/internal/types"
-	"katharos/testrunner/internal/validation"
+	"testgomodule/internal/config"
+	"testgomodule/internal/harness"
+	"testgomodule/internal/process"
+	"testgomodule/internal/testdata"
+	"testgomodule/internal/types"
+	"testgomodule/internal/validation"
 )
 
 // Orchestrator manages the execution of test scenarios

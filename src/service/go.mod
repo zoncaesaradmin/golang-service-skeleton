@@ -1,4 +1,4 @@
-module servicemodule
+module servicegomodule
 
 go 1.22.5
 

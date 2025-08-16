@@ -1,4 +1,4 @@
-module katharos/testrunner
+module testgomodule
 
 go 1.22.5
 

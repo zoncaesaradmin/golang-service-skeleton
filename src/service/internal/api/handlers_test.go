@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"servicemodule/internal/models"
-	"sharedmodule/logging"
+	"servicegomodule/internal/models"
+	"sharedgomodule/logging"
 )
 
 const (

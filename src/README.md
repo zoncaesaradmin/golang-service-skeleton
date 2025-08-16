@@ -23,7 +23,7 @@ src/                          # Source code root
 ├── README.md                # This documentation
 │
 ├── service/               # Main processing service
-│   ├── go.mod               # Module: servicemodule
+│   ├── go.mod               # Module: servicegomodule
 │   ├── go.sum               # Go module checksums
 │   ├── Makefile             # Service build automation
 │   ├── cmd/                 # Application entry point
@@ -88,7 +88,7 @@ src/                          # Source code root
 │   └── bin/                 # Build output
 │
 └── shared/                  # Shared modules
-    ├── go.mod               # Module: sharedmodule  
+    ├── go.mod               # Module: sharedgomodule  
     ├── go.sum               # Go module checksums
     ├── Makefile             # Shared module automation
     ├── README.md            # Shared module documentation

@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"katharos/testrunner/internal/config"
+	"testgomodule/internal/config"
 )
 
 // Manager handles service process lifecycle

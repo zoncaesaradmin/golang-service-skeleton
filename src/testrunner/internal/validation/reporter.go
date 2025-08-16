@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"katharos/testrunner/internal/types"
+	"testgomodule/internal/types"
 )
 
 // TestReport represents a complete test execution report

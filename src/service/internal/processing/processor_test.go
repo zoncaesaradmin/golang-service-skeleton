@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"servicemodule/internal/models"
-	"sharedmodule/logging"
+	"servicegomodule/internal/models"
+	"sharedgomodule/logging"
 )
 
 // mockLoggerForProcessor implements the logging.Logger interface for testing

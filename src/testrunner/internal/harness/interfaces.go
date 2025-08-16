@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"katharos/testrunner/internal/config"
-	"sharedmodule/messagebus"
+	"testgomodule/internal/config"
+	"sharedgomodule/messagebus"
 )
 
 type TestHarness interface {

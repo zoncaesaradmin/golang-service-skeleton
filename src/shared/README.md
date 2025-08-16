@@ -18,7 +18,7 @@ This module contains common utilities and packages shared between the service an
 
 Import from other modules in the workspace:
 ```go
-import "sharedmodule/utils"
-import "sharedmodule/types"
-import "sharedmodule/logging"
+import "sharedgomodule/utils"
+import "sharedgomodule/types"
+import "sharedgomodule/logging"
 ```

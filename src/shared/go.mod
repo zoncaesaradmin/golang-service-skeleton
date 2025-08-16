@@ -1,4 +1,4 @@
-module sharedmodule
+module sharedgomodule
 
 go 1.22.5
 

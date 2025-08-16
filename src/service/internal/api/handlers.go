@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"servicemodule/internal/models"
-	"sharedmodule/logging"
+	"servicegomodule/internal/models"
+	"sharedgomodule/logging"
 )
 
 // Error message constants

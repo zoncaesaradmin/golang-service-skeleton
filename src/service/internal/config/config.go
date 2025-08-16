@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"sharedmodule/logging"
-	"sharedmodule/utils"
+	"sharedgomodule/logging"
+	"sharedgomodule/utils"
 
 	"gopkg.in/yaml.v3"
 )

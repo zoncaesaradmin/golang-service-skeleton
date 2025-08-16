@@ -2,8 +2,8 @@ package processing
 
 import (
 	"context"
-	"sharedmodule/logging"
-	"sharedmodule/messagebus"
+	"sharedgomodule/logging"
+	"sharedgomodule/messagebus"
 	"testing"
 	"time"
 )

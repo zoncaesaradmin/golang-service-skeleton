@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"servicemodule/internal/config"
-	"sharedmodule/logging"
+	"servicegomodule/internal/config"
+	"sharedgomodule/logging"
 )
 
 // mockLogger implements basic logging interface for testing

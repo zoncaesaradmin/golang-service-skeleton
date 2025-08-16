@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"servicemodule/internal/config"
-	"servicemodule/internal/processing"
-	"sharedmodule/logging"
+	"servicegomodule/internal/config"
+	"servicegomodule/internal/processing"
+	"sharedgomodule/logging"
 )
 
 // Application represents the main application instance that holds configuration and dependencies

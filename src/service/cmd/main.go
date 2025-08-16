@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"servicemodule/internal/api"
-	"servicemodule/internal/app"
-	"servicemodule/internal/config"
-	"sharedmodule/logging"
+	"servicegomodule/internal/api"
+	"servicegomodule/internal/app"
+	"servicegomodule/internal/config"
+	"sharedgomodule/logging"
 
 	"github.com/joho/godotenv"
 )

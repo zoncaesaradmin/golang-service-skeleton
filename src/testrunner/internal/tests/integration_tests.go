@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"katharos/testrunner/internal/client"
+	"testgomodule/internal/client"
 )
 
 // TestResult represents the result of a test
