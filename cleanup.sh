@@ -26,7 +26,7 @@ cd ..
 
 # 4. Clean message bus data
 echo "Cleaning message bus data..."
-rm -rf /tmp/katharos-messagebus/ 2>/dev/null || true
+rm -rf /tmp/cratos-messagebus/ 2>/dev/null || true
 
 # 5. Clean test results
 echo "Cleaning test results..."

@@ -176,7 +176,7 @@ func isRunningInContainer() bool {
 // logEnvironmentInfo logs information about the current environment
 func logEnvironmentInfo() {
 	appEnv := getEnvWithDefault("APP_ENV", "production")
-	appName := getEnvWithDefault("APP_NAME", "katharos")
+	appName := getEnvWithDefault("APP_NAME", "cratos")
 	appVersion := getEnvWithDefault("APP_VERSION", "unknown")
 
 	log.Printf("🚀 Starting %s v%s in %s environment", appName, appVersion, appEnv)

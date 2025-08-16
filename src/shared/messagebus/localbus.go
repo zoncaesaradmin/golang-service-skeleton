@@ -16,7 +16,7 @@ import (
 
 // File-based message storage for cross-process communication
 var (
-	messageBusDir = "/tmp/katharos-messagebus"
+	messageBusDir = "/tmp/cratos-messagebus"
 	globalMutex   = sync.RWMutex{}
 )
 

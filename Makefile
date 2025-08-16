@@ -1,4 +1,4 @@
-# Simplified Katharos Project Makefile
+# Simplified Cratos Project Makefile
 .PHONY: help dev dev-run dev-clean test-coverage build clean package package-local pre_build post_build
 
 # Default ENTRYPOINT_MODE if not set
@@ -18,7 +18,7 @@ LOCAL_BUILD_TAGS = $(call append_tag,local)
 # Default target
 help:
 help:
-	@echo "Katharos Project - Simplified Makefile"
+	@echo "Cratos Project - Simplified Makefile"
 	@echo "====================================="
 	@echo ""
 	@echo "🚀 LOCAL DEVELOPMENT (Mac/PC):"
@@ -104,7 +104,7 @@ dev-clean:
 	@pkill -f "service" 2>/dev/null || true
 	@pkill -f "testrunner" 2>/dev/null || true
 	@rm -rf test/results/ test/coverage/ test/*.pid 2>/dev/null || true
-	@rm -rf /tmp/katharos-messagebus* 2>/dev/null || true
+	@rm -rf /tmp/cratos-messagebus* 2>/dev/null || true
 	@echo "✅ Development environment cleaned"
 
 # Generate coverage report from latest test run (standalone)
@@ -178,6 +178,6 @@ clean:
 	@echo "🧹 Cleaning all build artifacts..."
 	@$(MAKE) -C src clean
 	@rm -rf test/results/ test/coverage/ test/*.pid 2>/dev/null || true
-	@rm -rf /tmp/katharos-messagebus* 2>/dev/null || true
+	@rm -rf /tmp/cratos-messagebus* 2>/dev/null || true
 	@echo "✅ All artifacts cleaned"
 

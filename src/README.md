@@ -1,4 +1,4 @@
-# Katharos Service System
+# Cratos Service System
 
 This project provides a comprehensive Go service system with a message bus-based processing pipeline and integration test infrastructure using Go workspace for multi-module management.
 
@@ -205,16 +205,16 @@ The system uses a file-based message bus for local development:
 
 ```bash
 # Check message bus activity
-ls -la /tmp/katharos-messagebus/
+ls -la /tmp/cratos-messagebus/
 
 # View input messages
-cat /tmp/katharos-messagebus/test_input/0000000000.json
+cat /tmp/cratos-messagebus/test_input/0000000000.json
 
 # View output responses (after processing)
-cat /tmp/katharos-messagebus/test_output/0000000000.json | jq .
+cat /tmp/cratos-messagebus/test_output/0000000000.json | jq .
 
 # Clean message bus for fresh test
-rm -rf /tmp/katharos-messagebus
+rm -rf /tmp/cratos-messagebus
 ```
 
 ### Using Go Workspace
@@ -231,7 +231,7 @@ go work use ./service ./testrunner ./shared  # Add modules to workspace
 
 For local development, the system uses a file-based message bus implementation:
 
-- **Bus Location**: `/tmp/katharos-messagebus/`
+- **Bus Location**: `/tmp/cratos-messagebus/`
 - **Topic Structure**: Each topic is a directory containing JSON message files
 - **Message Format**: Sequential numbered files (0000000000.json, 0000000001.json, etc.)
 - **Cross-Process Communication**: Service processes messages, testrunner validates responses
@@ -315,7 +315,7 @@ validation:
 
 ### Message Bus Configuration
 
-Local development uses file-based message bus at `/tmp/katharos-messagebus/`.
+Local development uses file-based message bus at `/tmp/cratos-messagebus/`.
 Production configuration would specify Kafka brokers and topics.
 
 ## Testing
@@ -385,7 +385,7 @@ cd service && make run BUILD_TAGS="local"
 cd testrunner && make run BUILD_TAGS="local"
 
 # Monitor message bus
-ls -la /tmp/katharos-messagebus/
+ls -la /tmp/cratos-messagebus/
 ```
 
 ## Cleanup Commands
@@ -416,7 +416,7 @@ cd shared && make deep-clean
 
 ```bash
 # Clean message bus data (fresh start)
-rm -rf /tmp/katharos-messagebus
+rm -rf /tmp/cratos-messagebus
 ```
 
 The clean commands remove:
@@ -609,12 +609,12 @@ make build BUILD_TAGS="local"
 3. **Monitor message bus activity**:
 ```bash
 # Check message files
-ls -la /tmp/katharos-messagebus/test_input/
-ls -la /tmp/katharos-messagebus/test_output/
+ls -la /tmp/cratos-messagebus/test_input/
+ls -la /tmp/cratos-messagebus/test_output/
 
 # View message content
-cat /tmp/katharos-messagebus/test_input/0000000000.json | jq .
-cat /tmp/katharos-messagebus/test_output/0000000000.json | jq .
+cat /tmp/cratos-messagebus/test_input/0000000000.json | jq .
+cat /tmp/cratos-messagebus/test_output/0000000000.json | jq .
 ```
 
 ### Custom Test Scenarios

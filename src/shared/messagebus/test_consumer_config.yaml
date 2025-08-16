@@ -4,4 +4,4 @@ group.id: "test-group"
 auto.offset.reset: "earliest"
 enable.auto.commit: false
 client.id: "test-consumer"
-local.base.dir: "/tmp/katharos-messagebus-test"
+local.base.dir: "/tmp/cratos-messagebus-test"

@@ -1,6 +1,6 @@
 # Configuration Documentation
 
-This document explains the configuration system for the Katharos service and test infrastructure.
+This document explains the configuration system for the Cratos service and test infrastructure.
 
 ## Configuration Files
 
@@ -45,14 +45,14 @@ server:
 logging:
   level: "info"                  # LOG_LEVEL (debug, info, warn, error)
   format: "json"                 # LOG_FORMAT (json, text)
-  file_path: "/tmp/katharos-service.log"  # LOG_FILE_PATH
+  file_path: "/tmp/cratos-service.log"  # LOG_FILE_PATH
 ```
 
 ### Test Configuration (`testconfig.yaml`)
 ```yaml
 # Service settings for testing
 service:
-  binary_path: "../service/bin/service"
+  binary_path: "../service/bin/service.bin"
   port: 8080
   timeout: 30s
 
@@ -78,7 +78,7 @@ Service configuration values can be overridden using environment variables. The 
 
 ### Example:
 ```bash
-export SERVICE_HOME="/path/to/katharos"
+export SERVICE_HOME="/path/to/cratos"
 export SERVER_PORT=9090
 export LOG_LEVEL=debug
 ./bin/service

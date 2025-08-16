@@ -87,7 +87,7 @@ func (r *Reporter) generateJSONReport(report TestReport) error {
 // generateJUnitReport generates a JUnit XML report
 func (r *Reporter) generateJUnitReport(report TestReport) error {
 	xml := `<?xml version="1.0" encoding="UTF-8"?>` + "\n"
-	xml += fmt.Sprintf(`<testsuite name="Katharos Test Suite" tests="%d" failures="%d" time="%.3f" timestamp="%s">`,
+	xml += fmt.Sprintf(`<testsuite name="Cratos Test Suite" tests="%d" failures="%d" time="%.3f" timestamp="%s">`,
 		len(report.Results),
 		r.countFailures(report.Results),
 		r.calculateTotalTime(report.Results),

@@ -1,5 +1,5 @@
-# Katharos Service Configuration
-# This is the main configuration file for the Katharos service.
+# Cratos Service Configuration
+# This is the main configuration file for the Cratos service.
 # Values can be overridden by environment variables (see documentation).
 #
 # Usage:
@@ -17,9 +17,9 @@ server:
 # Logging configuration
 logging:
   level: "info"                  # Log level: debug, info, warn, error (env: LOG_LEVEL)
-  filePath: "/tmp/katharos-service.log"  # Log file path (env: LOG_FILE_PATH)
-  loggerName: "katharos-service"         # Logger name identifier (env: LOG_LOGGER_NAME)
-  serviceName: "katharos"                    # Service name for structured logging (env: LOG_COMPONENT_NAME)
+  filePath: "/tmp/cratos-service.log"  # Log file path (env: LOG_FILE_PATH)
+  loggerName: "cratos-service"         # Logger name identifier (env: LOG_LOGGER_NAME)
+  serviceName: "cratos"                    # Service name for structured logging (env: LOG_COMPONENT_NAME)
 
 # Processing pipeline configuration
 processing:
@@ -46,9 +46,9 @@ processing:
   # Pipeline-specific logger configuration (separate from main application logger)
   logging:
     level: "info"                # Pipeline log level: debug, info, warn, error, fatal, panic (env: PROCESSING_PLOGGER_LEVEL)
-    filePath: "/tmp/katharos-pipeline.log"  # Pipeline log file path (env: PROCESSING_PLOGGER_FILE_NAME)
+    filePath: "/tmp/cratos-pipeline.log"  # Pipeline log file path (env: PROCESSING_PLOGGER_FILE_NAME)
     loggerName: "pipeline"       # Pipeline logger name identifier (env: PROCESSING_PLOGGER_LOGGER_NAME)
-    serviceName: "katharos"      # Pipeline logger service name (env: PROCESSING_PLOGGER_SERVICE_NAME)
+    serviceName: "cratos"      # Pipeline logger service name (env: PROCESSING_PLOGGER_SERVICE_NAME)
 
 # Configuration Notes:
 # 

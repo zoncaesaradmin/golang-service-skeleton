@@ -1,12 +1,12 @@
 # Local Development Guide
 
-This guide covers the local development setup for the Katharos project, including building, testing, and generating coverage reports with comprehensive log management.
+This guide covers the local development setup for the Cratos project, including building, testing, and generating coverage reports with comprehensive log management.
 
 ## Quick Start
 
 ### One-Step Build and Test
 ```bash
-# From the root directory (katharos/)
+# From the root directory (cratos/)
 make test
 
 # Or from the test directory
@@ -57,7 +57,7 @@ cd test/
 The test infrastructure has been moved to the `test/` directory parallel to `src/` for better organization:
 
 ```
-katharos/
+cratos/
 ├── src/                    # Source code
 │   ├── service/          # Main service source
 │   ├── testrunner/         # Test runner source
@@ -78,7 +78,7 @@ katharos/
 The local development environment uses a **file-based message bus** for cross-process communication:
 
 ### File-Based Message Bus Features
-- **Location**: `/tmp/katharos-messagebus/`
+- **Location**: `/tmp/cratos-messagebus/`
 - **Topics**: Organized in subdirectories (`test_input/`, `test_output/`)
 - **Message Format**: JSON files with sequential offsets (`0000000000.json`, `0000000001.json`)
 - **Cross-Process**: Enables testrunner and service to communicate via filesystem
@@ -233,19 +233,19 @@ open test/results/coverage.html
 ### Manual Message Bus Inspection
 ```bash
 # Check message bus state
-ls -la /tmp/katharos-messagebus/
+ls -la /tmp/cratos-messagebus/
 
 # View input messages
-cat /tmp/katharos-messagebus/test_input/0000000000.json
+cat /tmp/cratos-messagebus/test_input/0000000000.json
 
 # View output responses
-cat /tmp/katharos-messagebus/test_output/0000000000.json | jq .
+cat /tmp/cratos-messagebus/test_output/0000000000.json | jq .
 ```
 
 ### Message Bus Cleanup
 ```bash
 # Clean message bus for fresh test
-rm -rf /tmp/katharos-messagebus
+rm -rf /tmp/cratos-messagebus
 ```
 
 ### Debug Message Flow
@@ -303,9 +303,9 @@ grep "Validation" test/results/logs/testrunner_stderr.log
 4. Check port conflicts (service uses localhost:8080)
 
 ### Message Bus Issues
-1. Check message bus directory: `ls -la /tmp/katharos-messagebus/`
-2. Verify message format: `cat /tmp/katharos-messagebus/test_*/000*.json | jq .`
-3. Clean and retry: `rm -rf /tmp/katharos-messagebus && make test`
+1. Check message bus directory: `ls -la /tmp/cratos-messagebus/`
+2. Verify message format: `cat /tmp/cratos-messagebus/test_*/000*.json | jq .`
+3. Clean and retry: `rm -rf /tmp/cratos-messagebus && make test`
 4. Check process communication in logs
 
 ### Coverage Issues
@@ -377,14 +377,14 @@ The local development setup integrates with VS Code through:
 1. **Regular Cleanup**: Use `make test-clean` to remove old log files
 2. **Log Analysis**: Use grep, awk, or jq for structured log analysis
 3. **Error Tracking**: Monitor error patterns across test runs
-4. **Message Bus Debugging**: Check /tmp/katharos-messagebus/ for message flow
+4. **Message Bus Debugging**: Check /tmp/cratos-messagebus/ for message flow
 5. **Performance Monitoring**: Track service startup and response times in logs
 6. **Debug Information**: Enable verbose logging for detailed troubleshooting
 
 ## Message Bus Implementation Details
 
 ### Local vs Production
-- **Local**: File-based message bus in `/tmp/katharos-messagebus/`
+- **Local**: File-based message bus in `/tmp/cratos-messagebus/`
 - **Production**: Kafka-based message bus (not implemented in local mode)
 - **Switching**: Controlled by build tags (`-tags local`)
 

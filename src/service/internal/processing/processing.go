@@ -133,10 +133,10 @@ func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 			},
 			LoggerConfig: logging.LoggerConfig{
 				Level:         logging.InfoLevel,
-				FileName:      "/tmp/katharos-pipeline.log",
+				FileName:      "/tmp/cratos-pipeline.log",
 				LoggerName:    "pipeline",
 				ComponentName: "processing",
-				ServiceName:   "katharos",
+				ServiceName:   "cratos",
 			},
 		}
 	}
@@ -173,10 +173,10 @@ func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 		} else {
 			procConfig.LoggerConfig = logging.LoggerConfig{
 				Level:         logging.InfoLevel,
-				FileName:      "/tmp/katharos-pipeline.log",
+				FileName:      "/tmp/cratos-pipeline.log",
 				LoggerName:    "pipeline",
 				ComponentName: "processing",
-				ServiceName:   "katharos",
+				ServiceName:   "cratos",
 			}
 		}
 		return procConfig
@@ -212,10 +212,10 @@ func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 		// Use default pipeline logger configuration
 		procConfig.LoggerConfig = logging.LoggerConfig{
 			Level:         logging.InfoLevel,
-			FileName:      "/tmp/katharos-pipeline.log",
+			FileName:      "/tmp/cratos-pipeline.log",
 			LoggerName:    "pipeline",
 			ComponentName: "processing",
-			ServiceName:   "katharos",
+			ServiceName:   "cratos",
 		}
 	}
 

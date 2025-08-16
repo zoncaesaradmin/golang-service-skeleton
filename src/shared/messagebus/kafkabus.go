@@ -29,7 +29,7 @@ func NewProducer(configPath string) Producer {
 
 	// Set values from config file, with fallback defaults
 	config.SetKey("bootstrap.servers", GetStringValue(configMap, "bootstrap.servers", "localhost:9092"))
-	config.SetKey("client.id", GetStringValue(configMap, "client.id", "katharos-producer"))
+	config.SetKey("client.id", GetStringValue(configMap, "client.id", "cratos-producer"))
 	config.SetKey("acks", GetStringValue(configMap, "acks", "all"))
 	config.SetKey("retries", GetIntValue(configMap, "retries", 3))
 	config.SetKey("batch.size", GetIntValue(configMap, "batch.size", 16384))
@@ -210,7 +210,7 @@ func NewConsumer(configPath string, cgroup string) Consumer {
 	config.SetKey("fetch.min.bytes", GetIntValue(configMap, "fetch.min.bytes", 1))
 	config.SetKey("fetch.max.wait.ms", GetIntValue(configMap, "fetch.max.wait.ms", 500))
 	config.SetKey("max.partition.fetch.bytes", GetIntValue(configMap, "max.partition.fetch.bytes", 1048576))
-	config.SetKey("client.id", GetStringValue(configMap, "client.id", "katharos-consumer"))
+	config.SetKey("client.id", GetStringValue(configMap, "client.id", "cratos-consumer"))
 	config.SetKey("security.protocol", GetStringValue(configMap, "security.protocol", "PLAINTEXT"))
 
 	consumer, err := kafka.NewConsumer(config)

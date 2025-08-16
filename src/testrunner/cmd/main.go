@@ -45,7 +45,7 @@ func main() {
 		return
 	}
 
-	log.Printf("Starting Katharos Test Runner...")
+	log.Printf("Starting Cratos Test Runner...")
 
 	// Load configuration from centralized location using SERVICE_HOME
 	homeDir := os.Getenv("SERVICE_HOME")

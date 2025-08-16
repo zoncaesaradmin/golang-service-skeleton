@@ -15,8 +15,8 @@ import (
 
 const (
 	healthEndpoint  = "/health"
-	serviceName     = "katharos-service"
-	logFileName     = "/tmp/katharos-service.log"
+	serviceName     = "cratos-service"
+	logFileName     = "/tmp/cratos-service.log"
 	componentMain   = "main"
 	testHost        = "localhost"
 	testHostAll     = "0.0.0.0"

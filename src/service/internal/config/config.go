@@ -82,9 +82,9 @@ func LoadConfig() *RawConfig {
 		},
 		Logging: RawLoggingConfig{
 			Level:       utils.GetEnv("LOG_LEVEL", "info"),
-			FilePath:    utils.GetEnv("LOG_FILE_PATH", "/tmp/katharos-service.log"),
-			LoggerName:  utils.GetEnv("LOG_LOGGER_NAME", "katharos-service"),
-			ServiceName: utils.GetEnv("LOG_SERVICE_NAME", "katharos-service"),
+			FilePath:    utils.GetEnv("LOG_FILE_PATH", "/tmp/cratos-service.log"),
+			LoggerName:  utils.GetEnv("LOG_LOGGER_NAME", "cratos-service"),
+			ServiceName: utils.GetEnv("LOG_SERVICE_NAME", "cratos-service"),
 		},
 		Processing: RawProcessingConfig{
 			Input: RawInputConfig{
@@ -108,9 +108,9 @@ func LoadConfig() *RawConfig {
 			},
 			PloggerConfig: RawLoggingConfig{
 				Level:       utils.GetEnv("PROCESSING_PLOGGER_LEVEL", "info"),
-				FilePath:    utils.GetEnv("PROCESSING_PLOGGER_FILE_NAME", "/tmp/katharos-pipeline.log"),
+				FilePath:    utils.GetEnv("PROCESSING_PLOGGER_FILE_NAME", "/tmp/cratos-pipeline.log"),
 				LoggerName:  utils.GetEnv("PROCESSING_PLOGGER_LOGGER_NAME", "pipeline"),
-				ServiceName: utils.GetEnv("PROCESSING_PLOGGER_SERVICE_NAME", "katharos"),
+				ServiceName: utils.GetEnv("PROCESSING_PLOGGER_SERVICE_NAME", "cratos"),
 			},
 		},
 	}
