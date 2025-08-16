@@ -2,7 +2,7 @@
 .PHONY: build test clean deep-clean run deps tidy fmt vet run-integration-tests run-performance-tests help
 
 # Variables
-BINARY_NAME=testrunner
+BINARY_NAME=testrunner.bin
 BINARY_PATH=./bin/$(BINARY_NAME)
 MAIN_PATH=./cmd/main.go
 GO_FILES=$(shell find . -name "*.go" -type f)

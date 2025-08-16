@@ -188,7 +188,7 @@ func TestServerConfiguration(t *testing.T) {
 
 func TestApplicationInitialization(t *testing.T) {
 	// Test that application is initialized correctly
-	rawcfg := &config.RawConfig{
+	cfg := &config.RawConfig{
 		Server: config.RawServerConfig{
 			Host:         testHost,
 			Port:         8080,
@@ -198,7 +198,7 @@ func TestApplicationInitialization(t *testing.T) {
 	}
 
 	logger := &mockLogger{}
-	application := app.NewApplication(rawcfg, logger)
+	application := app.NewApplication(cfg, logger)
 
 	// Verify application is created properly
 	if application == nil {
@@ -207,7 +207,7 @@ func TestApplicationInitialization(t *testing.T) {
 
 	// Verify config is accessible
 	appConfig := application.Config()
-	if appConfig != rawcfg {
+	if appConfig != cfg {
 		t.Error("expected application config to match provided config")
 	}
 
@@ -421,7 +421,7 @@ func BenchmarkHealthCheckRequest(b *testing.B) {
 }
 
 func BenchmarkApplicationCreation(b *testing.B) {
-	rawcfg := &config.RawConfig{
+	cfg := &config.RawConfig{
 		Server: config.RawServerConfig{
 			Host:         testHost,
 			Port:         8080,
@@ -433,7 +433,7 @@ func BenchmarkApplicationCreation(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		app := app.NewApplication(rawcfg, logger)
+		app := app.NewApplication(cfg, logger)
 		app.Shutdown()
 	}
 }

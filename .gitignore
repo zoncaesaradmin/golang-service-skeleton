@@ -43,8 +43,8 @@ src/testrunner/bin/
 src/shared/bin/
 
 # Binary files
-**/component
-**/testrunner
+**/component.bin
+**/testrunner.bin
 
 # ==============================================================================
 # IDE and Editor files

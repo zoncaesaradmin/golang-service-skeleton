@@ -20,7 +20,7 @@ logging:
   format: "json"                 # Log format: json, text (env: LOG_FORMAT)
   filePath: "/tmp/katharos-component.log"  # Log file path (env: LOG_FILE_PATH)
   loggerName: "katharos-component"         # Logger name identifier (env: LOG_LOGGER_NAME)
-  componentName: "main"                    # Component name for structured logging (env: LOG_COMPONENT_NAME)
+  serviceName: "katharos"                    # Component name for structured logging (env: LOG_COMPONENT_NAME)
   serviceName: "katharos-component"        # Service name for structured logging (env: LOG_SERVICE_NAME)
 
 # Processing pipeline configuration
@@ -50,7 +50,6 @@ processing:
     level: "info"                # Pipeline log level: debug, info, warn, error, fatal, panic (env: PROCESSING_PLOGGER_LEVEL)
     filePath: "/tmp/katharos-pipeline.log"  # Pipeline log file path (env: PROCESSING_PLOGGER_FILE_NAME)
     loggerName: "pipeline"       # Pipeline logger name identifier (env: PROCESSING_PLOGGER_LOGGER_NAME)
-    componentName: "processing"  # Pipeline logger component name (env: PROCESSING_PLOGGER_COMPONENT_NAME)
     serviceName: "katharos"      # Pipeline logger service name (env: PROCESSING_PLOGGER_SERVICE_NAME)
 
 # Configuration Notes:

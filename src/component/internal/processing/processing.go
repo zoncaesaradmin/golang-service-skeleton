@@ -37,7 +37,7 @@ func NewPipeline(config ProcConfig, logger logging.Logger) *Pipeline {
 	plogger := initPipelineLogger(config.LoggerConfig)
 	inputHandler := NewInputHandler(config.Input, plogger.WithField("component", "input"))
 	outputHandler := NewOutputHandler(config.Output, plogger.WithField("component", "output"))
-	processor := NewProcessor(config.Processor, logger.WithField("component", "processor"), inputHandler.GetInputChannel(), outputHandler.GetOutputChannel())
+	processor := NewProcessor(config.Processor, plogger.WithField("component", "processor"), inputHandler.GetInputChannel(), outputHandler.GetOutputChannel())
 
 	return &Pipeline{
 		config:        config,
@@ -257,9 +257,9 @@ func ValidateConfig(config ProcConfig) error {
 		return fmt.Errorf("output buffer size must be positive")
 	}
 
-	// Validate Plogger configuration using the logging package's validation
+	// Validate logger configuration using the logging package's validation
 	if err := config.LoggerConfig.Validate(); err != nil {
-		return fmt.Errorf("plogger configuration validation failed: %w", err)
+		return fmt.Errorf("logger configuration validation failed: %w", err)
 	}
 
 	return nil

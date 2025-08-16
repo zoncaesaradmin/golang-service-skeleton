@@ -2,7 +2,7 @@
 .PHONY: build test clean deep-clean run run-local run-local-coverage deps tidy lint fmt vet coverage coverage-enforce coverage-html install-lint docker-build help
 
 # Variables
-BINARY_NAME=component
+BINARY_NAME=component.bin
 BINARY_PATH=./bin/$(BINARY_NAME)
 MAIN_PATH=./cmd/main.go
 GO_FILES=$(shell find . -name "*.go" -type f)

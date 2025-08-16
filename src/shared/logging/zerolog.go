@@ -22,7 +22,7 @@ type ZerologLogger struct {
 }
 
 // NewlogLoggerWithConfig creates a new ZerologLogger with comprehensive configuration
-func NewlogLoggerWithConfig(config *LoggerConfig) (*ZerologLogger, error) {
+func NewLoggerWithConfig(config *LoggerConfig) (*ZerologLogger, error) {
 	// Open the log file for writing (create if not exists, append if exists)
 	file, err := os.OpenFile(config.FileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
@@ -33,7 +33,6 @@ func NewlogLoggerWithConfig(config *LoggerConfig) (*ZerologLogger, error) {
 	logger := zerolog.New(file).With().
 		Timestamp().
 		Str("service", config.ServiceName).
-		Str("component", config.ComponentName).
 		Logger().
 		Level(levelToZerolog(config.Level))
 

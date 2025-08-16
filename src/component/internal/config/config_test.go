@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-const errCreateTestConfigFile = "Failed to create test config file: %v"
-
 func TestLoadConfigDefaults(t *testing.T) {
 	config := LoadConfig()
 

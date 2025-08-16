@@ -29,8 +29,7 @@ type InputHandler struct {
 // NewInputHandler creates a new input handler
 func NewInputHandler(config InputConfig, logger logging.Logger) *InputHandler {
 	// Use simple filename - path resolution is handled by messagebus config loader
-	// Pass empty cgroup to use config file value for local testing
-	consumer := messagebus.NewConsumer("kafka-consumer.yaml", "")
+	consumer := messagebus.NewConsumer("kafka-consumer.yaml", "recordConsGroup")
 
 	return &InputHandler{
 		consumer: consumer,
@@ -54,6 +53,7 @@ func (i *InputHandler) Start() error {
 
 	// Subscribe to topics
 	if err := i.consumer.Subscribe(i.config.Topics); err != nil {
+		i.logger.Errorf("failed to subscribe to topics: %w", err)
 		return fmt.Errorf("failed to subscribe to topics: %w", err)
 	}
 
@@ -108,15 +108,8 @@ func (i *InputHandler) consumeLoop() {
 				// Create a ChannelMessage from the Kafka message
 				channelMsg := models.NewDataMessage(message.Value, "kafka")
 
-				// Send message to input channel (non-blocking)
-				select {
-				case i.inputCh <- channelMsg:
-					i.logger.Debug("Message sent to input channel")
-				case <-i.ctx.Done():
-					return
-				default:
-					i.logger.Warn("Input channel full, dropping message")
-				}
+				i.inputCh <- channelMsg
+				i.logger.Debug("Message sent to input channel")
 
 				// Commit the message
 				if err := i.consumer.Commit(context.Background(), message); err != nil {

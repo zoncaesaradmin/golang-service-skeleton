@@ -9,7 +9,6 @@ enable.auto.commit: false
 session.timeout.ms: 30000
 heartbeat.interval.ms: 10000
 fetch.min.bytes: 1
-fetch.max.wait.ms: 500
 max.partition.fetch.bytes: 1048576
 client.id: "katharos-consumer"
 security.protocol: "PLAINTEXT"

@@ -160,7 +160,7 @@ func NewLogger(config *LoggerConfig) (Logger, error) {
 	}
 
 	// Create zerolog implementation
-	logger, err := NewlogLoggerWithConfig(config)
+	logger, err := NewLoggerWithConfig(config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create logger: %w", err)
 	}

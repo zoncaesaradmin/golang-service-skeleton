@@ -57,8 +57,8 @@ cleanup() {
     log_info "Cleaning up processes and temporary files..."
     
     # Kill any running component or testrunner processes
-    pkill -f "component" 2>/dev/null || true
-    pkill -f "testrunner" 2>/dev/null || true
+    pkill -f "component.bin" 2>/dev/null || true
+    pkill -f "testrunner.bin" 2>/dev/null || true
     
     # Clean up coverage data
     if [ -d "$COVERAGE_DIR" ]; then
@@ -96,7 +96,7 @@ build_testrunner() {
     cd "$TESTRUNNER_DIR"
     
     # Build testrunner
-    go build -tags local -o bin/testrunner cmd/main.go
+    go build -tags local -o bin/testrunner.bin cmd/main.go
     
     if [ $? -eq 0 ]; then
         log_success "Testrunner built successfully"
@@ -147,7 +147,7 @@ run_testrunner() {
     # Temporarily disable strict error handling for testrunner execution
     set +e
     # Run testrunner and capture output
-    ./bin/testrunner > "$LOGS_DIR/testrunner_stdout.log" 2> "$LOGS_DIR/testrunner_stderr.log"
+    ./bin/testrunner.bin > "$LOGS_DIR/testrunner_stdout.log" 2> "$LOGS_DIR/testrunner_stderr.log"
     TEST_RESULT=$?
     set -e
     

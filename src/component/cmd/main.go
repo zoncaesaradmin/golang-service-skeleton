@@ -69,7 +69,7 @@ func startServer(mux *http.ServeMux, cfg *config.RawConfig, application *app.App
 
 	// Start server in a goroutine
 	go func() {
-		logger.Infof("Starting http server on %s:%d", cfg.Server.Host, cfg.Server.Port)
+		logger.Debugf("Starting http server on %s:%d", cfg.Server.Host, cfg.Server.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Fatalf("Failed to start server: %v", err)
 		}
@@ -108,10 +108,14 @@ func loadConfig() *config.RawConfig {
 
 	// Load configuration from the centralized config file
 	configPath := filepath.Join(homeDir, "conf", "config.yaml")
+
 	return config.LoadConfigWithDefaults(configPath)
 }
 
 func initLogger(cfg *config.RawConfig) logging.Logger {
+	// create the log directory path if it does not exist
+	os.MkdirAll(filepath.Dir(cfg.Logging.FilePath), 0755)
+
 	// Convert config logging configuration to logger config
 	loggerConfig := cfg.Logging.ConvertToLoggerConfig()
 
@@ -134,7 +138,7 @@ func loadEnvFile() {
 	// Try to load .env file from workspace root for local development
 	envPaths := []string{
 		".env",             // Current directory
-		"../../../.env",    // From component/cmd back to workspace root
+		"../../../.env",    // From service/cmd back to workspace root
 		"../../../../.env", // Alternative path
 		filepath.Join(os.Getenv("HOME_DIR"), ".env"), // Using HOME_DIR if set
 	}
