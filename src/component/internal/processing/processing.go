@@ -108,7 +108,7 @@ func (p *Pipeline) GetStats() map[string]interface{} {
 	}
 }
 
-func DefaultConfig(cfg *config.Config) ProcConfig {
+func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 	if cfg == nil {
 		// Return hardcoded defaults if no config is provided
 		return ProcConfig{

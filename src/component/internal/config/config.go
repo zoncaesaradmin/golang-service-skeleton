@@ -13,7 +13,7 @@ import (
 )
 
 // Config holds the application configuration
-type Config struct {
+type RawConfig struct {
 	Server     ServerConfig     `yaml:"server"`
 	Logging    LoggingConfig    `yaml:"logging"`
 	Processing ProcessingConfig `yaml:"processing"`
@@ -74,8 +74,8 @@ type ChannelConfig struct {
 }
 
 // LoadConfig loads configuration from environment variables with defaults
-func LoadConfig() *Config {
-	config := &Config{
+func LoadConfig() *RawConfig {
+	config := &RawConfig{
 		Server: ServerConfig{
 			Host:         utils.GetEnv("SERVER_HOST", "localhost"),
 			Port:         utils.GetEnvInt("SERVER_PORT", 8080),
@@ -137,7 +137,7 @@ func parseTopics(topicsStr string) []string {
 }
 
 // LoadConfigFromFile loads configuration from a YAML file with optional environment variable overrides
-func LoadConfigFromFile(configPath string) (*Config, error) {
+func LoadConfigFromFile(configPath string) (*RawConfig, error) {
 	// Read the config file
 	data, err := os.ReadFile(configPath)
 	if err != nil {
@@ -145,7 +145,7 @@ func LoadConfigFromFile(configPath string) (*Config, error) {
 	}
 
 	// Parse YAML
-	config := &Config{}
+	config := &RawConfig{}
 	if err := yaml.Unmarshal(data, config); err != nil {
 		return nil, fmt.Errorf("error parsing YAML config file %s: %w", configPath, err)
 	}
@@ -157,7 +157,7 @@ func LoadConfigFromFile(configPath string) (*Config, error) {
 }
 
 // LoadConfigWithDefaults loads configuration from file if it exists, falling back to environment variables and defaults
-func LoadConfigWithDefaults(configPath string) *Config {
+func LoadConfigWithDefaults(configPath string) *RawConfig {
 	// Try to load from file first
 	if config, err := LoadConfigFromFile(configPath); err == nil {
 		return config
@@ -168,7 +168,7 @@ func LoadConfigWithDefaults(configPath string) *Config {
 }
 
 // overrideWithEnvVars overrides config values with environment variables if they are set
-func overrideWithEnvVars(config *Config) {
+func overrideWithEnvVars(config *RawConfig) {
 	// Server configuration overrides
 	if host := utils.GetEnv("SERVER_HOST", ""); host != "" {
 		config.Server.Host = host

@@ -11,7 +11,7 @@ import (
 
 // Application represents the main application instance that holds configuration and dependencies
 type Application struct {
-	config             *config.Config
+	rawconfig          *config.RawConfig
 	logger             logging.Logger
 	processingPipeline *processing.Pipeline
 	mutex              sync.RWMutex
@@ -20,7 +20,7 @@ type Application struct {
 }
 
 // NewApplication creates a new application instance
-func NewApplication(cfg *config.Config, logger logging.Logger) *Application {
+func NewApplication(cfg *config.RawConfig, logger logging.Logger) *Application {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Create processing pipeline with configuration from config file
@@ -28,7 +28,7 @@ func NewApplication(cfg *config.Config, logger logging.Logger) *Application {
 	processingPipeline := processing.NewPipeline(processingConfig, logger.WithField("module", "processing"))
 
 	return &Application{
-		config:             cfg,
+		rawconfig:          cfg,
 		logger:             logger,
 		processingPipeline: processingPipeline,
 		ctx:                ctx,
@@ -37,10 +37,10 @@ func NewApplication(cfg *config.Config, logger logging.Logger) *Application {
 }
 
 // Config returns the application configuration
-func (app *Application) Config() *config.Config {
+func (app *Application) Config() *config.RawConfig {
 	app.mutex.RLock()
 	defer app.mutex.RUnlock()
-	return app.config
+	return app.rawconfig
 }
 
 // Logger returns the application logger

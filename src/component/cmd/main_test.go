@@ -126,11 +126,11 @@ func TestServerConfiguration(t *testing.T) {
 	// Test server configuration with different config values
 	testCases := []struct {
 		name   string
-		config *config.Config
+		config *config.RawConfig
 	}{
 		{
 			name: "default config",
-			config: &config.Config{
+			config: &config.RawConfig{
 				Server: config.ServerConfig{
 					Host:         testHost,
 					Port:         8080,
@@ -141,7 +141,7 @@ func TestServerConfiguration(t *testing.T) {
 		},
 		{
 			name: "custom config",
-			config: &config.Config{
+			config: &config.RawConfig{
 				Server: config.ServerConfig{
 					Host:         testHostAll,
 					Port:         9090,
@@ -190,7 +190,7 @@ func TestServerConfiguration(t *testing.T) {
 
 func TestApplicationInitialization(t *testing.T) {
 	// Test that application is initialized correctly
-	cfg := &config.Config{
+	cfg := &config.RawConfig{
 		Server: config.ServerConfig{
 			Host:         testHost,
 			Port:         8080,
@@ -349,7 +349,7 @@ func TestIntegrationComponents(t *testing.T) {
 
 func TestServerShutdownGraceful(t *testing.T) {
 	// Test graceful shutdown simulation
-	cfg := &config.Config{
+	cfg := &config.RawConfig{
 		Server: config.ServerConfig{
 			Host:         testHost,
 			Port:         0, // Use port 0 to let OS assign a free port
@@ -423,7 +423,7 @@ func BenchmarkHealthCheckRequest(b *testing.B) {
 }
 
 func BenchmarkApplicationCreation(b *testing.B) {
-	cfg := &config.Config{
+	cfg := &config.RawConfig{
 		Server: config.ServerConfig{
 			Host:         testHost,
 			Port:         8080,

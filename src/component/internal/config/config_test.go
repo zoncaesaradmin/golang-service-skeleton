@@ -185,7 +185,7 @@ func TestOverrideWithEnvVars(t *testing.T) {
 	originalLogLevel := os.Getenv("LOG_LEVEL")
 
 	// Test override functionality
-	config := &Config{
+	config := &RawConfig{
 		Server: ServerConfig{
 			Host: "original.com",
 			Port: 8080,
@@ -244,7 +244,7 @@ func TestOverrideWithEnvVarsAllFields(t *testing.T) {
 	}
 
 	// Test override functionality for all fields
-	config := &Config{
+	config := &RawConfig{
 		Server: ServerConfig{
 			Host:         "original.com",
 			Port:         8080,

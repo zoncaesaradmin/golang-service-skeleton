@@ -53,7 +53,7 @@ func (m *mockLogger) Clone() logging.Logger                                     
 func (m *mockLogger) Close() error                                                       { return nil }
 
 func TestNewApplication(t *testing.T) {
-	cfg := &config.Config{
+	cfg := &config.RawConfig{
 		Server: config.ServerConfig{
 			Host: "localhost",
 			Port: 8080,
@@ -67,7 +67,7 @@ func TestNewApplication(t *testing.T) {
 		t.Fatal("NewApplication() returned nil")
 	}
 
-	if app.config != cfg {
+	if app.rawconfig != cfg {
 		t.Error("Application config not set correctly")
 	}
 
@@ -89,7 +89,7 @@ func TestNewApplication(t *testing.T) {
 }
 
 func TestApplicationConfig(t *testing.T) {
-	cfg := &config.Config{
+	cfg := &config.RawConfig{
 		Server: config.ServerConfig{
 			Host: "localhost",
 			Port: 8080,
@@ -113,7 +113,7 @@ func TestApplicationConfig(t *testing.T) {
 }
 
 func TestApplicationLogger(t *testing.T) {
-	cfg := &config.Config{}
+	cfg := &config.RawConfig{}
 	logger := newMockLogger()
 	app := NewApplication(cfg, logger)
 
@@ -124,7 +124,7 @@ func TestApplicationLogger(t *testing.T) {
 }
 
 func TestApplicationContext(t *testing.T) {
-	cfg := &config.Config{}
+	cfg := &config.RawConfig{}
 	logger := newMockLogger()
 	app := NewApplication(cfg, logger)
 
@@ -142,7 +142,7 @@ func TestApplicationContext(t *testing.T) {
 }
 
 func TestApplicationProcessingPipeline(t *testing.T) {
-	cfg := &config.Config{}
+	cfg := &config.RawConfig{}
 	logger := newMockLogger()
 	app := NewApplication(cfg, logger)
 
@@ -153,7 +153,7 @@ func TestApplicationProcessingPipeline(t *testing.T) {
 }
 
 func TestApplicationShutdown(t *testing.T) {
-	cfg := &config.Config{}
+	cfg := &config.RawConfig{}
 	logger := newMockLogger()
 	app := NewApplication(cfg, logger)
 
@@ -178,7 +178,7 @@ func TestApplicationShutdown(t *testing.T) {
 }
 
 func TestApplicationIsShuttingDown(t *testing.T) {
-	cfg := &config.Config{}
+	cfg := &config.RawConfig{}
 	logger := newMockLogger()
 	app := NewApplication(cfg, logger)
 

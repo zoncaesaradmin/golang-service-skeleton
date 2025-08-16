@@ -56,7 +56,7 @@ func setupRouter(logger logging.Logger) *http.ServeMux {
 	return mux
 }
 
-func startServer(mux *http.ServeMux, cfg *config.Config, application *app.Application) {
+func startServer(mux *http.ServeMux, cfg *config.RawConfig, application *app.Application) {
 	logger := application.Logger()
 
 	// Create server
@@ -99,7 +99,7 @@ func startServer(mux *http.ServeMux, cfg *config.Config, application *app.Applic
 	logger.Info("Server exited")
 }
 
-func loadConfig() *config.Config {
+func loadConfig() *config.RawConfig {
 	// Load configuration using absolute paths based on HOME_DIR environment variable
 	homeDir := os.Getenv("HOME_DIR")
 	if homeDir == "" {
@@ -111,7 +111,7 @@ func loadConfig() *config.Config {
 	return config.LoadConfigWithDefaults(configPath)
 }
 
-func initLogger(cfg *config.Config) logging.Logger {
+func initLogger(cfg *config.RawConfig) logging.Logger {
 	// Convert config logging configuration to logger config
 	loggerConfig := cfg.Logging.ConvertToLoggerConfig()
 
