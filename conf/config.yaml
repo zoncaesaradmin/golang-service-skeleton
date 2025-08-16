@@ -1,9 +1,9 @@
-# Katharos Component Configuration
+# Katharos Service Configuration
 # This is the main configuration file for the Katharos component.
 # Values can be overridden by environment variables (see documentation).
 #
 # Usage:
-#   - Component loads from: $SERVICE_HOME/conf/config.yaml
+#   - Service loads from: $SERVICE_HOME/conf/config.yaml
 #   - SERVICE_HOME must be set to repository root
 #   - Use 'make run-local' to set SERVICE_HOME automatically
 
@@ -19,7 +19,7 @@ logging:
   level: "info"                  # Log level: debug, info, warn, error (env: LOG_LEVEL)
   filePath: "/tmp/katharos-component.log"  # Log file path (env: LOG_FILE_PATH)
   loggerName: "katharos-component"         # Logger name identifier (env: LOG_LOGGER_NAME)
-  serviceName: "katharos"                    # Component name for structured logging (env: LOG_COMPONENT_NAME)
+  serviceName: "katharos"                    # Service name for structured logging (env: LOG_COMPONENT_NAME)
 
 # Processing pipeline configuration
 processing:

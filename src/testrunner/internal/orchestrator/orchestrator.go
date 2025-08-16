@@ -30,7 +30,7 @@ func NewOrchestrator(cfg *config.Config) (*Orchestrator, error) {
 	}
 
 	// Create process manager
-	pm := process.NewManager(cfg.Component)
+	pm := process.NewManager(cfg.Service)
 
 	// Create validator
 	validator := validation.NewValidator(cfg.Validation)
@@ -54,7 +54,7 @@ func (o *Orchestrator) ExecuteScenario(scenario testdata.TestScenario) (types.Te
 	}
 
 	// Start component process
-	if err := o.processManager.StartComponent(); err != nil {
+	if err := o.processManager.StartService(); err != nil {
 		result.Error = fmt.Sprintf("failed to start component: %v", err)
 		result.Duration = time.Since(start)
 		return result, fmt.Errorf("failed to start component: %w", err)
@@ -62,7 +62,7 @@ func (o *Orchestrator) ExecuteScenario(scenario testdata.TestScenario) (types.Te
 
 	// Ensure cleanup
 	defer func() {
-		if err := o.processManager.StopComponent(); err != nil {
+		if err := o.processManager.StopService(); err != nil {
 			log.Printf("Warning: failed to stop component: %v", err)
 		}
 	}()
@@ -123,7 +123,7 @@ func (o *Orchestrator) Cleanup() error {
 		return fmt.Errorf("failed to cleanup harness: %w", err)
 	}
 
-	if err := o.processManager.StopComponent(); err != nil {
+	if err := o.processManager.StopService(); err != nil {
 		return fmt.Errorf("failed to stop component: %w", err)
 	}
 

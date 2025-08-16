@@ -79,15 +79,15 @@ setup_directories() {
 
 # Function to build component with coverage
 build_component() {
-    log_info "Component will be built by make run-local-coverage with coverage instrumentation and local tags..."
+    log_info "Service will be built by make run-local-coverage with coverage instrumentation and local tags..."
     
     # Verify component directory exists and has Makefile
     if [ ! -f "$COMPONENT_DIR/Makefile" ]; then
-        log_error "Component Makefile not found at $COMPONENT_DIR/Makefile"
+        log_error "Service Makefile not found at $COMPONENT_DIR/Makefile"
         exit 1
     fi
     
-    log_success "Component build preparation completed (will use make run-local-coverage)"
+    log_success "Service build preparation completed (will use make run-local-coverage)"
 }
 
 # Function to build testrunner
@@ -127,8 +127,8 @@ run_component() {
     COMPONENT_PID=$!
     echo $COMPONENT_PID > "$ROOT_DIR/test/component.pid"
     
-    log_success "Component started with PID $COMPONENT_PID using make run-local-coverage (SERVICE_HOME=$ROOT_DIR)"
-    log_info "Component logs: $LOGS_DIR/component.log, $LOGS_DIR/component_stdout.log, $LOGS_DIR/component_stderr.log"
+    log_success "Service started with PID $COMPONENT_PID using make run-local-coverage (SERVICE_HOME=$ROOT_DIR)"
+    log_info "Service logs: $LOGS_DIR/component.log, $LOGS_DIR/component_stdout.log, $LOGS_DIR/component_stderr.log"
     cd - > /dev/null
     
     # Wait a moment for component to start
@@ -173,7 +173,7 @@ stop_component() {
         log_info "Stopping component (PID: $COMPONENT_PID)..."
         kill $COMPONENT_PID 2>/dev/null || true
         rm -f "$PIDFILE"
-        log_success "Component stopped"
+        log_success "Service stopped"
         
         # Wait a moment for clean shutdown and final logs
         sleep 1
@@ -301,7 +301,7 @@ generate_report() {
         echo
         
         echo "Build Results:"
-        echo "- Component: Built successfully"
+        echo "- Service: Built successfully"
         echo "- Testrunner: Built successfully"
         echo
         
@@ -322,9 +322,9 @@ generate_report() {
         echo
         
         echo "Log Files:"
-        echo "- Component application logs: $LOGS_DIR/component.log"
-        echo "- Component stdout: $LOGS_DIR/component_stdout.log"
-        echo "- Component stderr: $LOGS_DIR/component_stderr.log"
+        echo "- Service application logs: $LOGS_DIR/component.log"
+        echo "- Service stdout: $LOGS_DIR/component_stdout.log"
+        echo "- Service stderr: $LOGS_DIR/component_stderr.log"
         echo "- Testrunner application logs: $LOGS_DIR/testrunner.log"
         echo "- Testrunner stdout: $LOGS_DIR/testrunner_stdout.log"
         echo "- Testrunner stderr: $LOGS_DIR/testrunner_stderr.log"
@@ -352,7 +352,7 @@ main() {
     log_info "Starting Local Development Test Runner (mode: $BUILD_MODE)"
     log_info "Script directory: $SCRIPT_DIR"
     log_info "Repository root: $ROOT_DIR"
-    log_info "Component directory: $COMPONENT_DIR"
+    log_info "Service directory: $COMPONENT_DIR"
     log_info "Results directory: $RESULTS_DIR"
     echo
     

@@ -18,7 +18,7 @@ This document explains the configuration system for the Katharos component and t
 
 ## Configuration Loading
 
-### Component Configuration
+### Service Configuration
 The component loads configuration using the `SERVICE_HOME` environment variable:
 - **Path**: `$SERVICE_HOME/conf/config.yaml`
 - **Required**: `SERVICE_HOME` must be set to repository root
@@ -32,7 +32,7 @@ The testrunner loads configuration using the `SERVICE_HOME` environment variable
 
 ## Configuration Structure
 
-### Component Configuration (`config.yaml`)
+### Service Configuration (`config.yaml`)
 ```yaml
 # Server configuration
 server:
@@ -50,7 +50,7 @@ logging:
 
 ### Test Configuration (`testconfig.yaml`)
 ```yaml
-# Component settings for testing
+# Service settings for testing
 component:
   binary_path: "../component/bin/component"
   port: 8080
@@ -74,7 +74,7 @@ validation:
 
 ## Environment Variables
 
-Component configuration values can be overridden using environment variables. The environment variable names are shown in comments in the YAML structure above.
+Service configuration values can be overridden using environment variables. The environment variable names are shown in comments in the YAML structure above.
 
 ### Example:
 ```bash
@@ -110,7 +110,7 @@ export LOG_LEVEL=debug
 
 ## File Locations When Running
 
-- **Component**: Always loads from `$SERVICE_HOME/conf/config.yaml`
+- **Service**: Always loads from `$SERVICE_HOME/conf/config.yaml`
 - **Testrunner**: Always loads from `$SERVICE_HOME/conf/testconfig.yaml`
 - **Location Independent**: Both work from any directory with proper SERVICE_HOME
 

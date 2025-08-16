@@ -1,11 +1,11 @@
-# Katharos Component System
+# Katharos Service System
 
 This project provides a comprehensive Go component system with a message bus-based processing pipeline and integration test infrastructure using Go workspace for multi-module management.
 
 ## Project Architecture
 
 The system uses a **message bus architecture** for cross-process communication:
-- **Component**: Main processing service with input/output pipeline
+- **Service**: Main processing service with input/output pipeline
 - **Testrunner**: Integration test service that communicates via message bus
 - **Shared**: Common utilities and message bus implementations
 
@@ -25,9 +25,9 @@ src/                          # Source code root
 ├── component/               # Main processing component
 │   ├── go.mod               # Module: servicemodule
 │   ├── go.sum               # Go module checksums
-│   ├── Makefile             # Component build automation
+│   ├── Makefile             # Service build automation
 │   ├── cmd/                 # Application entry point
-│   │   ├── main.go          # Component main with processing pipeline
+│   │   ├── main.go          # Service main with processing pipeline
 │   │   └── main_test.go     # Main function tests
 │   ├── internal/            # Private application code
 │   │   ├── api/             # HTTP handlers (health, stats)
@@ -122,7 +122,7 @@ src/                          # Source code root
 - **Offset Tracking**: Sequential message processing with offset management
 - **Build Tag Support**: Switch between local (`-tags local`) and production message bus implementations
 
-### Main Component
+### Main Service
 - **Processing Pipeline**: Input → Processor → Output pipeline with message bus integration
 - **Configurable Processing**: Customizable processing delays and batch sizes
 - **Health Check API**: HTTP endpoint for service monitoring (`/health`)
@@ -171,9 +171,9 @@ make test-run
 make test-help
 ```
 
-### Running Components Individually
+### Running Services Individually
 
-#### 1. Build and Run Component (Processing Pipeline)
+#### 1. Build and Run Service (Processing Pipeline)
 ```bash
 # From src/ directory
 cd component
@@ -234,7 +234,7 @@ For local development, the system uses a file-based message bus implementation:
 - **Bus Location**: `/tmp/katharos-messagebus/`
 - **Topic Structure**: Each topic is a directory containing JSON message files
 - **Message Format**: Sequential numbered files (0000000000.json, 0000000001.json, etc.)
-- **Cross-Process Communication**: Component processes messages, testrunner validates responses
+- **Cross-Process Communication**: Service processes messages, testrunner validates responses
 
 ### Message Format
 
@@ -281,7 +281,7 @@ The component still provides HTTP endpoints for monitoring:
 
 The component and testrunner can be configured using environment variables and config files:
 
-### Component Configuration
+### Service Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -337,7 +337,7 @@ make test-run
 make test-help
 ```
 
-### Component Unit Tests
+### Service Unit Tests
 
 ```bash
 cd component
@@ -361,7 +361,7 @@ make test
 ### Test Coverage
 
 ```bash
-# Component coverage
+# Service coverage
 cd component
 make test-coverage
 
@@ -439,7 +439,7 @@ rm -rf test/results/
 
 ## Build Commands
 
-### Component (Processing Pipeline)
+### Service (Processing Pipeline)
 
 ```bash
 cd component
@@ -509,7 +509,7 @@ make test-help      # Show test-specific options
 make test-clean     # Clean test results and artifacts
 ```
 
-### Component Commands
+### Service Commands
 ```bash
 cd component
 make help           # Show available targets
@@ -550,11 +550,11 @@ make clean          # Clean build artifacts
 - **Message Bus Communication**: File-based message bus for local development with producer/consumer pattern
 - **Processing Pipeline**: Input → Processor → Output pipeline architecture
 - **Build Tag Support**: Local development vs production message bus implementations
-- **Clean separation**: Component and testrunner communicate via message bus, completely independent processes
+- **Clean separation**: Service and testrunner communicate via message bus, completely independent processes
 
 ### Adding New Features
 
-#### Component Features
+#### Service Features
 1. Add models in `component/internal/models/`
 2. Implement processing logic in `component/internal/processing/processor.go`
 3. Update message types in `shared/types/types.go`
@@ -586,7 +586,7 @@ cd shared && go mod tidy     # Manage shared dependencies
 2. **Integration Tests**: Test cross-process communication via message bus
 3. **Message Bus Tests**: Test producer/consumer patterns and offset management
 4. **Processing Pipeline Tests**: End-to-end processing validation
-5. **Cross-Process Tests**: Component and testrunner interaction via file-based message bus
+5. **Cross-Process Tests**: Service and testrunner interaction via file-based message bus
 
 ## Examples
 
@@ -638,7 +638,7 @@ expected_output:
     processed_email: "custom@example.com"
 ```
 
-### Health Check (Component Monitoring)
+### Health Check (Service Monitoring)
 ```bash
 curl http://localhost:8080/health
 ```

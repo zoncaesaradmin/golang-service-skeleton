@@ -10,14 +10,14 @@ import (
 
 // Config represents the testrunner configuration
 type Config struct {
-	Component  ComponentConfig  `yaml:"component"`
+	Service  ServiceConfig  `yaml:"component"`
 	MessageBus MessageBusConfig `yaml:"messagebus"`
 	Testdata   TestdataConfig   `yaml:"testdata"`
 	Validation ValidationConfig `yaml:"validation"`
 }
 
-// ComponentConfig contains component-specific settings
-type ComponentConfig struct {
+// ServiceConfig contains component-specific settings
+type ServiceConfig struct {
 	BinaryPath string        `yaml:"binaryPath"`
 	Port       int           `yaml:"port"`
 	Timeout    time.Duration `yaml:"timeout"`
@@ -68,11 +68,11 @@ func LoadConfig(filepath string) (*Config, error) {
 	}
 
 	// Apply defaults
-	if config.Component.Port == 0 {
-		config.Component.Port = 8080
+	if config.Service.Port == 0 {
+		config.Service.Port = 8080
 	}
-	if config.Component.Timeout == 0 {
-		config.Component.Timeout = 30 * time.Second
+	if config.Service.Timeout == 0 {
+		config.Service.Timeout = 30 * time.Second
 	}
 	if config.Validation.Timeout == 0 {
 		config.Validation.Timeout = 60 * time.Second

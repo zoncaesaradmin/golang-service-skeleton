@@ -1,4 +1,4 @@
-# Optimized Root Makefile for Golang Component Skeleton
+# Optimized Root Makefile for Golang Service Skeleton
 .PHONY: help build build-with-coverage build-local test test-local clean clean-coverage clean-all-coverage deep-clean run-component run-component-local run-component-dev run-tests run-tests-local install-deps fmt vet lint coverage coverage-enforce start start-local component-build component-build-local component-build-with-coverage component-coverage component-test component-run testrunner-build testrunner-build-local testrunner-test testrunner-run shared-build shared-build-local shared-test shared-coverage ci dev-setup e2e-test
 
 # Coverage enforcement thresholds
@@ -53,7 +53,7 @@ endef
 
 # Default target
 help:
-	@echo "Golang Component Skeleton - Optimized Makefile"
+	@echo "Golang Service Skeleton - Optimized Makefile"
 	@echo "=============================================="
 	@echo ""
 	@echo "🎯 Main Targets:"
@@ -64,7 +64,7 @@ help:
 	@echo "  coverage        - Generate and display combined coverage report"
 	@echo "  coverage-enforce- Enforce coverage threshold ($(SERVICE_COVERAGE_THRESHOLD)%)"
 	@echo ""
-	@echo "🚀 Component Operations:"
+	@echo "🚀 Service Operations:"
 	@echo "  run-component   - Build with coverage + run component (with/without coverage variants)"
 	@echo "  run-tests       - Build and run integration tests"
 	@echo ""
@@ -256,7 +256,7 @@ ci: install-deps fmt vet test coverage-enforce build
 # MODULE-SPECIFIC TARGETS (OPTIMIZED WITH FUNCTIONS)
 # ==============================================================================
 
-# Component targets
+# Service targets
 component-build:
 	$(call run_module_cmd,Building,component,build,$(BUILD_TAGS))
 

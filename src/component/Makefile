@@ -1,4 +1,4 @@
-# Component Makefile
+# Service Makefile
 .PHONY: build test clean deep-clean run run-local run-local-coverage deps tidy lint fmt vet coverage coverage-enforce coverage-html install-lint docker-build help
 
 # Variables
@@ -71,9 +71,9 @@ coverage-enforce: coverage
 	echo "Current coverage: $$COVERAGE%"; \
 	echo "Required coverage: $(COVERAGE_THRESHOLD)%"; \
 	if [ $$(echo "$$COVERAGE >= $(COVERAGE_THRESHOLD)" | bc -l) -eq 1 ]; then \
-		echo "✅ Component coverage enforcement passed!"; \
+		echo "✅ Service coverage enforcement passed!"; \
 	else \
-		echo "❌ Component coverage enforcement failed! Current: $$COVERAGE%, Required: $(COVERAGE_THRESHOLD)%"; \
+		echo "❌ Service coverage enforcement failed! Current: $$COVERAGE%, Required: $(COVERAGE_THRESHOLD)%"; \
 		exit 1; \
 	fi
 
@@ -139,7 +139,7 @@ docker-build:
 
 # Help
 help:
-	@echo "Component Makefile - Available targets:"
+	@echo "Service Makefile - Available targets:"
 	@echo "  build            - Build the binary"
 	@echo "  run              - Build and run the component (requires SERVICE_HOME)"
 	@echo "  run-local        - Build and run with local tags (sets SERVICE_HOME automatically)"

@@ -65,7 +65,7 @@ katharos/
 ├── test/                   # Test infrastructure (NEW LOCATION)
 │   ├── run_tests_local.sh  # Main test script
 │   ├── results/            # Test results and reports
-│   │   ├── logs/          # Component and testrunner logs
+│   │   ├── logs/          # Service and testrunner logs
 │   │   ├── coverage.html  # Coverage report
 │   │   └── test_report.txt
 │   ├── coverage/          # Coverage binary data
@@ -86,8 +86,8 @@ The local development environment uses a **file-based message bus** for cross-pr
 
 ### Message Flow
 1. **Testrunner** sends test data to `test_input` topic
-2. **Component** consumes from `test_input`, processes the data
-3. **Component** sends responses to `test_output` topic  
+2. **Service** consumes from `test_input`, processes the data
+3. **Service** sends responses to `test_output` topic  
 4. **Testrunner** polls `test_output` for responses and validates results
 
 ## Output Files and Logs
@@ -101,9 +101,9 @@ All test results, logs, and reports are generated in the `test/results/` directo
 - `coverage_summary.txt` - Coverage statistics
 
 ### Log Files (organized in `test/results/logs/`)
-- `component.log` - Component application logs (structured JSON)
-- `component_stdout.log` - Component standard output
-- `component_stderr.log` - Component standard error output
+- `component.log` - Service application logs (structured JSON)
+- `component_stdout.log` - Service standard output
+- `component_stderr.log` - Service standard error output
 - `testrunner_stdout.log` - Testrunner standard output
 - `testrunner_stderr.log` - Testrunner standard error output
 
@@ -116,7 +116,7 @@ All test results, logs, and reports are generated in the `test/results/` directo
 ✅ **All Tests Passing**: 1/1 scenarios (100% success rate)
 ✅ **Message Bus Working**: File-based cross-process communication functional  
 ✅ **Coverage**: ~51.4% baseline coverage with proper instrumentation
-✅ **Processing Pipeline**: Component properly processes and responds to test data
+✅ **Processing Pipeline**: Service properly processes and responds to test data
 
 ### Test Scenarios
 Currently includes:
@@ -128,7 +128,7 @@ Currently includes:
 
 The local development setup automatically configures logging for both components:
 
-### Component Logging
+### Service Logging
 - **Structured Logging**: Uses JSON format via zerolog library
 - **Configurable Path**: Set via `LOG_FILE_PATH` environment variable
 - **Path**: `test/results/logs/component.log` (automatically set)
@@ -141,7 +141,7 @@ The local development setup automatically configures logging for both components
 
 ### Environment Variables for Log Control
 ```bash
-# Component logging (automatically set by run_tests_local.sh)
+# Service logging (automatically set by run_tests_local.sh)
 export LOG_FILE_PATH="../../test/results/logs/component.log"
 export GOCOVERDIR="../../test/coverage"
 

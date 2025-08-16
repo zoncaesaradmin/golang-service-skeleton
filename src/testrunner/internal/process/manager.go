@@ -14,20 +14,20 @@ import (
 
 // Manager handles component process lifecycle
 type Manager struct {
-	config    config.ComponentConfig
+	config    config.ServiceConfig
 	process   *exec.Cmd
 	isRunning bool
 }
 
 // NewManager creates a new process manager
-func NewManager(cfg config.ComponentConfig) *Manager {
+func NewManager(cfg config.ServiceConfig) *Manager {
 	return &Manager{
 		config: cfg,
 	}
 }
 
-// StartComponent starts the component process
-func (m *Manager) StartComponent() error {
+// StartService starts the component process
+func (m *Manager) StartService() error {
 	if m.isRunning {
 		return fmt.Errorf("component is already running")
 	}
@@ -64,8 +64,8 @@ func (m *Manager) StartComponent() error {
 	return nil
 }
 
-// StopComponent stops the component process
-func (m *Manager) StopComponent() error {
+// StopService stops the component process
+func (m *Manager) StopService() error {
 	if !m.isRunning || m.process == nil {
 		return nil
 	}
