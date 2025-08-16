@@ -30,32 +30,32 @@ build:
 
 # Run the component
 run: build
-	@echo "Running $(BINARY_NAME) with HOME_DIR set to repository root..."
-	@HOME_DIR="$$(cd ../../ && pwd)" $(BINARY_PATH)
+	@echo "Running $(BINARY_NAME) with SERVICE_HOME set to repository root..."
+	@SERVICE_HOME="$$(cd ../../ && pwd)" $(BINARY_PATH)
 
 # Run the component with local development settings
 run-local:
-	@echo "Building and running $(BINARY_NAME) with local tags and HOME_DIR..."
+	@echo "Building and running $(BINARY_NAME) with local tags and SERVICE_HOME..."
 	@mkdir -p bin
 	go build -tags local -o $(BINARY_PATH) $(MAIN_PATH)
-	@HOME_DIR="$$(cd ../../ && pwd)" $(BINARY_PATH)
+	@SERVICE_HOME="$$(cd ../../ && pwd)" $(BINARY_PATH)
 
 # Run the component with local development settings and coverage instrumentation (for integration tests)
 run-local-coverage:
-	@echo "Building and running $(BINARY_NAME) with local tags, coverage, and HOME_DIR..."
+	@echo "Building and running $(BINARY_NAME) with local tags, coverage, and SERVICE_HOME..."
 	@mkdir -p bin
 	go build -tags local -cover -o $(BINARY_PATH) $(MAIN_PATH)
-	@HOME_DIR="$$(cd ../../ && pwd)" $(BINARY_PATH)
+	@SERVICE_HOME="$$(cd ../../ && pwd)" $(BINARY_PATH)
 
 # Run tests
 test:
-	@echo "Running tests with HOME_DIR set to repository root..."
-	@HOME_DIR="$$(cd ../../ && pwd)" go test $(BUILD_FLAGS) -v ./...
+	@echo "Running tests with SERVICE_HOME set to repository root..."
+	@SERVICE_HOME="$$(cd ../../ && pwd)" go test $(BUILD_FLAGS) -v ./...
 
 # Run tests with coverage
 coverage:
-	@echo "Running tests with coverage and HOME_DIR set to repository root..."
-	@HOME_DIR="$$(cd ../../ && pwd)" go test $(BUILD_FLAGS) -coverprofile=$(COVERAGE_OUT) ./...
+	@echo "Running tests with coverage and SERVICE_HOME set to repository root..."
+	@SERVICE_HOME="$$(cd ../../ && pwd)" go test $(BUILD_FLAGS) -coverprofile=$(COVERAGE_OUT) ./...
 	go tool cover -func=$(COVERAGE_OUT)
 
 # Generate HTML coverage report
@@ -141,8 +141,8 @@ docker-build:
 help:
 	@echo "Component Makefile - Available targets:"
 	@echo "  build            - Build the binary"
-	@echo "  run              - Build and run the component (requires HOME_DIR)"
-	@echo "  run-local        - Build and run with local tags (sets HOME_DIR automatically)"
+	@echo "  run              - Build and run the component (requires SERVICE_HOME)"
+	@echo "  run-local        - Build and run with local tags (sets SERVICE_HOME automatically)"
 	@echo "  run-local-coverage - Build and run with local tags and coverage (for integration tests)"
 	@echo "  test             - Run tests"
 	@echo "  coverage         - Run tests with coverage"
@@ -160,5 +160,5 @@ help:
 	@echo "  help             - Show this help"
 	@echo ""
 	@echo "Environment Variables:"
-	@echo "  HOME_DIR         - Required: Absolute path to repository root"
+	@echo "  SERVICE_HOME         - Required: Absolute path to repository root"
 	@echo "                     (automatically set by run-local and test infrastructure)"

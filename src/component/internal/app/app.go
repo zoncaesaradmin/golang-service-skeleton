@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"compmodule/internal/config"
-	"compmodule/internal/processing"
+	"servicemodule/internal/config"
+	"servicemodule/internal/processing"
 	"sharedmodule/logging"
 )
 

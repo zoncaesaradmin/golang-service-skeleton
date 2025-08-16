@@ -11,9 +11,9 @@ import (
 	"syscall"
 	"time"
 
-	"compmodule/internal/api"
-	"compmodule/internal/app"
-	"compmodule/internal/config"
+	"servicemodule/internal/api"
+	"servicemodule/internal/app"
+	"servicemodule/internal/config"
 	"sharedmodule/logging"
 
 	"github.com/joho/godotenv"
@@ -100,10 +100,10 @@ func startServer(mux *http.ServeMux, cfg *config.RawConfig, application *app.App
 }
 
 func loadConfig() *config.RawConfig {
-	// Load configuration using absolute paths based on HOME_DIR environment variable
-	homeDir := os.Getenv("HOME_DIR")
+	// Load configuration using absolute paths based on SERVICE_HOME environment variable
+	homeDir := os.Getenv("SERVICE_HOME")
 	if homeDir == "" {
-		log.Fatal("HOME_DIR environment variable is required and must point to the repository root")
+		log.Fatal("SERVICE_HOME environment variable is required and must point to the repository root")
 	}
 
 	// Load configuration from the centralized config file
@@ -140,7 +140,7 @@ func loadEnvFile() {
 		".env",             // Current directory
 		"../../../.env",    // From service/cmd back to workspace root
 		"../../../../.env", // Alternative path
-		filepath.Join(os.Getenv("HOME_DIR"), ".env"), // Using HOME_DIR if set
+		filepath.Join(os.Getenv("SERVICE_HOME"), ".env"), // Using SERVICE_HOME if set
 	}
 
 	for _, envPath := range envPaths {

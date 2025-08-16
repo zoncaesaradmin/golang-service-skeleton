@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"compmodule/internal/config"
+	"servicemodule/internal/config"
 	"sharedmodule/logging"
 )
 

@@ -3,9 +3,9 @@
 # Values can be overridden by environment variables (see documentation).
 #
 # Usage:
-#   - Component loads from: $HOME_DIR/conf/config.yaml
-#   - HOME_DIR must be set to repository root
-#   - Use 'make run-local' to set HOME_DIR automatically
+#   - Component loads from: $SERVICE_HOME/conf/config.yaml
+#   - SERVICE_HOME must be set to repository root
+#   - Use 'make run-local' to set SERVICE_HOME automatically
 
 # Server configuration
 server:
@@ -20,7 +20,6 @@ logging:
   filePath: "/tmp/katharos-component.log"  # Log file path (env: LOG_FILE_PATH)
   loggerName: "katharos-component"         # Logger name identifier (env: LOG_LOGGER_NAME)
   serviceName: "katharos"                    # Component name for structured logging (env: LOG_COMPONENT_NAME)
-  serviceName: "katharos-component"        # Service name for structured logging (env: LOG_SERVICE_NAME)
 
 # Processing pipeline configuration
 processing:
@@ -57,15 +56,15 @@ processing:
 #    All configuration values can be overridden using environment variables.
 #    The environment variable names are shown in comments above.
 #
-# 2. File Location and HOME_DIR:
-#    - The component requires HOME_DIR environment variable pointing to repository root
-#    - Configuration is loaded from: $HOME_DIR/conf/config.yaml
+# 2. File Location and SERVICE_HOME:
+#    - The component requires SERVICE_HOME environment variable pointing to repository root
+#    - Configuration is loaded from: $SERVICE_HOME/conf/config.yaml
 #    - If no config file is found, the component will fail to start
 #    - Environment variables can override any configuration value
 #
 # 3. Development vs Production:
-#    - For local development, use: make run-local (sets HOME_DIR automatically)
-#    - For production, set HOME_DIR=/path/to/repo when running the binary
+#    - For local development, use: make run-local (sets SERVICE_HOME automatically)
+#    - For production, set SERVICE_HOME=/path/to/repo when running the binary
 #    - Consider using environment variables for sensitive data in production
 #    - Never commit production passwords or secrets to version control
 #

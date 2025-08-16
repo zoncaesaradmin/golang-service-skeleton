@@ -47,10 +47,10 @@ func main() {
 
 	log.Printf("Starting Katharos Test Runner...")
 
-	// Load configuration from centralized location using HOME_DIR
-	homeDir := os.Getenv("HOME_DIR")
+	// Load configuration from centralized location using SERVICE_HOME
+	homeDir := os.Getenv("SERVICE_HOME")
 	if homeDir == "" {
-		log.Fatal("HOME_DIR environment variable is required and must point to the repository root")
+		log.Fatal("SERVICE_HOME environment variable is required and must point to the repository root")
 	}
 
 	configPath := filepath.Join(homeDir, "conf", "testconfig.yaml")

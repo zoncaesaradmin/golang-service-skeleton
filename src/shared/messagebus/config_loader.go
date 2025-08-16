@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// resolveConfigPath resolves the full path to config file using HOME_DIR/conf/ as prefix
+// resolveConfigPath resolves the full path to config file using SERVICE_HOME/conf/ as prefix
 func resolveConfigPath(configPath string) string {
 	// If configPath is already absolute, use as-is
 	if filepath.IsAbs(configPath) {
@@ -23,14 +23,14 @@ func resolveConfigPath(configPath string) string {
 		}
 	}
 
-	// Get HOME_DIR from environment, fallback to relative path if not set
-	homeDir := os.Getenv("HOME_DIR")
+	// Get SERVICE_HOME from environment, fallback to relative path if not set
+	homeDir := os.Getenv("SERVICE_HOME")
 	if homeDir == "" {
 		// Default to the conf directory relative to the workspace root
 		homeDir = "../../../" // From src/shared/messagebus back to workspace root
 	}
 
-	// Build path: HOME_DIR/conf/configPath
+	// Build path: SERVICE_HOME/conf/configPath
 	return filepath.Join(homeDir, "conf", configPath)
 }
 
@@ -49,7 +49,7 @@ func LoadProducerConfigMap(configPath string) (map[string]interface{}, error) {
 // LoadConfigMap loads configuration from YAML file into a map
 // Generic function that can be used for both producer and consumer configs
 func LoadConfigMap(configPath string) (map[string]interface{}, error) {
-	// Resolve full config path using HOME_DIR/conf/ as prefix
+	// Resolve full config path using SERVICE_HOME/conf/ as prefix
 	fullPath := resolveConfigPath(configPath)
 
 	// Read YAML file

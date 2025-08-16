@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"compmodule/internal/api"
-	"compmodule/internal/app"
-	"compmodule/internal/config"
+	"servicemodule/internal/api"
+	"servicemodule/internal/app"
+	"servicemodule/internal/config"
 	"sharedmodule/logging"
 )
 

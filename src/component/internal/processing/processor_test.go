@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"compmodule/internal/models"
+	"servicemodule/internal/models"
 	"sharedmodule/logging"
 )
 

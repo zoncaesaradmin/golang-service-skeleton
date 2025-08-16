@@ -23,7 +23,7 @@ src/                          # Source code root
 ├── README.md                # This documentation
 │
 ├── component/               # Main processing component
-│   ├── go.mod               # Module: compmodule
+│   ├── go.mod               # Module: servicemodule
 │   ├── go.sum               # Go module checksums
 │   ├── Makefile             # Component build automation
 │   ├── cmd/                 # Application entry point
@@ -294,7 +294,7 @@ The component and testrunner can be configured using environment variables and c
 
 ### Testrunner Configuration
 
-Configuration is managed via `conf/testconfig.yaml` (automatically loaded using HOME_DIR):
+Configuration is managed via `conf/testconfig.yaml` (automatically loaded using SERVICE_HOME):
 
 ```yaml
 # Message bus configuration

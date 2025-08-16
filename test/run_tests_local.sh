@@ -121,13 +121,13 @@ run_component() {
     export PROCESSING_INPUT_TOPICS="test_input"
     export PROCESSING_OUTPUT_TOPIC="test_output"
     
-    # Use make run-local-coverage which automatically sets HOME_DIR and builds with local tags + coverage
+    # Use make run-local-coverage which automatically sets SERVICE_HOME and builds with local tags + coverage
     # Run in background and capture stdout/stderr
     make run-local-coverage > "$LOGS_DIR/component_stdout.log" 2> "$LOGS_DIR/component_stderr.log" &
     COMPONENT_PID=$!
     echo $COMPONENT_PID > "$ROOT_DIR/test/component.pid"
     
-    log_success "Component started with PID $COMPONENT_PID using make run-local-coverage (HOME_DIR=$ROOT_DIR)"
+    log_success "Component started with PID $COMPONENT_PID using make run-local-coverage (SERVICE_HOME=$ROOT_DIR)"
     log_info "Component logs: $LOGS_DIR/component.log, $LOGS_DIR/component_stdout.log, $LOGS_DIR/component_stderr.log"
     cd - > /dev/null
     
@@ -140,8 +140,8 @@ run_testrunner() {
     log_info "Running testrunner..."
     cd "$TESTRUNNER_DIR"
     
-    # Set HOME_DIR and testrunner log file path (using absolute paths)
-    export HOME_DIR="$ROOT_DIR"
+    # Set SERVICE_HOME and testrunner log file path (using absolute paths)
+    export SERVICE_HOME="$ROOT_DIR"
     export LOG_FILE_PATH="$LOGS_DIR/testrunner.log"
     
     # Temporarily disable strict error handling for testrunner execution

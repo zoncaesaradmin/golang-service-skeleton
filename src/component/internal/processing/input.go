@@ -1,7 +1,7 @@
 package processing
 
 import (
-	"compmodule/internal/models"
+	"servicemodule/internal/models"
 	"context"
 	"fmt"
 	"sharedmodule/logging"

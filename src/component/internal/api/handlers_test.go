@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"compmodule/internal/models"
+	"servicemodule/internal/models"
 	"sharedmodule/logging"
 )
 

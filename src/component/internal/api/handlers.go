@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"compmodule/internal/models"
+	"servicemodule/internal/models"
 	"sharedmodule/logging"
 )
 

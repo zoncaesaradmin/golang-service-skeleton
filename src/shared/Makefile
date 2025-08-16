@@ -52,13 +52,13 @@ build:
 
 # Run all tests
 test:
-	@echo "Running tests with HOME_DIR set to repository root..."
-	@HOME_DIR="$$(cd ../../ && pwd)" $(GOTEST) $(BUILD_FLAGS) -v ./...
+	@echo "Running tests with SERVICE_HOME set to repository root..."
+	@SERVICE_HOME="$$(cd ../../ && pwd)" $(GOTEST) $(BUILD_FLAGS) -v ./...
 
 # Run tests with coverage
 coverage:
-	@echo "Running tests with coverage and HOME_DIR set to repository root..."
-	@HOME_DIR="$$(cd ../../ && pwd)" $(GOTEST) $(BUILD_FLAGS) -coverprofile=$(COVERAGE_OUT) ./...
+	@echo "Running tests with coverage and SERVICE_HOME set to repository root..."
+	@SERVICE_HOME="$$(cd ../../ && pwd)" $(GOTEST) $(BUILD_FLAGS) -coverprofile=$(COVERAGE_OUT) ./...
 	@$(GOCMD) tool cover -func=$(COVERAGE_OUT)
 
 # Generate HTML coverage report
