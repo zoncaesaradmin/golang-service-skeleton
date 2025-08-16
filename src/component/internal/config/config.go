@@ -29,12 +29,10 @@ type RawServerConfig struct {
 
 // LoggingConfig holds logging-related configuration
 type RawLoggingConfig struct {
-	Level         string `yaml:"level"`         // Log level: debug, info, warn, error, fatal, panic
-	Format        string `yaml:"format"`        // Log format: json, text (not used in current implementation)
-	FilePath      string `yaml:"filePath"`      // Path to the log file
-	LoggerName    string `yaml:"loggerName"`    // Name identifier for the logger
-	ComponentName string `yaml:"componentName"` // Component/module name for structured logging
-	ServiceName   string `yaml:"serviceName"`   // Service name for structured logging
+	Level       string `yaml:"level"`       // Log level: debug, info, warn, error, fatal, panic
+	FilePath    string `yaml:"filePath"`    // Path to the log file
+	LoggerName  string `yaml:"loggerName"`  // Name identifier for the logger
+	ServiceName string `yaml:"serviceName"` // Service name for structured logging
 }
 
 // ProcessingConfig holds processing pipeline configuration
@@ -83,12 +81,10 @@ func LoadConfig() *RawConfig {
 			WriteTimeout: utils.GetEnvInt("SERVER_WRITE_TIMEOUT", 10),
 		},
 		Logging: RawLoggingConfig{
-			Level:         utils.GetEnv("LOG_LEVEL", "info"),
-			Format:        utils.GetEnv("LOG_FORMAT", "json"),
-			FilePath:      utils.GetEnv("LOG_FILE_PATH", "/tmp/katharos-component.log"),
-			LoggerName:    utils.GetEnv("LOG_LOGGER_NAME", "katharos-component"),
-			ComponentName: utils.GetEnv("LOG_COMPONENT_NAME", "main"),
-			ServiceName:   utils.GetEnv("LOG_SERVICE_NAME", "katharos-component"),
+			Level:       utils.GetEnv("LOG_LEVEL", "info"),
+			FilePath:    utils.GetEnv("LOG_FILE_PATH", "/tmp/katharos-component.log"),
+			LoggerName:  utils.GetEnv("LOG_LOGGER_NAME", "katharos-component"),
+			ServiceName: utils.GetEnv("LOG_SERVICE_NAME", "katharos-component"),
 		},
 		Processing: RawProcessingConfig{
 			Input: RawInputConfig{
@@ -111,12 +107,10 @@ func LoadConfig() *RawConfig {
 				OutputBufferSize: utils.GetEnvInt("PROCESSING_CHANNELS_OUTPUT_BUFFER_SIZE", 1000),
 			},
 			PloggerConfig: RawLoggingConfig{
-				Level:         utils.GetEnv("PROCESSING_PLOGGER_LEVEL", "info"),
-				Format:        "json", // Pipeline logger uses same format as main logger
-				FilePath:      utils.GetEnv("PROCESSING_PLOGGER_FILE_NAME", "/tmp/katharos-pipeline.log"),
-				LoggerName:    utils.GetEnv("PROCESSING_PLOGGER_LOGGER_NAME", "pipeline"),
-				ComponentName: utils.GetEnv("PROCESSING_PLOGGER_COMPONENT_NAME", "processing"),
-				ServiceName:   utils.GetEnv("PROCESSING_PLOGGER_SERVICE_NAME", "katharos"),
+				Level:       utils.GetEnv("PROCESSING_PLOGGER_LEVEL", "info"),
+				FilePath:    utils.GetEnv("PROCESSING_PLOGGER_FILE_NAME", "/tmp/katharos-pipeline.log"),
+				LoggerName:  utils.GetEnv("PROCESSING_PLOGGER_LOGGER_NAME", "pipeline"),
+				ServiceName: utils.GetEnv("PROCESSING_PLOGGER_SERVICE_NAME", "katharos"),
 			},
 		},
 	}
@@ -187,17 +181,11 @@ func overrideWithEnvVars(config *RawConfig) {
 	if level := utils.GetEnv("LOG_LEVEL", ""); level != "" {
 		config.Logging.Level = level
 	}
-	if format := utils.GetEnv("LOG_FORMAT", ""); format != "" {
-		config.Logging.Format = format
-	}
 	if filePath := utils.GetEnv("LOG_FILE_PATH", ""); filePath != "" {
 		config.Logging.FilePath = filePath
 	}
 	if loggerName := utils.GetEnv("LOG_LOGGER_NAME", ""); loggerName != "" {
 		config.Logging.LoggerName = loggerName
-	}
-	if componentName := utils.GetEnv("LOG_COMPONENT_NAME", ""); componentName != "" {
-		config.Logging.ComponentName = componentName
 	}
 	if serviceName := utils.GetEnv("LOG_SERVICE_NAME", ""); serviceName != "" {
 		config.Logging.ServiceName = serviceName
@@ -248,9 +236,6 @@ func overrideWithEnvVars(config *RawConfig) {
 	if ploggerLoggerName := utils.GetEnv("PROCESSING_PLOGGER_LOGGER_NAME", ""); ploggerLoggerName != "" {
 		config.Processing.PloggerConfig.LoggerName = ploggerLoggerName
 	}
-	if ploggerComponentName := utils.GetEnv("PROCESSING_PLOGGER_COMPONENT_NAME", ""); ploggerComponentName != "" {
-		config.Processing.PloggerConfig.ComponentName = ploggerComponentName
-	}
 	if ploggerServiceName := utils.GetEnv("PROCESSING_PLOGGER_SERVICE_NAME", ""); ploggerServiceName != "" {
 		config.Processing.PloggerConfig.ServiceName = ploggerServiceName
 	}
@@ -279,10 +264,9 @@ func convertLogLevel(levelStr string) logging.Level {
 // ConvertLoggingConfig converts LoggingConfig to logging.LoggerConfig
 func (cfg RawLoggingConfig) ConvertToLoggerConfig() logging.LoggerConfig {
 	return logging.LoggerConfig{
-		Level:         convertLogLevel(cfg.Level),
-		FileName:      cfg.FilePath,
-		LoggerName:    cfg.LoggerName,
-		ComponentName: cfg.ComponentName,
-		ServiceName:   cfg.ServiceName,
+		Level:       convertLogLevel(cfg.Level),
+		FileName:    cfg.FilePath,
+		LoggerName:  cfg.LoggerName,
+		ServiceName: cfg.ServiceName,
 	}
 }

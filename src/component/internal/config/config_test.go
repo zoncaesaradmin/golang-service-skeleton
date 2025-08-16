@@ -189,8 +189,7 @@ func TestOverrideWithEnvVars(t *testing.T) {
 			Port: 8080,
 		},
 		Logging: RawLoggingConfig{
-			Level:  "info",
-			Format: "json",
+			Level: "info",
 		},
 	}
 
@@ -212,9 +211,6 @@ func TestOverrideWithEnvVars(t *testing.T) {
 	// Check that non-overridden values remained the same
 	if config.Server.Port != 8080 {
 		t.Errorf("Expected server port 8080 (not overridden), got %d", config.Server.Port)
-	}
-	if config.Logging.Format != "json" {
-		t.Errorf("Expected log format 'json' (not overridden), got %s", config.Logging.Format)
 	}
 
 	// Restore original values
@@ -250,8 +246,7 @@ func TestOverrideWithEnvVarsAllFields(t *testing.T) {
 			WriteTimeout: 10,
 		},
 		Logging: RawLoggingConfig{
-			Level:  "info",
-			Format: "json",
+			Level: "info",
 		},
 	}
 
@@ -281,9 +276,6 @@ func TestOverrideWithEnvVarsAllFields(t *testing.T) {
 	}
 	if config.Logging.Level != "debug" {
 		t.Errorf("Expected log level 'debug', got %s", config.Logging.Level)
-	}
-	if config.Logging.Format != "text" {
-		t.Errorf("Expected log format 'text', got %s", config.Logging.Format)
 	}
 
 	// Restore original values

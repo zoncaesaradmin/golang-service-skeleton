@@ -103,7 +103,7 @@ func (i *InputHandler) consumeLoop() {
 			}
 
 			if message != nil {
-				i.logger.Debugw("Received message", "size", len(message.Value))
+				i.logger.Debugw("Received kafka data message", "size", len(message.Value))
 
 				// Create a ChannelMessage from the Kafka message
 				channelMsg := models.NewDataMessage(message.Value, "kafka")

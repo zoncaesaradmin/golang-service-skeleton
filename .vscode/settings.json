@@ -12,8 +12,8 @@
         "**/test_service.sh": true,
         "**/test_component.sh": true,
         "**/ASYNC_IMPLEMENTATION.md": true,
-        "src/component/bin": true,
-        "src/testrunner/bin": true,
+        "src/component/bin/": true,
+        "src/testrunner/bin/": true,
         "**/coverage_improvement_test.go": true,
         "test/results": true
     },

@@ -29,6 +29,9 @@ func NewLoggerWithConfig(config *LoggerConfig) (*ZerologLogger, error) {
 		return nil, fmt.Errorf("failed to open log file %s: %w", config.FileName, err)
 	}
 
+	//set global logger to lowest level so that
+	// explicit logger instance level can always take effect
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	// Configure zerolog to write to the file with JSON format
 	logger := zerolog.New(file).With().
 		Timestamp().

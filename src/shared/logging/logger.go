@@ -138,9 +138,6 @@ func (c *LoggerConfig) Validate() error {
 	if c.LoggerName == "" {
 		return fmt.Errorf("logger name is required")
 	}
-	if c.ComponentName == "" {
-		return fmt.Errorf("component name is required")
-	}
 	if c.ServiceName == "" {
 		return fmt.Errorf("service name is required")
 	}
