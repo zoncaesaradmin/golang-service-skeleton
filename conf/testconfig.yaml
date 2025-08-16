@@ -1,8 +1,8 @@
 # Testrunner Configuration
 # This configuration is used by the integration test runner
 
-component:
-  binaryPath: ../component/bin/component
+service:
+  binaryPath: ../service/bin/service.bin
   port: 8080
   timeout: 30s
 

@@ -23,7 +23,7 @@ help:
 	@echo ""
 	@echo "🚀 LOCAL DEVELOPMENT (Mac/PC):"
 	@echo "  dev          - Full development workflow:"
-	@echo "                 • Build component with enforced coverage"
+	@echo "                 • Build service with enforced coverage"
 	@echo "                 • Build testrunner (no coverage)"
 	@echo "                 • Run integration tests"
 	@echo "                 • Generate reports"
@@ -45,7 +45,7 @@ help:
 	@echo ""
 	@echo "🏭 PRODUCTION BUILD:"
 	@echo "  build        - Production build with enforced coverage:"
-	@echo "                 • Build all components with coverage enforcement"
+	@echo "                 • Build all services with coverage enforcement"
 	@echo "                 • Ready for deployment"
 	@echo "                 • No test execution"
 	@echo ""
@@ -81,7 +81,7 @@ dev: dev-clean
 	@echo ""
 	@echo "📋 Workflow Steps:"
 	@echo "  1. Setup environment and directories"
-	@echo "  2. Build component with enforced coverage"
+	@echo "  2. Build service with enforced coverage"
 	@echo "  3. Build testrunner (no coverage)"
 	@echo "  4. Run integration tests"
 	@echo "  5. Generate coverage and test reports"
@@ -101,7 +101,7 @@ dev-run:
 # Development cleanup
 dev-clean:
 	@echo "🧹 Cleaning development environment..."
-	@pkill -f "component" 2>/dev/null || true
+	@pkill -f "service" 2>/dev/null || true
 	@pkill -f "testrunner" 2>/dev/null || true
 	@rm -rf test/results/ test/coverage/ test/*.pid 2>/dev/null || true
 	@rm -rf /tmp/katharos-messagebus* 2>/dev/null || true
@@ -112,7 +112,7 @@ test-coverage:
 	@echo "📊 Generating coverage report from latest test run..."
 	@if [ -f "test/results/coverage.out" ]; then \
 		echo "✅ Using existing coverage data..."; \
-		cd src/component && \
+		cd src/service && \
 		go tool cover -html=../../test/results/coverage.out -o=../../test/results/coverage.html && \
 		go tool cover -func=../../test/results/coverage.out > ../../test/results/coverage_summary.txt && \
 		cd ../../ && \
@@ -122,7 +122,7 @@ test-coverage:
 	elif [ -d "test/coverage" ] && [ -n "$$(ls -A test/coverage 2>/dev/null)" ]; then \
 		echo "✅ Processing raw coverage data..."; \
 		mkdir -p test/results && \
-		cd src/component && \
+		cd src/service && \
 		go tool covdata textfmt -i=../../test/coverage -o=../../test/results/coverage.out && \
 		go tool cover -html=../../test/results/coverage.out -o=../../test/results/coverage.html && \
 		go tool cover -func=../../test/results/coverage.out > ../../test/results/coverage_summary.txt && \
@@ -165,7 +165,7 @@ post_build: clean
 build:
 	@echo "🏭 Production build with enforced coverage..."
 	@$(MAKE) -C src coverage-enforce
-	@$(MAKE) -C src component-build BUILD_TAGS="$(BUILD_TAGS)"
+	@$(MAKE) -C src service-build BUILD_TAGS="$(BUILD_TAGS)"
 	@$(MAKE) -C src testrunner-build BUILD_TAGS="$(BUILD_TAGS)"
 	@echo "✅ Production build completed with enforced coverage!"
 

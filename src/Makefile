@@ -1,5 +1,5 @@
 # Optimized Root Makefile for Golang Service Skeleton
-.PHONY: help build build-with-coverage build-local test test-local clean clean-coverage clean-all-coverage deep-clean run-component run-component-local run-component-dev run-tests run-tests-local install-deps fmt vet lint coverage coverage-enforce start start-local component-build component-build-local component-build-with-coverage component-coverage component-test component-run testrunner-build testrunner-build-local testrunner-test testrunner-run shared-build shared-build-local shared-test shared-coverage ci dev-setup e2e-test
+.PHONY: help build build-with-coverage build-local test test-local clean clean-coverage clean-all-coverage deep-clean run-service run-service-local run-service-dev run-tests run-tests-local install-deps fmt vet lint coverage coverage-enforce start start-local service-build service-build-local service-build-with-coverage service-coverage service-test service-run testrunner-build testrunner-build-local testrunner-test testrunner-run shared-build shared-build-local shared-test shared-coverage ci dev-setup e2e-test
 
 # Coverage enforcement thresholds
 SERVICE_COVERAGE_THRESHOLD = 60
@@ -22,8 +22,8 @@ COVERAGE_BUILD_TAGS = $(LOCAL_BUILD_TAGS)
 define calculate_coverage
 	@rm -f coverage.out; \
 	echo "mode: set" > coverage.out; \
-	if [ -f component/component_coverage.tmp ]; then \
-		tail -n +2 component/component_coverage.tmp >> coverage.out; \
+	if [ -f service/service_coverage.tmp ]; then \
+		tail -n +2 service/service_coverage.tmp >> coverage.out; \
 	fi; \
 	if [ -f shared/shared_coverage.tmp ]; then \
 		tail -n +2 shared/shared_coverage.tmp >> coverage.out; \
@@ -33,7 +33,7 @@ define calculate_coverage
 		rm -f coverage.out; \
 		exit 1; \
 	fi; \
-	export SERVICE_COV=$$(cd component && go tool cover -func=component_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	export SERVICE_COV=$$(cd service && go tool cover -func=service_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
 	if [ -z "$$SERVICE_COV" ]; then export SERVICE_COV="0"; fi; \
 	export SHARED_COV=$$(cd shared && go tool cover -func=shared_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
 	if [ -z "$$SHARED_COV" ]; then export SHARED_COV="0"; fi; \
@@ -65,7 +65,7 @@ help:
 	@echo "  coverage-enforce- Enforce coverage threshold ($(SERVICE_COVERAGE_THRESHOLD)%)"
 	@echo ""
 	@echo "🚀 Service Operations:"
-	@echo "  run-component   - Build with coverage + run component (with/without coverage variants)"
+	@echo "  run-service   - Build with coverage + run service (with/without coverage variants)"
 	@echo "  run-tests       - Build and run integration tests"
 	@echo ""
 	@echo "🛠️  Development:"
@@ -85,7 +85,7 @@ help:
 	@echo "  ci              - Full CI pipeline with coverage enforcement"
 	@echo "  e2e-test        - End-to-end integration test"
 	@echo ""
-	@echo "📦 Module-Specific (component|testrunner|shared):"
+	@echo "📦 Module-Specific (service|testrunner|shared):"
 	@echo "  <module>-build     - Build specific module"
 	@echo "  <module>-test      - Test specific module"
 	@echo "  <module>-coverage  - Coverage for specific module"
@@ -94,44 +94,44 @@ help:
 	@echo "  BUILD_TAGS='$(BUILD_TAGS)' (current), LOCAL_BUILD_TAGS='$(LOCAL_BUILD_TAGS)'"
 	@echo "  Append -local to most targets for local development mode"
 	@echo ""
-	@echo "Coverage Scope: component/* + shared/* (excludes testrunner/*)"
+	@echo "Coverage Scope: service/* + shared/* (excludes testrunner/*)"
 
 # ==============================================================================
 # MAIN WORKFLOW TARGETS
 # ==============================================================================
 
 # Start target - Production ready build with coverage enforcement
-start: coverage-enforce component-build
+start: coverage-enforce service-build
 	@echo "✅ Service built with enforced coverage and ready for deployment!"
 
 # Alias for start (for backward compatibility)
 start-local: start
 
 # Build all projects
-build: component-build testrunner-build shared-build
+build: service-build testrunner-build shared-build
 
-build-local: component-build-local testrunner-build-local shared-build-local
+build-local: service-build-local testrunner-build-local shared-build-local
 
 # Build with coverage enforcement
 build-with-coverage: coverage-enforce build
 	@echo "✅ Build completed with coverage enforcement!"
 
 # Run all tests
-test: component-test testrunner-test shared-test
+test: service-test testrunner-test shared-test
 
-test-local: component-test-local testrunner-test-local shared-test-local
+test-local: service-test-local testrunner-test-local shared-test-local
 
 # ==============================================================================
 # COVERAGE TARGETS (OPTIMIZED)
 # ==============================================================================
 
 # Generate combined coverage report
-coverage: component-coverage shared-coverage
+coverage: service-coverage shared-coverage
 	@echo ""
 	@echo "=========================================="
 	@echo "COMBINED SERVICE COVERAGE REPORT"
 	@echo "=========================================="
-	@echo "Scope: component/* + shared/* (excludes testrunner/*)"
+	@echo "Scope: service/* + shared/* (excludes testrunner/*)"
 	@echo "Build Tags: $(COVERAGE_BUILD_TAGS)"
 	@echo ""
 	$(call calculate_coverage)
@@ -142,23 +142,23 @@ coverage: component-coverage shared-coverage
 	@echo "🎯 THRESHOLD: $(SERVICE_COVERAGE_THRESHOLD)%"
 	@echo ""
 	@echo "📁 Coverage files preserved:"
-	@echo "   • component/component_coverage.tmp"
+	@echo "   • service/service_coverage.tmp"
 	@echo "   • shared/shared_coverage.tmp"
 	@echo "   • coverage.out"
 
 # Enforce coverage threshold
-coverage-enforce: component-coverage shared-coverage
+coverage-enforce: service-coverage shared-coverage
 	@echo "=========================================="
 	@echo "SERVICE COVERAGE ENFORCEMENT"
 	@echo "=========================================="
-	@echo "Scope: component/* + shared/* (excludes testrunner/*)"
+	@echo "Scope: service/* + shared/* (excludes testrunner/*)"
 	@echo "Build Tags: $(COVERAGE_BUILD_TAGS)"
 	@echo "Threshold: $(SERVICE_COVERAGE_THRESHOLD)%"
 	@echo ""
 	@rm -f coverage.out; \
 	echo "mode: set" > coverage.out; \
-	if [ -f component/component_coverage.tmp ]; then \
-		tail -n +2 component/component_coverage.tmp >> coverage.out; \
+	if [ -f service/service_coverage.tmp ]; then \
+		tail -n +2 service/service_coverage.tmp >> coverage.out; \
 	fi; \
 	if [ -f shared/shared_coverage.tmp ]; then \
 		tail -n +2 shared/shared_coverage.tmp >> coverage.out; \
@@ -168,7 +168,7 @@ coverage-enforce: component-coverage shared-coverage
 		rm -f coverage.out; \
 		exit 1; \
 	fi; \
-	SERVICE_COV=$$(cd component && go tool cover -func=component_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
+	SERVICE_COV=$$(cd service && go tool cover -func=service_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
 	if [ -z "$$SERVICE_COV" ]; then SERVICE_COV="0"; fi; \
 	SHARED_COV=$$(cd shared && go tool cover -func=shared_coverage.tmp 2>/dev/null | tail -1 | awk '{print $$3}' | sed 's/%//'); \
 	if [ -z "$$SHARED_COV" ]; then SHARED_COV="0"; fi; \
@@ -191,22 +191,22 @@ coverage-enforce: component-coverage shared-coverage
 		echo "❌ SERVICE COVERAGE ENFORCEMENT FAILED!"; \
 		echo "   Combined coverage $$COMBINED_COV% below $(SERVICE_COVERAGE_THRESHOLD)% threshold"; \
 		echo ""; \
-		echo "💡 Coverage includes: component/* + shared/* (excludes testrunner/*)"; \
+		echo "💡 Coverage includes: service/* + shared/* (excludes testrunner/*)"; \
 		exit 1; \
 	fi; \
-	echo "📁 Coverage files preserved: coverage.out, component/component_coverage.tmp, shared/shared_coverage.tmp"
+	echo "📁 Coverage files preserved: coverage.out, service/service_coverage.tmp, shared/shared_coverage.tmp"
 
 # ==============================================================================
 # COMPONENT OPERATIONS
 # ==============================================================================
 
-# Run component with coverage enforcement
-run-component: component-build-with-coverage component-run
+# Run service with coverage enforcement
+run-service: service-build-with-coverage service-run
 
-run-component-local: component-build-with-coverage component-run-local
+run-service-local: service-build-with-coverage service-run-local
 
-# Run component without coverage (for development)
-run-component-dev: component-build component-run
+# Run service without coverage (for development)
+run-service-dev: service-build service-run
 
 # Run integration tests
 run-tests: testrunner-run
@@ -217,34 +217,34 @@ run-tests-local: testrunner-run-local
 # CLEANUP TARGETS
 # ==============================================================================
 
-clean: component-clean testrunner-clean shared-clean
+clean: service-clean testrunner-clean shared-clean
 	@echo "Cleaning individual module coverage files..."
-	@rm -f component/component_coverage.tmp shared/shared_coverage.tmp 2>/dev/null || true
+	@rm -f service/service_coverage.tmp shared/shared_coverage.tmp 2>/dev/null || true
 	@echo "✅ All projects cleaned (main coverage.out preserved)"
 
 clean-coverage:
 	@echo "Cleaning individual module coverage files..."
-	@rm -f component/component_coverage.tmp shared/shared_coverage.tmp
+	@rm -f service/service_coverage.tmp shared/shared_coverage.tmp
 	@echo "✅ Individual coverage files cleaned (main coverage.out preserved)"
 
 clean-all-coverage:
 	@echo "Cleaning all coverage files including main combined coverage..."
-	@rm -f component/component_coverage.tmp shared/shared_coverage.tmp coverage.out
+	@rm -f service/service_coverage.tmp shared/shared_coverage.tmp coverage.out
 	@echo "✅ All coverage files cleaned"
 
-deep-clean: component-deep-clean testrunner-deep-clean shared-deep-clean
+deep-clean: service-deep-clean testrunner-deep-clean shared-deep-clean
 
 # ==============================================================================
 # DEVELOPMENT WORKFLOW
 # ==============================================================================
 
-install-deps: component-deps testrunner-deps shared-deps
+install-deps: service-deps testrunner-deps shared-deps
 
-fmt: component-fmt testrunner-fmt shared-fmt
+fmt: service-fmt testrunner-fmt shared-fmt
 
-vet: component-vet testrunner-vet shared-vet
+vet: service-vet testrunner-vet shared-vet
 
-lint: component-lint shared-lint
+lint: service-lint shared-lint
 
 dev-setup: install-deps fmt vet build
 	@echo "✅ Development setup completed!"
@@ -257,56 +257,56 @@ ci: install-deps fmt vet test coverage-enforce build
 # ==============================================================================
 
 # Service targets
-component-build:
-	$(call run_module_cmd,Building,component,build,$(BUILD_TAGS))
+service-build:
+	$(call run_module_cmd,Building,service,build,$(BUILD_TAGS))
 
-component-build-local:
-	$(call run_module_cmd,Building,component,build,$(LOCAL_BUILD_TAGS))
+service-build-local:
+	$(call run_module_cmd,Building,service,build,$(LOCAL_BUILD_TAGS))
 
-component-build-with-coverage: component-coverage shared-coverage
-	@echo "Building component with coverage enforcement..."
+service-build-with-coverage: service-coverage shared-coverage
+	@echo "Building service with coverage enforcement..."
 	$(call calculate_coverage)
 	@echo "🎯 Coverage: Service=$$SERVICE_COV% | Shared=$$SHARED_COV% | Combined=$$COMBINED_COV%"
 	@if [ $$(awk -v cov="$$COMBINED_COV" -v thresh="$(SERVICE_COVERAGE_THRESHOLD)" 'BEGIN{print (cov >= thresh) ? 1 : 0}') -eq 1 ]; then \
 		echo "✅ Coverage $$COMBINED_COV% meets threshold - proceeding with build"; \
-		cd component && $(MAKE) build BUILD_TAGS="$(LOCAL_BUILD_TAGS)"; \
+		cd service && $(MAKE) build BUILD_TAGS="$(LOCAL_BUILD_TAGS)"; \
 	else \
 		echo "❌ Coverage $$COMBINED_COV% below $(SERVICE_COVERAGE_THRESHOLD)% threshold - build blocked"; \
 		exit 1; \
 	fi
 
-component-coverage:
-	$(call run_module_cmd,Running coverage for,component,coverage,$(COVERAGE_BUILD_TAGS))
+service-coverage:
+	$(call run_module_cmd,Running coverage for,service,coverage,$(COVERAGE_BUILD_TAGS))
 
-component-test:
-	$(call run_module_cmd,Testing,component,test,$(BUILD_TAGS))
+service-test:
+	$(call run_module_cmd,Testing,service,test,$(BUILD_TAGS))
 
-component-test-local:
-	$(call run_module_cmd,Testing,component,test,$(LOCAL_BUILD_TAGS))
+service-test-local:
+	$(call run_module_cmd,Testing,service,test,$(LOCAL_BUILD_TAGS))
 
-component-clean:
-	$(call run_module_cmd,Cleaning,component,clean,)
+service-clean:
+	$(call run_module_cmd,Cleaning,service,clean,)
 
-component-deep-clean:
-	$(call run_module_cmd,Deep cleaning,component,deep-clean,)
+service-deep-clean:
+	$(call run_module_cmd,Deep cleaning,service,deep-clean,)
 
-component-deps:
-	$(call run_module_cmd,Installing dependencies for,component,deps,)
+service-deps:
+	$(call run_module_cmd,Installing dependencies for,service,deps,)
 
-component-fmt:
-	$(call run_module_cmd,Formatting,component,fmt,)
+service-fmt:
+	$(call run_module_cmd,Formatting,service,fmt,)
 
-component-vet:
-	$(call run_module_cmd,Vetting,component,vet,)
+service-vet:
+	$(call run_module_cmd,Vetting,service,vet,)
 
-component-lint:
-	$(call run_module_cmd,Linting,component,lint,)
+service-lint:
+	$(call run_module_cmd,Linting,service,lint,)
 
-component-run:
-	$(call run_module_cmd,Running,component,run,$(BUILD_TAGS))
+service-run:
+	$(call run_module_cmd,Running,service,run,$(BUILD_TAGS))
 
-component-run-local:
-	$(call run_module_cmd,Running,component,run,$(LOCAL_BUILD_TAGS))
+service-run-local:
+	$(call run_module_cmd,Running,service,run,$(LOCAL_BUILD_TAGS))
 
 # Testrunner targets
 testrunner-build:
@@ -403,14 +403,14 @@ shared-race:
 # INTEGRATION TESTING
 # ==============================================================================
 
-e2e-test: component-build testrunner-build
+e2e-test: service-build testrunner-build
 	@echo "Starting end-to-end test..."
-	@echo "Starting component in background..."
-	@cd component && ./bin/component & SERVICE_PID=$$!; \
+	@echo "Starting service in background..."
+	@cd service && ./bin/service & SERVICE_PID=$$!; \
 	sleep 3; \
 	echo "Running integration tests..."; \
 	cd testrunner && ./bin/testrunner; \
 	TEST_RESULT=$$?; \
-	echo "Stopping component..."; \
+	echo "Stopping service..."; \
 	kill $$SERVICE_PID 2>/dev/null || true; \
 	exit $$TEST_RESULT

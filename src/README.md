@@ -1,6 +1,6 @@
 # Katharos Service System
 
-This project provides a comprehensive Go component system with a message bus-based processing pipeline and integration test infrastructure using Go workspace for multi-module management.
+This project provides a comprehensive Go service system with a message bus-based processing pipeline and integration test infrastructure using Go workspace for multi-module management.
 
 ## Project Architecture
 
@@ -22,7 +22,7 @@ src/                          # Source code root
 ├── Makefile                 # Build orchestration with coverage enforcement
 ├── README.md                # This documentation
 │
-├── component/               # Main processing component
+├── service/               # Main processing service
 │   ├── go.mod               # Module: servicemodule
 │   ├── go.sum               # Go module checksums
 │   ├── Makefile             # Service build automation
@@ -117,7 +117,7 @@ src/                          # Source code root
 
 ### Message Bus Architecture
 - **Cross-Process Communication**: File-based message bus for local development
-- **Producer/Consumer Pattern**: Testrunner produces test messages, component consumes and processes
+- **Producer/Consumer Pattern**: Testrunner produces test messages, service consumes and processes
 - **Topic-Based Messaging**: Organized message flow via `test_input` and `test_output` topics
 - **Offset Tracking**: Sequential message processing with offset management
 - **Build Tag Support**: Switch between local (`-tags local`) and production message bus implementations
@@ -176,12 +176,12 @@ make test-help
 #### 1. Build and Run Service (Processing Pipeline)
 ```bash
 # From src/ directory
-cd component
+cd service
 make build BUILD_TAGS="local"
-./bin/component
+./bin/service
 ```
 
-The component will start:
+The service will start:
 - Processing pipeline listening on message bus
 - Health API on `localhost:8080`
 - Processing `test_input` messages and sending responses to `test_output`
@@ -222,7 +222,7 @@ rm -rf /tmp/katharos-messagebus
 This project uses Go 1.18+ workspace feature:
 ```bash
 go work sync    # Sync workspace modules
-go work use ./component ./testrunner ./shared  # Add modules to workspace
+go work use ./service ./testrunner ./shared  # Add modules to workspace
 ```
 
 ## Message Bus Architecture
@@ -272,14 +272,14 @@ go build
 
 ### Health Endpoints
 
-The component still provides HTTP endpoints for monitoring:
+The service still provides HTTP endpoints for monitoring:
 
 - **GET** `/health` - Service health status
 - **GET** `/api/v1/stats` - Processing statistics
 
 ## Configuration
 
-The component and testrunner can be configured using environment variables and config files:
+The service and testrunner can be configured using environment variables and config files:
 
 ### Service Configuration
 
@@ -340,7 +340,7 @@ make test-help
 ### Service Unit Tests
 
 ```bash
-cd component
+cd service
 make test
 ```
 
@@ -362,7 +362,7 @@ make test
 
 ```bash
 # Service coverage
-cd component
+cd service
 make test-coverage
 
 # Testrunner coverage  
@@ -378,8 +378,8 @@ make test  # Coverage reported in test/results/
 Test the message bus functionality directly:
 
 ```bash
-# Start component
-cd component && make run BUILD_TAGS="local"
+# Start service
+cd service && make run BUILD_TAGS="local"
 
 # In another terminal, send test messages
 cd testrunner && make run BUILD_TAGS="local"
@@ -392,22 +392,22 @@ ls -la /tmp/katharos-messagebus/
 
 ### Quick Clean (removes build artifacts)
 ```bash
-# Clean all components from root
+# Clean all services from root
 make clean
 
-# Clean individual components
-cd component && make clean
+# Clean individual services
+cd service && make clean
 cd testrunner && make clean  
 cd shared && make clean
 ```
 
 ### Deep Clean (removes build artifacts, vendor, and module cache)
 ```bash
-# Deep clean all components from root
+# Deep clean all services from root
 make deep-clean
 
-# Deep clean individual components
-cd component && make deep-clean
+# Deep clean individual services
+cd service && make deep-clean
 cd testrunner && make deep-clean
 cd shared && make deep-clean
 ```
@@ -442,7 +442,7 @@ rm -rf test/results/
 ### Service (Processing Pipeline)
 
 ```bash
-cd component
+cd service
 
 # Build for local development (file-based message bus)
 make build BUILD_TAGS="local"
@@ -487,7 +487,7 @@ make clean
 ### Workspace-Level Commands
 
 ```bash
-# From root directory - builds all components
+# From root directory - builds all services
 make build
 
 # Clean all modules
@@ -511,11 +511,11 @@ make test-clean     # Clean test results and artifacts
 
 ### Service Commands
 ```bash
-cd component
+cd service
 make help           # Show available targets
 make build          # Build with production settings
 make build BUILD_TAGS="local"  # Build for local development
-make run BUILD_TAGS="local"    # Run component with file-based message bus
+make run BUILD_TAGS="local"    # Run service with file-based message bus
 make test           # Run unit tests
 make test-coverage  # Run tests with coverage
 make clean          # Clean build artifacts
@@ -546,7 +546,7 @@ make clean          # Clean build artifacts
 - Make
 
 ### Project Architecture
-- **Multi-module workspace**: Uses Go 1.18+ workspace feature with component, testrunner, and shared modules
+- **Multi-module workspace**: Uses Go 1.18+ workspace feature with service, testrunner, and shared modules
 - **Message Bus Communication**: File-based message bus for local development with producer/consumer pattern
 - **Processing Pipeline**: Input → Processor → Output pipeline architecture
 - **Build Tag Support**: Local development vs production message bus implementations
@@ -555,8 +555,8 @@ make clean          # Clean build artifacts
 ### Adding New Features
 
 #### Service Features
-1. Add models in `component/internal/models/`
-2. Implement processing logic in `component/internal/processing/processor.go`
+1. Add models in `service/internal/models/`
+2. Implement processing logic in `service/internal/processing/processor.go`
 3. Update message types in `shared/types/types.go`
 4. Add unit tests for new processing logic
 5. Add integration tests in `testrunner/internal/tests/`
@@ -571,18 +571,18 @@ make clean          # Clean build artifacts
 ```bash
 # Working with workspace
 go work sync                 # Sync all modules in workspace
-go work use ./component      # Add component module
+go work use ./service      # Add service module
 go work use ./testrunner     # Add testrunner module
 go work use ./shared         # Add shared module
 
 # Working with individual modules
-cd component && go mod tidy  # Manage component dependencies
+cd service && go mod tidy  # Manage service dependencies
 cd testrunner && go mod tidy # Manage testrunner dependencies
 cd shared && go mod tidy     # Manage shared dependencies
 ```
 
 ### Testing Strategy
-1. **Unit Tests**: Test individual functions in each module (component, testrunner, shared)
+1. **Unit Tests**: Test individual functions in each module (service, testrunner, shared)
 2. **Integration Tests**: Test cross-process communication via message bus
 3. **Message Bus Tests**: Test producer/consumer patterns and offset management
 4. **Processing Pipeline Tests**: End-to-end processing validation
@@ -592,11 +592,11 @@ cd shared && go mod tidy     # Manage shared dependencies
 
 ### Basic Message Bus Workflow
 
-1. **Start the component**:
+1. **Start the service**:
 ```bash
-cd component
+cd service
 make build BUILD_TAGS="local"
-./bin/component
+./bin/service
 ```
 
 2. **Send test messages via testrunner**:
@@ -647,15 +647,15 @@ curl http://localhost:8080/health
 
 This project uses Go 1.18+ workspace feature which provides:
 
-- **Multi-module management**: Work with component, testrunner, and shared modules in a single workspace
-- **Cross-module development**: Make changes across component, testrunner, and shared modules simultaneously
+- **Multi-module management**: Work with service, testrunner, and shared modules in a single workspace
+- **Cross-module development**: Make changes across service, testrunner, and shared modules simultaneously
 - **Shared dependencies**: Efficient dependency management across modules
 - **IDE support**: Better code navigation and refactoring across modules
 
 ### Workspace Commands
 ```bash
 go work init                 # Initialize workspace
-go work use ./component      # Add component module to workspace
+go work use ./service      # Add service module to workspace
 go work use ./testrunner     # Add testrunner module to workspace
 go work use ./shared         # Add shared module to workspace
 go work sync                 # Sync workspace modules

@@ -53,25 +53,25 @@ func (o *Orchestrator) ExecuteScenario(scenario testdata.TestScenario) (types.Te
 		Success:      false,
 	}
 
-	// Start component process
+	// Start service process
 	if err := o.processManager.StartService(); err != nil {
-		result.Error = fmt.Sprintf("failed to start component: %v", err)
+		result.Error = fmt.Sprintf("failed to start service: %v", err)
 		result.Duration = time.Since(start)
-		return result, fmt.Errorf("failed to start component: %w", err)
+		return result, fmt.Errorf("failed to start service: %w", err)
 	}
 
 	// Ensure cleanup
 	defer func() {
 		if err := o.processManager.StopService(); err != nil {
-			log.Printf("Warning: failed to stop component: %v", err)
+			log.Printf("Warning: failed to stop service: %v", err)
 		}
 	}()
 
-	// Wait for component to be ready
+	// Wait for service to be ready
 	if err := o.processManager.WaitForReady(); err != nil {
-		result.Error = fmt.Sprintf("component not ready: %v", err)
+		result.Error = fmt.Sprintf("service not ready: %v", err)
 		result.Duration = time.Since(start)
-		return result, fmt.Errorf("component not ready: %w", err)
+		return result, fmt.Errorf("service not ready: %w", err)
 	}
 
 	// Initialize test harness
@@ -124,7 +124,7 @@ func (o *Orchestrator) Cleanup() error {
 	}
 
 	if err := o.processManager.StopService(); err != nil {
-		return fmt.Errorf("failed to stop component: %w", err)
+		return fmt.Errorf("failed to stop service: %w", err)
 	}
 
 	return nil

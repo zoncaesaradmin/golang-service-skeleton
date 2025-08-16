@@ -115,29 +115,6 @@ func TestLoggerConfigValidate(t *testing.T) {
 			errMsg:  errLoggerNameRequired,
 		},
 		{
-			name: "missing component name",
-			config: LoggerConfig{
-				Level:       InfoLevel,
-				FileName:    testLogFile,
-				LoggerName:  testLoggerName,
-				ServiceName: testServiceName,
-			},
-			wantErr: true,
-			errMsg:  errComponentRequired,
-		},
-		{
-			name: "empty component name",
-			config: LoggerConfig{
-				Level:         InfoLevel,
-				FileName:      testLogFile,
-				LoggerName:    testLoggerName,
-				ComponentName: "",
-				ServiceName:   testServiceName,
-			},
-			wantErr: true,
-			errMsg:  errComponentRequired,
-		},
-		{
 			name: "missing service name",
 			config: LoggerConfig{
 				Level:         InfoLevel,
@@ -359,16 +336,6 @@ func TestNewLoggerWithInvalidConfig(t *testing.T) {
 				ServiceName:   testServiceName,
 			},
 			expectError: errLoggerNameRequired,
-		},
-		{
-			name: "missing component name",
-			config: &LoggerConfig{
-				Level:       InfoLevel,
-				FileName:    testLogFile,
-				LoggerName:  testLoggerName,
-				ServiceName: testServiceName,
-			},
-			expectError: errComponentRequired,
 		},
 		{
 			name: "missing service name",

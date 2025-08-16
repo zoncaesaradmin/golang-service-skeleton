@@ -1,12 +1,12 @@
 # Configuration Documentation
 
-This document explains the configuration system for the Katharos component and test infrastructure.
+This document explains the configuration system for the Katharos service and test infrastructure.
 
 ## Configuration Files
 
 ### Primary Configuration: `conf/config.yaml`
 - **Location**: `/conf/config.yaml` (root of project)
-- **Purpose**: Main configuration file for the component (production and development)
+- **Purpose**: Main configuration file for the service (production and development)
 - **Tracked**: Yes (committed to git)
 - **Usage**: Contains settings for server, logging, etc.
 
@@ -19,7 +19,7 @@ This document explains the configuration system for the Katharos component and t
 ## Configuration Loading
 
 ### Service Configuration
-The component loads configuration using the `SERVICE_HOME` environment variable:
+The service loads configuration using the `SERVICE_HOME` environment variable:
 - **Path**: `$SERVICE_HOME/conf/config.yaml`
 - **Required**: `SERVICE_HOME` must be set to repository root
 - **Method**: Absolute path loading for location independence
@@ -45,14 +45,14 @@ server:
 logging:
   level: "info"                  # LOG_LEVEL (debug, info, warn, error)
   format: "json"                 # LOG_FORMAT (json, text)
-  file_path: "/tmp/katharos-component.log"  # LOG_FILE_PATH
+  file_path: "/tmp/katharos-service.log"  # LOG_FILE_PATH
 ```
 
 ### Test Configuration (`testconfig.yaml`)
 ```yaml
 # Service settings for testing
-component:
-  binary_path: "../component/bin/component"
+service:
+  binary_path: "../service/bin/service"
   port: 8080
   timeout: 30s
 
@@ -81,14 +81,14 @@ Service configuration values can be overridden using environment variables. The 
 export SERVICE_HOME="/path/to/katharos"
 export SERVER_PORT=9090
 export LOG_LEVEL=debug
-./bin/component
+./bin/service
 ```
 
 ## Development Workflow
 
 ### For Local Development:
 1. Set `SERVICE_HOME` environment variable to repository root
-2. Use `make run-local` to automatically set SERVICE_HOME and run component
+2. Use `make run-local` to automatically set SERVICE_HOME and run service
 3. Modify `conf/config.yaml` as needed for development
 4. All changes are tracked in git
 
@@ -105,7 +105,7 @@ export LOG_LEVEL=debug
 
 ## Make Targets
 
-- `make run-local`: Build and run component with SERVICE_HOME automatically set
+- `make run-local`: Build and run service with SERVICE_HOME automatically set
 - `make run-local-coverage`: Build and run with coverage instrumentation for testing
 
 ## File Locations When Running
@@ -120,5 +120,5 @@ export LOG_LEVEL=debug
 2. **Use make targets**: Prefer `make run-local` over direct binary execution
 3. **Keep secrets out of config files**: Use environment variables for passwords, API keys, etc.
 4. **Document changes**: Update this file when adding new configuration options
-5. **Test with defaults**: Ensure components work with the provided configurations
+5. **Test with defaults**: Ensure services work with the provided configurations
 6. **Validate environment variables**: Check that environment overrides work correctly

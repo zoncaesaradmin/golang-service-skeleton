@@ -24,7 +24,7 @@ make test
 # Quick test run (with existing binaries)  
 make test-run
 
-# Build components only
+# Build services only
 make test-build
 
 # Generate coverage report
@@ -59,7 +59,7 @@ The test infrastructure has been moved to the `test/` directory parallel to `src
 ```
 katharos/
 ├── src/                    # Source code
-│   ├── component/          # Main component source
+│   ├── service/          # Main service source
 │   ├── testrunner/         # Test runner source
 │   └── shared/             # Shared modules
 ├── test/                   # Test infrastructure (NEW LOCATION)
@@ -81,7 +81,7 @@ The local development environment uses a **file-based message bus** for cross-pr
 - **Location**: `/tmp/katharos-messagebus/`
 - **Topics**: Organized in subdirectories (`test_input/`, `test_output/`)
 - **Message Format**: JSON files with sequential offsets (`0000000000.json`, `0000000001.json`)
-- **Cross-Process**: Enables testrunner and component to communicate via filesystem
+- **Cross-Process**: Enables testrunner and service to communicate via filesystem
 - **Local Development**: Uses `//go:build local` tag for local-only implementation
 
 ### Message Flow
@@ -101,9 +101,9 @@ All test results, logs, and reports are generated in the `test/results/` directo
 - `coverage_summary.txt` - Coverage statistics
 
 ### Log Files (organized in `test/results/logs/`)
-- `component.log` - Service application logs (structured JSON)
-- `component_stdout.log` - Service standard output
-- `component_stderr.log` - Service standard error output
+- `service.log` - Service application logs (structured JSON)
+- `service_stdout.log` - Service standard output
+- `service_stderr.log` - Service standard error output
 - `testrunner_stdout.log` - Testrunner standard output
 - `testrunner_stderr.log` - Testrunner standard error output
 
@@ -122,16 +122,16 @@ All test results, logs, and reports are generated in the `test/results/` directo
 Currently includes:
 - **user_workflow**: Tests complete user creation and retrieval workflow
 - **Message Bus Validation**: Verifies processing pipeline responds with valid data
-- **Cross-Process Communication**: Confirms testrunner ↔ component message exchange
+- **Cross-Process Communication**: Confirms testrunner ↔ service message exchange
 
 ## Logging Configuration
 
-The local development setup automatically configures logging for both components:
+The local development setup automatically configures logging for both services:
 
 ### Service Logging
 - **Structured Logging**: Uses JSON format via zerolog library
 - **Configurable Path**: Set via `LOG_FILE_PATH` environment variable
-- **Path**: `test/results/logs/component.log` (automatically set)
+- **Path**: `test/results/logs/service.log` (automatically set)
 - **Level Control**: Configurable via `LOG_LEVEL` environment variable
 
 ### Testrunner Logging  
@@ -142,7 +142,7 @@ The local development setup automatically configures logging for both components
 ### Environment Variables for Log Control
 ```bash
 # Service logging (automatically set by run_tests_local.sh)
-export LOG_FILE_PATH="../../test/results/logs/component.log"
+export LOG_FILE_PATH="../../test/results/logs/service.log"
 export GOCOVERDIR="../../test/coverage"
 
 # Manual override if needed
@@ -158,7 +158,7 @@ The system automatically instruments binaries with coverage tracking and generat
 3. **Console Output**: Coverage percentage is displayed after test completion
 
 ### Coverage Scope
-- ✅ **component/**: Main business logic (included)
+- ✅ **service/**: Main business logic (included)
 - ✅ **shared/**: Common utilities (included)  
 - ❌ **testrunner/**: Testing infrastructure (excluded from coverage)
 
@@ -172,8 +172,8 @@ The local development setup uses `-tags local` to:
 ## Process Management
 
 The test runner automatically:
-- Builds component and testrunner with appropriate tags
-- Starts the component with coverage instrumentation and log configuration
+- Builds service and testrunner with appropriate tags
+- Starts the service with coverage instrumentation and log configuration
 - Runs the test suite with organized log capture
 - Manages cross-process message bus communication
 - Stops all processes on completion
@@ -204,9 +204,9 @@ make test
 ```
 
 This will:
-1. Build component with coverage instrumentation
+1. Build service with coverage instrumentation
 2. Build testrunner
-3. Start component with message bus
+3. Start service with message bus
 4. Run test scenarios via message bus
 5. Generate coverage and test reports
 6. Clean up processes and organize logs
@@ -254,8 +254,8 @@ The logs show detailed message bus activity:
 # Check testrunner message bus activity
 grep "\[MessageBus\]" test/results/logs/testrunner_stderr.log
 
-# Check component processing logs
-grep "processing" test/results/logs/component.log
+# Check service processing logs
+grep "processing" test/results/logs/service.log
 ```
 
 ## Log Analysis
@@ -265,8 +265,8 @@ grep "processing" test/results/logs/component.log
 # View all logs consolidated
 cat test/results/all_logs.txt
 
-# View specific component logs
-cat test/results/logs/component.log
+# View specific service logs
+cat test/results/logs/service.log
 
 # View test execution output
 cat test/results/logs/testrunner_stdout.log
@@ -298,9 +298,9 @@ grep "Validation" test/results/logs/testrunner_stderr.log
 
 ### Test Failures
 1. Check `test/results/logs/testrunner_stdout.log` for detailed error messages
-2. Review `test/results/logs/component.log` for component-side issues
-3. Verify component starts successfully in `test/results/logs/component_stdout.log`
-4. Check port conflicts (component uses localhost:8080)
+2. Review `test/results/logs/service.log` for service-side issues
+3. Verify service starts successfully in `test/results/logs/service_stdout.log`
+4. Check port conflicts (service uses localhost:8080)
 
 ### Message Bus Issues
 1. Check message bus directory: `ls -la /tmp/katharos-messagebus/`
@@ -312,15 +312,15 @@ grep "Validation" test/results/logs/testrunner_stderr.log
 1. Ensure `GOCOVERDIR` environment is set correctly
 2. Check that binaries are built with `-cover` flag
 3. Verify coverage directory permissions
-4. Run coverage generation from component directory context
+4. Run coverage generation from service directory context
 
 ### Stuck Processes
 ```bash
-# Find stuck component processes
-ps aux | grep component
+# Find stuck service processes
+ps aux | grep service
 
 # Kill stuck processes
-pkill -f component
+pkill -f service
 ```
 
 ## Current Architecture Status
@@ -378,7 +378,7 @@ The local development setup integrates with VS Code through:
 2. **Log Analysis**: Use grep, awk, or jq for structured log analysis
 3. **Error Tracking**: Monitor error patterns across test runs
 4. **Message Bus Debugging**: Check /tmp/katharos-messagebus/ for message flow
-5. **Performance Monitoring**: Track component startup and response times in logs
+5. **Performance Monitoring**: Track service startup and response times in logs
 6. **Debug Information**: Enable verbose logging for detailed troubleshooting
 
 ## Message Bus Implementation Details

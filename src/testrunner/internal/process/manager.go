@@ -12,7 +12,7 @@ import (
 	"katharos/testrunner/internal/config"
 )
 
-// Manager handles component process lifecycle
+// Manager handles service process lifecycle
 type Manager struct {
 	config    config.ServiceConfig
 	process   *exec.Cmd
@@ -26,10 +26,10 @@ func NewManager(cfg config.ServiceConfig) *Manager {
 	}
 }
 
-// StartService starts the component process
+// StartService starts the service process
 func (m *Manager) StartService() error {
 	if m.isRunning {
-		return fmt.Errorf("component is already running")
+		return fmt.Errorf("service is already running")
 	}
 
 	// Check if binary exists
@@ -42,7 +42,7 @@ func (m *Manager) StartService() error {
 	}
 
 	if _, err := os.Stat(m.config.BinaryPath); os.IsNotExist(err) {
-		return fmt.Errorf("component binary not found: %s", m.config.BinaryPath)
+		return fmt.Errorf("service binary not found: %s", m.config.BinaryPath)
 	}
 
 	// Start the process
@@ -57,14 +57,14 @@ func (m *Manager) StartService() error {
 	)
 
 	if err := m.process.Start(); err != nil {
-		return fmt.Errorf("failed to start component: %w", err)
+		return fmt.Errorf("failed to start service: %w", err)
 	}
 
 	m.isRunning = true
 	return nil
 }
 
-// StopService stops the component process
+// StopService stops the service process
 func (m *Manager) StopService() error {
 	if !m.isRunning || m.process == nil {
 		return nil
@@ -74,7 +74,7 @@ func (m *Manager) StopService() error {
 	if err := m.process.Process.Signal(syscall.SIGTERM); err != nil {
 		// If graceful shutdown fails, force kill
 		if err := m.process.Process.Kill(); err != nil {
-			return fmt.Errorf("failed to kill component process: %w", err)
+			return fmt.Errorf("failed to kill service process: %w", err)
 		}
 	}
 
@@ -91,10 +91,10 @@ func (m *Manager) StopService() error {
 	return nil
 }
 
-// WaitForReady waits for the component to be ready to accept requests
+// WaitForReady waits for the service to be ready to accept requests
 func (m *Manager) WaitForReady() error {
 	if !m.isRunning {
-		return fmt.Errorf("component is not running")
+		return fmt.Errorf("service is not running")
 	}
 
 	timeout := time.After(m.config.Timeout)
@@ -106,7 +106,7 @@ func (m *Manager) WaitForReady() error {
 	for {
 		select {
 		case <-timeout:
-			return fmt.Errorf("timeout waiting for component to be ready")
+			return fmt.Errorf("timeout waiting for service to be ready")
 		case <-ticker.C:
 			resp, err := http.Get(healthURL)
 			if err == nil && resp.StatusCode == http.StatusOK {
@@ -120,12 +120,12 @@ func (m *Manager) WaitForReady() error {
 	}
 }
 
-// IsRunning returns whether the component is currently running
+// IsRunning returns whether the service is currently running
 func (m *Manager) IsRunning() bool {
 	return m.isRunning && m.process != nil
 }
 
-// GetPID returns the process ID of the component
+// GetPID returns the process ID of the service
 func (m *Manager) GetPID() int {
 	if m.process != nil && m.process.Process != nil {
 		return m.process.Process.Pid

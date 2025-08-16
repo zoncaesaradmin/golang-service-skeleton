@@ -10,13 +10,13 @@ import (
 
 // Config represents the testrunner configuration
 type Config struct {
-	Service  ServiceConfig  `yaml:"component"`
+	Service  ServiceConfig  `yaml:"service"`
 	MessageBus MessageBusConfig `yaml:"messagebus"`
 	Testdata   TestdataConfig   `yaml:"testdata"`
 	Validation ValidationConfig `yaml:"validation"`
 }
 
-// ServiceConfig contains component-specific settings
+// ServiceConfig contains service-specific settings
 type ServiceConfig struct {
 	BinaryPath string        `yaml:"binaryPath"`
 	Port       int           `yaml:"port"`

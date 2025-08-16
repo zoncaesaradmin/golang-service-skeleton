@@ -19,7 +19,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ "$(basename "$SCRIPT_DIR")" == "test" ]]; then
     # Running from test directory or script in test directory
     ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-    COMPONENT_DIR="$ROOT_DIR/src/component"
+    COMPONENT_DIR="$ROOT_DIR/src/service"
     TESTRUNNER_DIR="$ROOT_DIR/src/testrunner"
     RESULTS_DIR="$SCRIPT_DIR/results"
     LOGS_DIR="$SCRIPT_DIR/results/logs"
@@ -27,7 +27,7 @@ if [[ "$(basename "$SCRIPT_DIR")" == "test" ]]; then
 else
     # Fallback: assume we're in root and test is a subdirectory
     ROOT_DIR="$(pwd)"
-    COMPONENT_DIR="$ROOT_DIR/src/component"
+    COMPONENT_DIR="$ROOT_DIR/src/service"
     TESTRUNNER_DIR="$ROOT_DIR/src/testrunner"
     RESULTS_DIR="$ROOT_DIR/test/results"
     LOGS_DIR="$ROOT_DIR/test/results/logs"
@@ -56,8 +56,8 @@ log_error() {
 cleanup() {
     log_info "Cleaning up processes and temporary files..."
     
-    # Kill any running component or testrunner processes
-    pkill -f "component.bin" 2>/dev/null || true
+    # Kill any running service or testrunner processes
+    pkill -f "service.bin" 2>/dev/null || true
     pkill -f "testrunner.bin" 2>/dev/null || true
     
     # Clean up coverage data
@@ -77,11 +77,11 @@ setup_directories() {
     log_success "Directories created"
 }
 
-# Function to build component with coverage
-build_component() {
+# Function to build service with coverage
+build_service() {
     log_info "Service will be built by make run-local-coverage with coverage instrumentation and local tags..."
     
-    # Verify component directory exists and has Makefile
+    # Verify service directory exists and has Makefile
     if [ ! -f "$COMPONENT_DIR/Makefile" ]; then
         log_error "Service Makefile not found at $COMPONENT_DIR/Makefile"
         exit 1
@@ -108,14 +108,14 @@ build_testrunner() {
     cd - > /dev/null
 }
 
-# Function to run component
-run_component() {
-    log_info "Starting component using make run-local-coverage..."
+# Function to run service
+run_service() {
+    log_info "Starting service using make run-local-coverage..."
     cd "$COMPONENT_DIR"
     
     # Set coverage directory and log file path (using absolute paths)
     export GOCOVERDIR="$COVERAGE_DIR"
-    export LOG_FILE_PATH="$LOGS_DIR/component.log"
+    export LOG_FILE_PATH="$LOGS_DIR/service.log"
     
     # Set test-specific topics for integration testing
     export PROCESSING_INPUT_TOPICS="test_input"
@@ -123,15 +123,15 @@ run_component() {
     
     # Use make run-local-coverage which automatically sets SERVICE_HOME and builds with local tags + coverage
     # Run in background and capture stdout/stderr
-    make run-local-coverage > "$LOGS_DIR/component_stdout.log" 2> "$LOGS_DIR/component_stderr.log" &
+    make run-local-coverage > "$LOGS_DIR/service_stdout.log" 2> "$LOGS_DIR/service_stderr.log" &
     COMPONENT_PID=$!
-    echo $COMPONENT_PID > "$ROOT_DIR/test/component.pid"
+    echo $COMPONENT_PID > "$ROOT_DIR/test/service.pid"
     
     log_success "Service started with PID $COMPONENT_PID using make run-local-coverage (SERVICE_HOME=$ROOT_DIR)"
-    log_info "Service logs: $LOGS_DIR/component.log, $LOGS_DIR/component_stdout.log, $LOGS_DIR/component_stderr.log"
+    log_info "Service logs: $LOGS_DIR/service.log, $LOGS_DIR/service_stdout.log, $LOGS_DIR/service_stderr.log"
     cd - > /dev/null
     
-    # Wait a moment for component to start
+    # Wait a moment for service to start
     sleep 2
 }
 
@@ -165,12 +165,12 @@ run_testrunner() {
     return $TEST_RESULT
 }
 
-# Function to stop component
-stop_component() {
-    PIDFILE="$ROOT_DIR/test/component.pid"
+# Function to stop service
+stop_service() {
+    PIDFILE="$ROOT_DIR/test/service.pid"
     if [ -f "$PIDFILE" ]; then
         COMPONENT_PID=$(cat "$PIDFILE")
-        log_info "Stopping component (PID: $COMPONENT_PID)..."
+        log_info "Stopping service (PID: $COMPONENT_PID)..."
         kill $COMPONENT_PID 2>/dev/null || true
         rm -f "$PIDFILE"
         log_success "Service stopped"
@@ -195,26 +195,26 @@ collect_logs() {
         echo
         
         echo "=== COMPONENT APPLICATION LOGS ==="
-        if [ -f "$LOGS_DIR/component.log" ]; then
-            cat "$LOGS_DIR/component.log"
+        if [ -f "$LOGS_DIR/service.log" ]; then
+            cat "$LOGS_DIR/service.log"
         else
-            echo "No component application logs found"
+            echo "No service application logs found"
         fi
         echo
         
         echo "=== COMPONENT STDOUT ==="
-        if [ -f "$LOGS_DIR/component_stdout.log" ]; then
-            cat "$LOGS_DIR/component_stdout.log"
+        if [ -f "$LOGS_DIR/service_stdout.log" ]; then
+            cat "$LOGS_DIR/service_stdout.log"
         else
-            echo "No component stdout logs found"
+            echo "No service stdout logs found"
         fi
         echo
         
         echo "=== COMPONENT STDERR ==="
-        if [ -f "$LOGS_DIR/component_stderr.log" ]; then
-            cat "$LOGS_DIR/component_stderr.log"
+        if [ -f "$LOGS_DIR/service_stderr.log" ]; then
+            cat "$LOGS_DIR/service_stderr.log"
         else
-            echo "No component stderr logs found"
+            echo "No service stderr logs found"
         fi
         echo
         
@@ -263,7 +263,7 @@ generate_coverage_report() {
     
     if [ -d "$COVERAGE_DIR" ] && [ "$(ls -A "$COVERAGE_DIR")" ]; then
         # Convert binary coverage data to text format
-        # Use the component's working directory for proper module resolution
+        # Use the service's working directory for proper module resolution
         cd "$COMPONENT_DIR"
         go tool covdata textfmt -i="$COVERAGE_DIR" -o="$RESULTS_DIR/coverage.out"
         
@@ -322,9 +322,9 @@ generate_report() {
         echo
         
         echo "Log Files:"
-        echo "- Service application logs: $LOGS_DIR/component.log"
-        echo "- Service stdout: $LOGS_DIR/component_stdout.log"
-        echo "- Service stderr: $LOGS_DIR/component_stderr.log"
+        echo "- Service application logs: $LOGS_DIR/service.log"
+        echo "- Service stdout: $LOGS_DIR/service_stdout.log"
+        echo "- Service stderr: $LOGS_DIR/service_stderr.log"
         echo "- Testrunner application logs: $LOGS_DIR/testrunner.log"
         echo "- Testrunner stdout: $LOGS_DIR/testrunner_stdout.log"
         echo "- Testrunner stderr: $LOGS_DIR/testrunner_stderr.log"
@@ -364,13 +364,13 @@ main() {
     
     if [ "$BUILD_MODE" = "build" ] || [ "$BUILD_MODE" = "all" ]; then
         # Build phase
-        build_component
+        build_service
         build_testrunner
     fi
     
     if [ "$BUILD_MODE" = "run" ] || [ "$BUILD_MODE" = "build" ] || [ "$BUILD_MODE" = "all" ]; then
         # Run phase
-        run_component
+        run_service
         
         # Run tests (handle failures gracefully)
         set +e
@@ -378,8 +378,8 @@ main() {
         TEST_RESULT=$?
         set -e
         
-        echo "DEBUG: About to stop component"        # Stop component
-        stop_component
+        echo "DEBUG: About to stop service"        # Stop service
+        stop_service
         
         echo "DEBUG: About to collect logs"        # Collect and organize logs
         collect_logs

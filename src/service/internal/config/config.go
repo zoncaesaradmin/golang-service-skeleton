@@ -82,9 +82,9 @@ func LoadConfig() *RawConfig {
 		},
 		Logging: RawLoggingConfig{
 			Level:       utils.GetEnv("LOG_LEVEL", "info"),
-			FilePath:    utils.GetEnv("LOG_FILE_PATH", "/tmp/katharos-component.log"),
-			LoggerName:  utils.GetEnv("LOG_LOGGER_NAME", "katharos-component"),
-			ServiceName: utils.GetEnv("LOG_SERVICE_NAME", "katharos-component"),
+			FilePath:    utils.GetEnv("LOG_FILE_PATH", "/tmp/katharos-service.log"),
+			LoggerName:  utils.GetEnv("LOG_LOGGER_NAME", "katharos-service"),
+			ServiceName: utils.GetEnv("LOG_SERVICE_NAME", "katharos-service"),
 		},
 		Processing: RawProcessingConfig{
 			Input: RawInputConfig{

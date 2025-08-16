@@ -138,7 +138,7 @@ func generateSampleData() error {
 	// Generate sample config
 	sampleConfig := config.Config{
 		Service: config.ServiceConfig{
-			BinaryPath: "../component/bin/component",
+			BinaryPath: "../service/bin/service.bin",
 			Port:       8080,
 			Timeout:    30 * time.Second,
 		},

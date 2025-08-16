@@ -38,12 +38,12 @@ dist/
 **/dist/
 
 # Specific project binary directories
-src/component/bin/
+src/service/bin/
 src/testrunner/bin/
 src/shared/bin/
 
 # Binary files
-**/component.bin
+**/service.bin
 **/testrunner.bin
 
 # ==============================================================================
@@ -111,7 +111,6 @@ config.local.yml
 # Obsolete directories
 
 # Obsolete scripts
-test_component.sh
 
 # Obsolete documentation
 

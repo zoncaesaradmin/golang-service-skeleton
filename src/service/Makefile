@@ -2,12 +2,12 @@
 .PHONY: build test clean deep-clean run run-local run-local-coverage deps tidy lint fmt vet coverage coverage-enforce coverage-html install-lint docker-build help
 
 # Variables
-BINARY_NAME=component.bin
+BINARY_NAME=service.bin
 BINARY_PATH=./bin/$(BINARY_NAME)
 MAIN_PATH=./cmd/main.go
 GO_FILES=$(shell find . -name "*.go" -type f)
 COVERAGE_THRESHOLD=80
-COVERAGE_OUT=component_coverage.tmp
+COVERAGE_OUT=service_coverage.tmp
 COVERAGE_HTML=coverage.html
 
 # Build tags support (can be passed from parent Makefile)
@@ -28,19 +28,19 @@ build:
 	go build $(BUILD_FLAGS) -o $(BINARY_PATH) $(MAIN_PATH)
 	@echo "Build completed: $(BINARY_PATH)"
 
-# Run the component
+# Run the service
 run: build
 	@echo "Running $(BINARY_NAME) with SERVICE_HOME set to repository root..."
 	@SERVICE_HOME="$$(cd ../../ && pwd)" $(BINARY_PATH)
 
-# Run the component with local development settings
+# Run the service with local development settings
 run-local:
 	@echo "Building and running $(BINARY_NAME) with local tags and SERVICE_HOME..."
 	@mkdir -p bin
 	go build -tags local -o $(BINARY_PATH) $(MAIN_PATH)
 	@SERVICE_HOME="$$(cd ../../ && pwd)" $(BINARY_PATH)
 
-# Run the component with local development settings and coverage instrumentation (for integration tests)
+# Run the service with local development settings and coverage instrumentation (for integration tests)
 run-local-coverage:
 	@echo "Building and running $(BINARY_NAME) with local tags, coverage, and SERVICE_HOME..."
 	@mkdir -p bin
@@ -141,7 +141,7 @@ docker-build:
 help:
 	@echo "Service Makefile - Available targets:"
 	@echo "  build            - Build the binary"
-	@echo "  run              - Build and run the component (requires SERVICE_HOME)"
+	@echo "  run              - Build and run the service (requires SERVICE_HOME)"
 	@echo "  run-local        - Build and run with local tags (sets SERVICE_HOME automatically)"
 	@echo "  run-local-coverage - Build and run with local tags and coverage (for integration tests)"
 	@echo "  test             - Run tests"

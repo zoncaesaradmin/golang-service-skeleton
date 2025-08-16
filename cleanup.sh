@@ -11,14 +11,6 @@ echo "🧹 Starting comprehensive cleanup..."
 cd "$(dirname "$0")"
 
 # 1. Remove obsolete directories and files
-echo "Removing obsolete files and directories..."
-rm -rf src/service/ 2>/dev/null || true
-rm -rf service/ 2>/dev/null || true
-rm -f src/test_service.sh 2>/dev/null || true
-rm -f test_service.sh 2>/dev/null || true
-rm -f src/test_component.sh 2>/dev/null || true
-rm -f test_component.sh 2>/dev/null || true
-find . -name "ASYNC_IMPLEMENTATION.md" -delete 2>/dev/null || true
 
 # 2. Clean build artifacts
 echo "Cleaning build artifacts..."
@@ -42,8 +34,8 @@ rm -rf test/results/ 2>/dev/null || true
 
 # 6. Clean individual module artifacts
 echo "Cleaning module artifacts..."
-if [ -d "src/component" ]; then
-    cd src/component && make clean 2>/dev/null || true
+if [ -d "src/service" ]; then
+    cd src/service && make clean 2>/dev/null || true
     cd ../..
 fi
 
@@ -58,8 +50,6 @@ if [ -d "src/shared" ]; then
 fi
 
 # 7. Git cleanup
-echo "Running git cleanup..."
-git clean -fd 2>/dev/null || true
 
 # 8. Remove empty files (except those being worked on)
 echo "Removing empty files..."
@@ -77,4 +67,4 @@ echo "2. If issues persist, restart VS Code completely"
 echo "3. Run this script again if old files reappear"
 echo ""
 echo "📁 Current clean state:"
-ls -la src/ | grep -E "(component|testrunner|shared|README|Makefile|go\.work)" || echo "Basic files present"
+ls -la src/ | grep -E "(service|testrunner|shared|README|Makefile|go\.work)" || echo "Basic files present"
