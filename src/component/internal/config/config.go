@@ -14,13 +14,13 @@ import (
 
 // Config holds the application configuration
 type RawConfig struct {
-	Server     ServerConfig     `yaml:"server"`
-	Logging    LoggingConfig    `yaml:"logging"`
-	Processing ProcessingConfig `yaml:"processing"`
+	Server     RawServerConfig     `yaml:"server"`
+	Logging    RawLoggingConfig    `yaml:"logging"`
+	Processing RawProcessingConfig `yaml:"processing"`
 }
 
 // ServerConfig holds server-related configuration
-type ServerConfig struct {
+type RawServerConfig struct {
 	Host         string `yaml:"host"`
 	Port         int    `yaml:"port"`
 	ReadTimeout  int    `yaml:"readTimeout"`
@@ -28,7 +28,7 @@ type ServerConfig struct {
 }
 
 // LoggingConfig holds logging-related configuration
-type LoggingConfig struct {
+type RawLoggingConfig struct {
 	Level         string `yaml:"level"`         // Log level: debug, info, warn, error, fatal, panic
 	Format        string `yaml:"format"`        // Log format: json, text (not used in current implementation)
 	FilePath      string `yaml:"filePath"`      // Path to the log file
@@ -38,29 +38,29 @@ type LoggingConfig struct {
 }
 
 // ProcessingConfig holds processing pipeline configuration
-type ProcessingConfig struct {
-	Input         InputConfig     `yaml:"input"`
-	Processor     ProcessorConfig `yaml:"processor"`
-	Output        OutputConfig    `yaml:"output"`
-	Channels      ChannelConfig   `yaml:"channels"`
-	PloggerConfig LoggingConfig   `yaml:"logging"`
+type RawProcessingConfig struct {
+	Input         RawInputConfig     `yaml:"input"`
+	Processor     RawProcessorConfig `yaml:"processor"`
+	Output        RawOutputConfig    `yaml:"output"`
+	Channels      RawChannelConfig   `yaml:"channels"`
+	PloggerConfig RawLoggingConfig   `yaml:"logging"`
 }
 
 // InputConfig holds input handler configuration
-type InputConfig struct {
+type RawInputConfig struct {
 	Topics            []string      `yaml:"topics"`
 	PollTimeout       time.Duration `yaml:"pollTimeout"`
 	ChannelBufferSize int           `yaml:"channelBufferSize"`
 }
 
 // ProcessorConfig holds processor configuration
-type ProcessorConfig struct {
+type RawProcessorConfig struct {
 	ProcessingDelay time.Duration `yaml:"processingDelay"`
 	BatchSize       int           `yaml:"batchSize"`
 }
 
 // OutputConfig holds output handler configuration
-type OutputConfig struct {
+type RawOutputConfig struct {
 	OutputTopic       string        `yaml:"outputTopic"`
 	BatchSize         int           `yaml:"batchSize"`
 	FlushTimeout      time.Duration `yaml:"flushTimeout"`
@@ -68,7 +68,7 @@ type OutputConfig struct {
 }
 
 // ChannelConfig holds channel buffer configuration
-type ChannelConfig struct {
+type RawChannelConfig struct {
 	InputBufferSize  int `yaml:"inputBufferSize"`
 	OutputBufferSize int `yaml:"outputBufferSize"`
 }
@@ -76,13 +76,13 @@ type ChannelConfig struct {
 // LoadConfig loads configuration from environment variables with defaults
 func LoadConfig() *RawConfig {
 	config := &RawConfig{
-		Server: ServerConfig{
+		Server: RawServerConfig{
 			Host:         utils.GetEnv("SERVER_HOST", "localhost"),
 			Port:         utils.GetEnvInt("SERVER_PORT", 8080),
 			ReadTimeout:  utils.GetEnvInt("SERVER_READ_TIMEOUT", 10),
 			WriteTimeout: utils.GetEnvInt("SERVER_WRITE_TIMEOUT", 10),
 		},
-		Logging: LoggingConfig{
+		Logging: RawLoggingConfig{
 			Level:         utils.GetEnv("LOG_LEVEL", "info"),
 			Format:        utils.GetEnv("LOG_FORMAT", "json"),
 			FilePath:      utils.GetEnv("LOG_FILE_PATH", "/tmp/katharos-component.log"),
@@ -90,27 +90,27 @@ func LoadConfig() *RawConfig {
 			ComponentName: utils.GetEnv("LOG_COMPONENT_NAME", "main"),
 			ServiceName:   utils.GetEnv("LOG_SERVICE_NAME", "katharos-component"),
 		},
-		Processing: ProcessingConfig{
-			Input: InputConfig{
+		Processing: RawProcessingConfig{
+			Input: RawInputConfig{
 				Topics:            parseTopics(utils.GetEnv("PROCESSING_INPUT_TOPICS", "input-topic")),
 				PollTimeout:       time.Duration(utils.GetEnvInt("PROCESSING_INPUT_POLL_TIMEOUT_MS", 1000)) * time.Millisecond,
 				ChannelBufferSize: utils.GetEnvInt("PROCESSING_INPUT_BUFFER_SIZE", 1000),
 			},
-			Processor: ProcessorConfig{
+			Processor: RawProcessorConfig{
 				ProcessingDelay: time.Duration(utils.GetEnvInt("PROCESSING_DELAY_MS", 10)) * time.Millisecond,
 				BatchSize:       utils.GetEnvInt("PROCESSING_BATCH_SIZE", 100),
 			},
-			Output: OutputConfig{
+			Output: RawOutputConfig{
 				OutputTopic:       utils.GetEnv("PROCESSING_OUTPUT_TOPIC", "output-topic"),
 				BatchSize:         utils.GetEnvInt("PROCESSING_OUTPUT_BATCH_SIZE", 50),
 				FlushTimeout:      time.Duration(utils.GetEnvInt("PROCESSING_OUTPUT_FLUSH_TIMEOUT_MS", 5000)) * time.Millisecond,
 				ChannelBufferSize: utils.GetEnvInt("PROCESSING_OUTPUT_BUFFER_SIZE", 1000),
 			},
-			Channels: ChannelConfig{
+			Channels: RawChannelConfig{
 				InputBufferSize:  utils.GetEnvInt("PROCESSING_CHANNELS_INPUT_BUFFER_SIZE", 1000),
 				OutputBufferSize: utils.GetEnvInt("PROCESSING_CHANNELS_OUTPUT_BUFFER_SIZE", 1000),
 			},
-			PloggerConfig: LoggingConfig{
+			PloggerConfig: RawLoggingConfig{
 				Level:         utils.GetEnv("PROCESSING_PLOGGER_LEVEL", "info"),
 				Format:        "json", // Pipeline logger uses same format as main logger
 				FilePath:      utils.GetEnv("PROCESSING_PLOGGER_FILE_NAME", "/tmp/katharos-pipeline.log"),
@@ -277,7 +277,7 @@ func convertLogLevel(levelStr string) logging.Level {
 }
 
 // ConvertLoggingConfig converts LoggingConfig to logging.LoggerConfig
-func (cfg LoggingConfig) ConvertToLoggerConfig() logging.LoggerConfig {
+func (cfg RawLoggingConfig) ConvertToLoggerConfig() logging.LoggerConfig {
 	return logging.LoggerConfig{
 		Level:         convertLogLevel(cfg.Level),
 		FileName:      cfg.FilePath,

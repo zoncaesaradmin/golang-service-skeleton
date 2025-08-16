@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -125,13 +124,13 @@ func TestSetupRouterWithNilHandler(t *testing.T) {
 func TestServerConfiguration(t *testing.T) {
 	// Test server configuration with different config values
 	testCases := []struct {
-		name   string
-		config *config.RawConfig
+		name      string
+		rawconfig *config.RawConfig
 	}{
 		{
 			name: "default config",
-			config: &config.RawConfig{
-				Server: config.ServerConfig{
+			rawconfig: &config.RawConfig{
+				Server: config.RawServerConfig{
 					Host:         testHost,
 					Port:         8080,
 					ReadTimeout:  10,
@@ -141,8 +140,8 @@ func TestServerConfiguration(t *testing.T) {
 		},
 		{
 			name: "custom config",
-			config: &config.RawConfig{
-				Server: config.ServerConfig{
+			rawconfig: &config.RawConfig{
+				Server: config.RawServerConfig{
 					Host:         testHostAll,
 					Port:         9090,
 					ReadTimeout:  15,
@@ -156,15 +155,14 @@ func TestServerConfiguration(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Create test server configuration
 			logger := &mockLogger{}
-			application := app.NewApplication(tc.config, logger)
+			application := app.NewApplication(tc.rawconfig, logger)
 			mux := setupRouter(logger)
 
 			// Create server with same configuration as startServer
 			srv := &http.Server{
-				Addr:         fmt.Sprintf("%s:%d", tc.config.Server.Host, tc.config.Server.Port),
 				Handler:      mux,
-				ReadTimeout:  time.Duration(tc.config.Server.ReadTimeout) * time.Second,
-				WriteTimeout: time.Duration(tc.config.Server.WriteTimeout) * time.Second,
+				ReadTimeout:  time.Duration(tc.rawconfig.Server.ReadTimeout) * time.Second,
+				WriteTimeout: time.Duration(tc.rawconfig.Server.WriteTimeout) * time.Second,
 			}
 
 			// Verify server configuration
@@ -172,12 +170,12 @@ func TestServerConfiguration(t *testing.T) {
 				t.Error("expected server handler to be set correctly")
 			}
 
-			expectedReadTimeout := time.Duration(tc.config.Server.ReadTimeout) * time.Second
+			expectedReadTimeout := time.Duration(tc.rawconfig.Server.ReadTimeout) * time.Second
 			if srv.ReadTimeout != expectedReadTimeout {
 				t.Errorf("expected ReadTimeout to be %v, got %v", expectedReadTimeout, srv.ReadTimeout)
 			}
 
-			expectedWriteTimeout := time.Duration(tc.config.Server.WriteTimeout) * time.Second
+			expectedWriteTimeout := time.Duration(tc.rawconfig.Server.WriteTimeout) * time.Second
 			if srv.WriteTimeout != expectedWriteTimeout {
 				t.Errorf("expected WriteTimeout to be %v, got %v", expectedWriteTimeout, srv.WriteTimeout)
 			}
@@ -190,8 +188,8 @@ func TestServerConfiguration(t *testing.T) {
 
 func TestApplicationInitialization(t *testing.T) {
 	// Test that application is initialized correctly
-	cfg := &config.RawConfig{
-		Server: config.ServerConfig{
+	rawcfg := &config.RawConfig{
+		Server: config.RawServerConfig{
 			Host:         testHost,
 			Port:         8080,
 			ReadTimeout:  10,
@@ -200,7 +198,7 @@ func TestApplicationInitialization(t *testing.T) {
 	}
 
 	logger := &mockLogger{}
-	application := app.NewApplication(cfg, logger)
+	application := app.NewApplication(rawcfg, logger)
 
 	// Verify application is created properly
 	if application == nil {
@@ -209,7 +207,7 @@ func TestApplicationInitialization(t *testing.T) {
 
 	// Verify config is accessible
 	appConfig := application.Config()
-	if appConfig != cfg {
+	if appConfig != rawcfg {
 		t.Error("expected application config to match provided config")
 	}
 
@@ -350,7 +348,7 @@ func TestIntegrationComponents(t *testing.T) {
 func TestServerShutdownGraceful(t *testing.T) {
 	// Test graceful shutdown simulation
 	cfg := &config.RawConfig{
-		Server: config.ServerConfig{
+		Server: config.RawServerConfig{
 			Host:         testHost,
 			Port:         0, // Use port 0 to let OS assign a free port
 			ReadTimeout:  1,
@@ -423,8 +421,8 @@ func BenchmarkHealthCheckRequest(b *testing.B) {
 }
 
 func BenchmarkApplicationCreation(b *testing.B) {
-	cfg := &config.RawConfig{
-		Server: config.ServerConfig{
+	rawcfg := &config.RawConfig{
+		Server: config.RawServerConfig{
 			Host:         testHost,
 			Port:         8080,
 			ReadTimeout:  10,
@@ -435,7 +433,7 @@ func BenchmarkApplicationCreation(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		app := app.NewApplication(cfg, logger)
+		app := app.NewApplication(rawcfg, logger)
 		app.Shutdown()
 	}
 }

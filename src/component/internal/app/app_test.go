@@ -54,7 +54,7 @@ func (m *mockLogger) Close() error                                              
 
 func TestNewApplication(t *testing.T) {
 	cfg := &config.RawConfig{
-		Server: config.ServerConfig{
+		Server: config.RawServerConfig{
 			Host: "localhost",
 			Port: 8080,
 		},
@@ -90,7 +90,7 @@ func TestNewApplication(t *testing.T) {
 
 func TestApplicationConfig(t *testing.T) {
 	cfg := &config.RawConfig{
-		Server: config.ServerConfig{
+		Server: config.RawServerConfig{
 			Host: "localhost",
 			Port: 8080,
 		},

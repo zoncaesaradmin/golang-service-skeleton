@@ -186,11 +186,11 @@ func TestOverrideWithEnvVars(t *testing.T) {
 
 	// Test override functionality
 	config := &RawConfig{
-		Server: ServerConfig{
+		Server: RawServerConfig{
 			Host: "original.com",
 			Port: 8080,
 		},
-		Logging: LoggingConfig{
+		Logging: RawLoggingConfig{
 			Level:  "info",
 			Format: "json",
 		},
@@ -245,13 +245,13 @@ func TestOverrideWithEnvVarsAllFields(t *testing.T) {
 
 	// Test override functionality for all fields
 	config := &RawConfig{
-		Server: ServerConfig{
+		Server: RawServerConfig{
 			Host:         "original.com",
 			Port:         8080,
 			ReadTimeout:  10,
 			WriteTimeout: 10,
 		},
-		Logging: LoggingConfig{
+		Logging: RawLoggingConfig{
 			Level:  "info",
 			Format: "json",
 		},
