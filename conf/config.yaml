@@ -19,7 +19,7 @@ logging:
   level: "info"                  # Log level: debug, info, warn, error (env: LOG_LEVEL)
   fileName: "main.log"           # Log file path (env: LOG_FILE_NAME)
   loggerName: "main"             # Logger name identifier (env: LOG_LOGGER_NAME)
-  serviceName: "cratos"          # Service name for structured logging (env: LOG_COMPONENT_NAME)
+  serviceName: "cratos"          # Service name for structured logging (env: LOG_SERVICE_NAME)
 
 # Processing pipeline configuration
 processing:

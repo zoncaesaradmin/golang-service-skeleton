@@ -1,11 +1,5 @@
-# Copy env.example to .env and set SERVICE_HOME to current root directory
-setup-env:
-	@echo "Setting up .env from env.example..."
-	cp env.example .env
-	sed -i '' "s|^SERVICE_HOME=.*$|SERVICE_HOME=$(shell pwd)|" .env
-	@echo ".env created with SERVICE_HOME=$(shell pwd)"
 # Simplified Cratos Project Makefile
-.PHONY: help dev dev-run dev-clean test-coverage build clean package package-local pre_build post_build
+.PHONY: help devenv dev dev-run dev-clean test-coverage build clean package package-local pre_build post_build
 
 # Default ENTRYPOINT_MODE if not set
 ENTRYPOINT_MODE ?= start
@@ -187,3 +181,9 @@ clean:
 	@rm -rf /tmp/cratos-messagebus* 2>/dev/null || true
 	@echo "✅ All artifacts cleaned"
 
+# Copy env.example to .env and set SERVICE_HOME to current root directory
+devenv:
+	@echo "Setting up .env from env.example..."
+	cp env.example .env
+	sed -i '' "s|^SERVICE_HOME=.*$|SERVICE_HOME=$(shell pwd)|" .env
+	@echo ".env created with SERVICE_HOME=$(shell pwd)"

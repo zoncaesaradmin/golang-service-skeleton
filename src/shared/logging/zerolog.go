@@ -21,7 +21,7 @@ type ZerologLogger struct {
 	file     *os.File
 }
 
-// NewlogLoggerWithConfig creates a new ZerologLogger with comprehensive configuration
+// NewLoggerWithConfig creates a new ZerologLogger with comprehensive configuration
 func NewLoggerWithConfig(config *LoggerConfig) (*ZerologLogger, error) {
 	// Open the log file for writing (create if not exists, append if exists)
 	logDir := os.Getenv("SERVICE_LOG_DIR")

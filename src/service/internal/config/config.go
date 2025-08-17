@@ -82,9 +82,9 @@ func LoadConfig() *RawConfig {
 		},
 		Logging: RawLoggingConfig{
 			Level:       utils.GetEnv("LOG_LEVEL", "info"),
-			FileName:    utils.GetEnv("LOG_FILE_NAME", "/tmp/cratos-service.log"),
-			LoggerName:  utils.GetEnv("LOG_LOGGER_NAME", "cratos-service"),
-			ServiceName: utils.GetEnv("LOG_SERVICE_NAME", "cratos-service"),
+			FileName:    utils.GetEnv("LOG_FILE_NAME", "main.log"),
+			LoggerName:  utils.GetEnv("LOG_LOGGER_NAME", "main"),
+			ServiceName: utils.GetEnv("LOG_SERVICE_NAME", "cratos"),
 		},
 		Processing: RawProcessingConfig{
 			Input: RawInputConfig{
