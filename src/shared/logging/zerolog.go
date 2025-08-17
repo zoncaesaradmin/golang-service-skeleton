@@ -24,14 +24,9 @@ type ZerologLogger struct {
 // NewLoggerWithConfig creates a new ZerologLogger with comprehensive configuration
 func NewLoggerWithConfig(config *LoggerConfig) (*ZerologLogger, error) {
 	// Open the log file for writing (create if not exists, append if exists)
-	logDir := os.Getenv("SERVICE_LOG_DIR")
-	logPath := config.FileName
-	if logDir != "" {
-		logPath = fmt.Sprintf("%s/%s", logDir, config.FileName)
-	}
-	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	file, err := os.OpenFile(config.FilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open log file %s: %w", logPath, err)
+		return nil, fmt.Errorf("failed to open log file %s: %w", config.FilePath, err)
 	}
 
 	//set global logger to lowest level so that

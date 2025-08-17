@@ -27,8 +27,11 @@ func main() {
 	// Log environment info
 	logEnvironmentInfo()
 	cfg := loadConfig()
+	if cfg == nil {
+		log.Fatal("Failed to load configuration, exiting")
+	}
 
-	logger := initLogger(cfg)
+	logger := initLoggerSettings(cfg)
 	defer logger.Close()
 
 	// Create application instance
@@ -113,9 +116,16 @@ func loadConfig() *config.RawConfig {
 	return config.LoadConfigWithDefaults(configPath)
 }
 
-func initLogger(cfg *config.RawConfig) logging.Logger {
+func initLoggerSettings(cfg *config.RawConfig) logging.Logger {
 	// create the log directory path if it does not exist
 	os.MkdirAll(utils.GetEnv("SERVICE_LOG_DIR", ""), 0755)
+
+	// update all log file paths to absolute paths
+	logDir := os.Getenv("SERVICE_LOG_DIR")
+	if logDir != "" && !filepath.IsAbs(cfg.Logging.FileName) {
+		cfg.Logging.FileName = filepath.Join(logDir, cfg.Logging.FileName)
+		cfg.Processing.PloggerConfig.FileName = filepath.Join(logDir, cfg.Processing.PloggerConfig.FileName)
+	}
 
 	// Convert config logging configuration to logger config
 	loggerConfig := cfg.Logging.ConvertToLoggerConfig()

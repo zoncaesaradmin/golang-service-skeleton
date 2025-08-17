@@ -133,7 +133,7 @@ func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 			},
 			LoggerConfig: logging.LoggerConfig{
 				Level:         logging.InfoLevel,
-				FileName:      "/tmp/cratos-pipeline.log",
+				FilePath:      "/tmp/cratos-pipeline.log",
 				LoggerName:    "pipeline",
 				ComponentName: "processing",
 				ServiceName:   "cratos",
@@ -173,7 +173,7 @@ func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 		} else {
 			procConfig.LoggerConfig = logging.LoggerConfig{
 				Level:         logging.InfoLevel,
-				FileName:      "/tmp/cratos-pipeline.log",
+				FilePath:      "/tmp/cratos-pipeline.log",
 				LoggerName:    "pipeline",
 				ComponentName: "processing",
 				ServiceName:   "cratos",
@@ -212,7 +212,7 @@ func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 		// Use default pipeline logger configuration
 		procConfig.LoggerConfig = logging.LoggerConfig{
 			Level:         logging.InfoLevel,
-			FileName:      "/tmp/cratos-pipeline.log",
+			FilePath:      "/tmp/cratos-pipeline.log",
 			LoggerName:    "pipeline",
 			ComponentName: "processing",
 			ServiceName:   "cratos",

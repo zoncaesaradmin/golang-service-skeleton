@@ -273,7 +273,7 @@ func TestLoggerConfiguration(t *testing.T) {
 	// Test logger configuration values
 	expectedConfig := &logging.LoggerConfig{
 		Level:         logging.InfoLevel,
-		FileName:      logFileName,
+		FilePath:      logFileName,
 		LoggerName:    serviceName,
 		ComponentName: componentMain,
 		ServiceName:   serviceName,
@@ -284,8 +284,8 @@ func TestLoggerConfiguration(t *testing.T) {
 		t.Errorf("expected Level to be InfoLevel, got %v", expectedConfig.Level)
 	}
 
-	if expectedConfig.FileName != logFileName {
-		t.Errorf("expected FileName to be '%s', got %s", logFileName, expectedConfig.FileName)
+	if expectedConfig.FilePath != logFileName {
+		t.Errorf("expected FileName to be '%s', got %s", logFileName, expectedConfig.FilePath)
 	}
 
 	if expectedConfig.LoggerName != serviceName {

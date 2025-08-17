@@ -61,7 +61,7 @@ func TestLoggerConfigValidate(t *testing.T) {
 			name: "valid config",
 			config: LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      testLogFile,
+				FilePath:      testLogFile,
 				LoggerName:    testLoggerName,
 				ComponentName: testComponentName,
 				ServiceName:   testServiceName,
@@ -83,7 +83,7 @@ func TestLoggerConfigValidate(t *testing.T) {
 			name: "empty filename",
 			config: LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      "",
+				FilePath:      "",
 				LoggerName:    testLoggerName,
 				ComponentName: testComponentName,
 				ServiceName:   testServiceName,
@@ -95,7 +95,7 @@ func TestLoggerConfigValidate(t *testing.T) {
 			name: "missing logger name",
 			config: LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      testLogFile,
+				FilePath:      testLogFile,
 				ComponentName: testComponentName,
 				ServiceName:   testServiceName,
 			},
@@ -106,7 +106,7 @@ func TestLoggerConfigValidate(t *testing.T) {
 			name: "empty logger name",
 			config: LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      testLogFile,
+				FilePath:      testLogFile,
 				LoggerName:    "",
 				ComponentName: testComponentName,
 				ServiceName:   testServiceName,
@@ -118,7 +118,7 @@ func TestLoggerConfigValidate(t *testing.T) {
 			name: "missing service name",
 			config: LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      testLogFile,
+				FilePath:      testLogFile,
 				LoggerName:    testLoggerName,
 				ComponentName: testComponentName,
 			},
@@ -129,7 +129,7 @@ func TestLoggerConfigValidate(t *testing.T) {
 			name: "empty service name",
 			config: LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      testLogFile,
+				FilePath:      testLogFile,
 				LoggerName:    testLoggerName,
 				ComponentName: testComponentName,
 				ServiceName:   "",
@@ -177,8 +177,8 @@ func TestDefaultConfig(t *testing.T) {
 		t.Errorf("DefaultConfig() ServiceName = %v, want %v", config.ServiceName, "service")
 	}
 
-	if config.FileName != "app.log" {
-		t.Errorf("DefaultConfig() FileName = %v, want %v", config.FileName, "/tmp/app.log")
+	if config.FilePath != "/tmp/app.log" {
+		t.Errorf("DefaultConfig() FilePath = %v, want %v", config.FilePath, "/tmp/app.log")
 	}
 
 	// Test that default config is valid
@@ -255,7 +255,7 @@ func TestNewLoggerWithValidConfig(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    "valid-test-logger",
 		ComponentName: "valid-test",
 		ServiceName:   "valid-test-service",
@@ -320,7 +320,7 @@ func TestNewLoggerWithInvalidConfig(t *testing.T) {
 			name: "empty filename",
 			config: &LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      "",
+				FilePath:      "",
 				LoggerName:    testLoggerName,
 				ComponentName: testComponentName,
 				ServiceName:   testServiceName,
@@ -331,7 +331,7 @@ func TestNewLoggerWithInvalidConfig(t *testing.T) {
 			name: "missing logger name",
 			config: &LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      testLogFile,
+				FilePath:      testLogFile,
 				ComponentName: testComponentName,
 				ServiceName:   testServiceName,
 			},
@@ -341,7 +341,7 @@ func TestNewLoggerWithInvalidConfig(t *testing.T) {
 			name: "missing service name",
 			config: &LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      testLogFile,
+				FilePath:      testLogFile,
 				LoggerName:    testLoggerName,
 				ComponentName: testComponentName,
 			},
@@ -351,7 +351,7 @@ func TestNewLoggerWithInvalidConfig(t *testing.T) {
 			name: "invalid file path",
 			config: &LoggerConfig{
 				Level:         InfoLevel,
-				FileName:      "/invalid/nonexistent/path/test.log",
+				FilePath:      "/invalid/nonexistent/path/test.log",
 				LoggerName:    testLoggerName,
 				ComponentName: testComponentName,
 				ServiceName:   testServiceName,
@@ -382,7 +382,7 @@ func TestNewLoggerConfigValidationPath(t *testing.T) {
 	// Test that validation error is properly wrapped
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      "", // Invalid - will trigger validation error
+		FilePath:      "", // Invalid - will trigger validation error
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -411,7 +411,7 @@ func TestNewLoggerZerologCreationFailure(t *testing.T) {
 	// Test the path where NewLoggerWithConfig fails
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      "/root/impossible/path/test.log", // Path that should fail
+		FilePath:      "/root/impossible/path/test.log", // Path that should fail
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -445,7 +445,7 @@ func TestNewLoggerWithDifferentLevels(t *testing.T) {
 
 			config := &LoggerConfig{
 				Level:         level,
-				FileName:      logFile,
+				FilePath:      logFile,
 				LoggerName:    "level-test-logger",
 				ComponentName: "level-test",
 				ServiceName:   "level-test-service",

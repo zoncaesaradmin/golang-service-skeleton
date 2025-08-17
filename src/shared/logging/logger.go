@@ -113,7 +113,7 @@ func keysAndValuesToFields(keysAndValues ...interface{}) Fields {
 type LoggerConfig struct {
 	// Basic configuration
 	Level         Level  // Log level (Debug, Info, Warn, Error, Fatal, Panic)
-	FileName      string // Log file name only (directory is set by SERVICE_LOG_DIR env variable)
+	FilePath      string // Complete path o Log file name
 	LoggerName    string // Name identifier for the logger instance
 	ComponentName string // Component/module name for structured logging
 	ServiceName   string // Service name for structured logging
@@ -123,7 +123,7 @@ type LoggerConfig struct {
 func DefaultConfig() *LoggerConfig {
 	return &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      "app.log", // Default file name only
+		FilePath:      "/tmp/app.log", // Default file path only
 		LoggerName:    "default",
 		ComponentName: "application",
 		ServiceName:   "service",
@@ -132,7 +132,7 @@ func DefaultConfig() *LoggerConfig {
 
 // Validate validates the logger configuration
 func (c *LoggerConfig) Validate() error {
-	if c.FileName == "" {
+	if c.FilePath == "" {
 		return fmt.Errorf("filename is required - stdout logging is not allowed")
 	}
 	if c.LoggerName == "" {

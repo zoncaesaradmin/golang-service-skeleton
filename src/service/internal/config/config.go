@@ -265,7 +265,7 @@ func convertLogLevel(levelStr string) logging.Level {
 func (cfg RawLoggingConfig) ConvertToLoggerConfig() logging.LoggerConfig {
 	return logging.LoggerConfig{
 		Level:       convertLogLevel(cfg.Level),
-		FileName:    cfg.FileName,
+		FilePath:    cfg.FileName,
 		LoggerName:  cfg.LoggerName,
 		ServiceName: cfg.ServiceName,
 	}

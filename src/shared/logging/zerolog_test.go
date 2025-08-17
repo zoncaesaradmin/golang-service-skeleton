@@ -23,7 +23,7 @@ func TestNewLoggerWithConfig(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         DebugLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -57,7 +57,7 @@ func TestNewLoggerWithConfig(t *testing.T) {
 func TestNewLoggerWithConfigFileError(t *testing.T) {
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      "/invalid/path/test.log",
+		FilePath:      "/invalid/path/test.log",
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -78,7 +78,7 @@ func TestZerologLoggerSetLevel(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -119,7 +119,7 @@ func TestZerologLoggerFormattedLogging(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         DebugLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -153,7 +153,7 @@ func TestZerologLoggerVariadicLogging(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         DebugLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -187,7 +187,7 @@ func TestZerologLoggerWithFields(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -229,7 +229,7 @@ func TestZerologLoggerWithError(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -266,7 +266,7 @@ func TestZerologLoggerWithContext(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -299,7 +299,7 @@ func TestZerologLoggerGenericLogging(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         DebugLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -335,7 +335,7 @@ func TestZerologLoggerClone(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -396,7 +396,7 @@ func TestZerologLoggerLevelConversion(t *testing.T) {
 
 			config := &LoggerConfig{
 				Level:         tt.ourLevel,
-				FileName:      logFile,
+				FilePath:      logFile,
 				LoggerName:    testLoggerName,
 				ComponentName: testComponentName,
 				ServiceName:   testServiceName,
@@ -424,7 +424,7 @@ func TestZerologLoggerClose(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -459,7 +459,7 @@ func TestZerologLoggerLevelFiltering(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         WarnLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -509,7 +509,7 @@ func TestZerologLoggerWarnErrorEdgeCases(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         DebugLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -552,7 +552,7 @@ func TestZerologLoggerLogMethodsEdgeCases(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         DebugLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -610,7 +610,7 @@ func TestZerologLoggerUnknownLevelHandling(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         DebugLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -660,7 +660,7 @@ func TestZerologLoggerComplexFieldCombinations(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         InfoLevel,
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
@@ -711,7 +711,7 @@ func TestZerologLoggerLevelBoundaryTesting(t *testing.T) {
 
 	config := &LoggerConfig{
 		Level:         WarnLevel, // Set to warn level
-		FileName:      logFile,
+		FilePath:      logFile,
 		LoggerName:    testLoggerName,
 		ComponentName: testComponentName,
 		ServiceName:   testServiceName,
