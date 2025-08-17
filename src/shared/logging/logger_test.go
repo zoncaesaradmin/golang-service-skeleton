@@ -177,7 +177,7 @@ func TestDefaultConfig(t *testing.T) {
 		t.Errorf("DefaultConfig() ServiceName = %v, want %v", config.ServiceName, "service")
 	}
 
-	if config.FileName != "/tmp/app.log" {
+	if config.FileName != "app.log" {
 		t.Errorf("DefaultConfig() FileName = %v, want %v", config.FileName, "/tmp/app.log")
 	}
 

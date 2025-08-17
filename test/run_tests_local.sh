@@ -115,7 +115,7 @@ run_service() {
     
     # Set coverage directory and log file path (using absolute paths)
     export GOCOVERDIR="$COVERAGE_DIR"
-    export LOG_FILE_PATH="$LOGS_DIR/service.log"
+    export LOG_FILE_NAME="$LOGS_DIR/service.log"
     
     # Set test-specific topics for integration testing
     export PROCESSING_INPUT_TOPICS="test_input"
@@ -142,7 +142,7 @@ run_testrunner() {
     
     # Set SERVICE_HOME and testrunner log file path (using absolute paths)
     export SERVICE_HOME="$ROOT_DIR"
-    export LOG_FILE_PATH="$LOGS_DIR/testrunner.log"
+    export LOG_FILE_NAME="$LOGS_DIR/testrunner.log"
     
     # Temporarily disable strict error handling for testrunner execution
     set +e

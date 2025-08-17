@@ -30,7 +30,7 @@ type RawServerConfig struct {
 // LoggingConfig holds logging-related configuration
 type RawLoggingConfig struct {
 	Level       string `yaml:"level"`       // Log level: debug, info, warn, error, fatal, panic
-	FilePath    string `yaml:"filePath"`    // Path to the log file
+	FileName    string `yaml:"fileName"`    // Path to the log file
 	LoggerName  string `yaml:"loggerName"`  // Name identifier for the logger
 	ServiceName string `yaml:"serviceName"` // Service name for structured logging
 }
@@ -82,7 +82,7 @@ func LoadConfig() *RawConfig {
 		},
 		Logging: RawLoggingConfig{
 			Level:       utils.GetEnv("LOG_LEVEL", "info"),
-			FilePath:    utils.GetEnv("LOG_FILE_PATH", "/tmp/cratos-service.log"),
+			FileName:    utils.GetEnv("LOG_FILE_NAME", "/tmp/cratos-service.log"),
 			LoggerName:  utils.GetEnv("LOG_LOGGER_NAME", "cratos-service"),
 			ServiceName: utils.GetEnv("LOG_SERVICE_NAME", "cratos-service"),
 		},
@@ -108,7 +108,7 @@ func LoadConfig() *RawConfig {
 			},
 			PloggerConfig: RawLoggingConfig{
 				Level:       utils.GetEnv("PROCESSING_PLOGGER_LEVEL", "info"),
-				FilePath:    utils.GetEnv("PROCESSING_PLOGGER_FILE_NAME", "/tmp/cratos-pipeline.log"),
+				FileName:    utils.GetEnv("PROCESSING_PLOGGER_FILE_NAME", "/tmp/cratos-pipeline.log"),
 				LoggerName:  utils.GetEnv("PROCESSING_PLOGGER_LOGGER_NAME", "pipeline"),
 				ServiceName: utils.GetEnv("PROCESSING_PLOGGER_SERVICE_NAME", "cratos"),
 			},
@@ -181,8 +181,8 @@ func overrideWithEnvVars(config *RawConfig) {
 	if level := utils.GetEnv("LOG_LEVEL", ""); level != "" {
 		config.Logging.Level = level
 	}
-	if filePath := utils.GetEnv("LOG_FILE_PATH", ""); filePath != "" {
-		config.Logging.FilePath = filePath
+	if fileName := utils.GetEnv("LOG_FILE_NAME", ""); fileName != "" {
+		config.Logging.FileName = fileName
 	}
 	if loggerName := utils.GetEnv("LOG_LOGGER_NAME", ""); loggerName != "" {
 		config.Logging.LoggerName = loggerName
@@ -231,7 +231,7 @@ func overrideWithEnvVars(config *RawConfig) {
 		config.Processing.PloggerConfig.Level = ploggerLevel
 	}
 	if ploggerFileName := utils.GetEnv("PROCESSING_PLOGGER_FILE_NAME", ""); ploggerFileName != "" {
-		config.Processing.PloggerConfig.FilePath = ploggerFileName
+		config.Processing.PloggerConfig.FileName = ploggerFileName
 	}
 	if ploggerLoggerName := utils.GetEnv("PROCESSING_PLOGGER_LOGGER_NAME", ""); ploggerLoggerName != "" {
 		config.Processing.PloggerConfig.LoggerName = ploggerLoggerName
@@ -265,7 +265,7 @@ func convertLogLevel(levelStr string) logging.Level {
 func (cfg RawLoggingConfig) ConvertToLoggerConfig() logging.LoggerConfig {
 	return logging.LoggerConfig{
 		Level:       convertLogLevel(cfg.Level),
-		FileName:    cfg.FilePath,
+		FileName:    cfg.FileName,
 		LoggerName:  cfg.LoggerName,
 		ServiceName: cfg.ServiceName,
 	}

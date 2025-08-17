@@ -10,11 +10,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"sharedgomodule/messagebus"
+	"sharedgomodule/utils"
 	"testgomodule/internal/config"
 	"testgomodule/internal/testdata"
 	"testgomodule/internal/types"
 	"testgomodule/internal/validation"
-	"sharedgomodule/messagebus"
 
 	"gopkg.in/yaml.v2"
 )
@@ -52,6 +53,7 @@ func main() {
 	if homeDir == "" {
 		log.Fatal("SERVICE_HOME environment variable is required and must point to the repository root")
 	}
+	os.MkdirAll(utils.GetEnv("SERVICE_LOG_DIR", ""), 0755)
 
 	configPath := filepath.Join(homeDir, "conf", "testconfig.yaml")
 	log.Printf("Config file: %s", configPath)

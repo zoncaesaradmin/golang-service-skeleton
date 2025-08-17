@@ -130,7 +130,7 @@ The local development setup automatically configures logging for both services:
 
 ### Service Logging
 - **Structured Logging**: Uses JSON format via zerolog library
-- **Configurable Path**: Set via `LOG_FILE_PATH` environment variable
+- **Configurable Path**: Set via `LOG_FILE_NAME` environment variable
 - **Path**: `test/results/logs/service.log` (automatically set)
 - **Level Control**: Configurable via `LOG_LEVEL` environment variable
 
@@ -142,7 +142,7 @@ The local development setup automatically configures logging for both services:
 ### Environment Variables for Log Control
 ```bash
 # Service logging (automatically set by run_tests_local.sh)
-export LOG_FILE_PATH="../../test/results/logs/service.log"
+export LOG_FILE_NAME="../../test/results/logs/service.log"
 export GOCOVERDIR="../../test/coverage"
 
 # Manual override if needed

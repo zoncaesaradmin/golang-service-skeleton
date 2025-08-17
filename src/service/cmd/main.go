@@ -15,6 +15,7 @@ import (
 	"servicegomodule/internal/app"
 	"servicegomodule/internal/config"
 	"sharedgomodule/logging"
+	"sharedgomodule/utils"
 
 	"github.com/joho/godotenv"
 )
@@ -114,7 +115,7 @@ func loadConfig() *config.RawConfig {
 
 func initLogger(cfg *config.RawConfig) logging.Logger {
 	// create the log directory path if it does not exist
-	os.MkdirAll(filepath.Dir(cfg.Logging.FilePath), 0755)
+	os.MkdirAll(utils.GetEnv("SERVICE_LOG_DIR", ""), 0755)
 
 	// Convert config logging configuration to logger config
 	loggerConfig := cfg.Logging.ConvertToLoggerConfig()

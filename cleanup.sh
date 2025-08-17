@@ -26,6 +26,7 @@ cd ..
 
 # 4. Clean message bus data
 echo "Cleaning message bus data..."
+rm -rf src/component 2>/dev/null || true
 rm -rf /tmp/cratos-messagebus/ 2>/dev/null || true
 
 # 5. Clean test results
@@ -67,4 +68,4 @@ echo "2. If issues persist, restart VS Code completely"
 echo "3. Run this script again if old files reappear"
 echo ""
 echo "📁 Current clean state:"
-ls -la src/ | grep -E "(service|testrunner|shared|README|Makefile|go\.work)" || echo "Basic files present"
+ls -la src/ | grep -E "(service|testrunner|shared|README\.md|Makefile|go\.work)" | echo "Basic files present"

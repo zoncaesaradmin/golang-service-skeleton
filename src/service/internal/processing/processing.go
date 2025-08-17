@@ -1,10 +1,10 @@
 package processing
 
 import (
-	"servicegomodule/internal/config"
-	"servicegomodule/internal/models"
 	"fmt"
 	"log"
+	"servicegomodule/internal/config"
+	"servicegomodule/internal/models"
 	"sharedgomodule/logging"
 	"time"
 )
@@ -168,7 +168,7 @@ func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 		}
 
 		// Use PloggerConfig if available, otherwise use defaults
-		if processing.PloggerConfig.FilePath != "" {
+		if processing.PloggerConfig.FileName != "" {
 			procConfig.LoggerConfig = processing.PloggerConfig.ConvertToLoggerConfig()
 		} else {
 			procConfig.LoggerConfig = logging.LoggerConfig{
@@ -206,7 +206,7 @@ func DefaultConfig(cfg *config.RawConfig) ProcConfig {
 	}
 
 	// Handle PloggerConfig
-	if processing.PloggerConfig.FilePath != "" {
+	if processing.PloggerConfig.FileName != "" {
 		procConfig.LoggerConfig = processing.PloggerConfig.ConvertToLoggerConfig()
 	} else {
 		// Use default pipeline logger configuration

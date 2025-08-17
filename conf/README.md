@@ -45,7 +45,7 @@ server:
 logging:
   level: "info"                  # LOG_LEVEL (debug, info, warn, error)
   format: "json"                 # LOG_FORMAT (json, text)
-  file_path: "/tmp/cratos-service.log"  # LOG_FILE_PATH
+  file_path: "/tmp/cratos-service.log"  # LOG_FILE_NAME
 ```
 
 ### Test Configuration (`testconfig.yaml`)
