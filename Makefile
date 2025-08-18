@@ -17,7 +17,6 @@ LOCAL_BUILD_TAGS = $(call append_tag,local)
 
 # Default target
 help:
-help:
 	@echo "Cratos Project - Simplified Makefile"
 	@echo "====================================="
 	@echo ""
