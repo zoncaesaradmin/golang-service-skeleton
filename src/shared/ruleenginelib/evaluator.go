@@ -15,7 +15,7 @@ func EvaluateConditional(conditional *AstConditional, identifier interface{}) bo
 	if len(conditional.Value) == 0 {
 		panic(fmt.Sprintf("conditional %s has no value", conditional.Fact))
 	}
-	ok, err := EvaluateOperator(identifier, conditional.Value, conditional.Operator)
+	ok, err := EvaluateOperator(identifier, conditional.Value[0], conditional.Operator)
 	if err != nil {
 		panic(err)
 	}

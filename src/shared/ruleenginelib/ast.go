@@ -21,16 +21,17 @@ type AstCondition struct {
 // Fired when a identifier matches a rule
 type Action struct {
 	Type    string      `json:"type"`
+	ReApply bool        `json:"applyToExisting"`
 	Payload interface{} `json:"payload"`
 }
 
 type RuleBlock struct {
-	Type             string       `json:"ruleType,omiempty"`
-	SubType          string       `json:"ruleSubType,omiempty"`
-	Name             string       `json:"name,omiempty"`
-	UUID             string       `json:"uuid,omiempty"`
-	Description      string       `json:"description,omiempty"`
-	LastModifiedTime int64        `json:"lastModifiedTime,omiempty"`
+	Type             string       `json:"ruleType,omitempty"`
+	SubType          string       `json:"ruleSubType,omitempty"`
+	Name             string       `json:"name,omitempty"`
+	UUID             string       `json:"uuid,omitempty"`
+	Description      string       `json:"description,omitempty"`
+	LastModifiedTime int64        `json:"lastModifiedTime,omitempty"`
 	State            bool         `json:"state"`
 	RuleEntries      []*RuleEntry `json:"payload,omitempty"`
 }

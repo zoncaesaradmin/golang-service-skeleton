@@ -34,6 +34,7 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 				}
 				return factNum == valueNum, nil
 			}
+			return identifier == value, nil
 		}
 	case "noneof":
 		switch valSlice := value.(type) {
