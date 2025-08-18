@@ -11,11 +11,11 @@ type Options struct {
 
 var options *Options
 
-func EvaluateConditional(conditional *AstConditional, identifier interface{}) bool {
+func EvaluateConditional(conditional *AstConditional, dataValue interface{}) bool {
 	if len(conditional.Value) == 0 {
 		panic(fmt.Sprintf("conditional %s has no value", conditional.Fact))
 	}
-	ok, err := EvaluateOperator(identifier, conditional.Value[0], conditional.Operator)
+	ok, err := EvaluateOperator(dataValue, conditional.Value, conditional.Operator)
 	if err != nil {
 		panic(err)
 	}
@@ -35,11 +35,11 @@ func GetFactValue(condition *AstConditional, data Data) interface{} {
 	return value
 }
 
-func EvaluateAllCondition(conditions *[]AstConditional, data Data) bool {
+func EvaluateAllCondition(conditions *[]AstConditional, dataMap Data) bool {
 	isFalse := false
 
 	for _, condition := range *conditions {
-		value := GetFactValue(&condition, data)
+		value := GetFactValue(&condition, dataMap)
 		if !EvaluateConditional(&condition, value) {
 			isFalse = true
 		}
@@ -63,30 +63,30 @@ func EvaluateAnyCondition(conditions *[]AstConditional, data Data) bool {
 	return false
 }
 
-func EvaluateCondition(condition *[]AstConditional, kind string, data Data) bool {
+func EvaluateCondition(conditions *[]AstConditional, kind string, dataMap Data) bool {
 	switch kind {
 	case "all":
-		return EvaluateAllCondition(condition, data)
+		return EvaluateAllCondition(conditions, dataMap)
 	case "any":
-		return EvaluateAnyCondition(condition, data)
+		return EvaluateAnyCondition(conditions, dataMap)
 	default:
 		panic(fmt.Sprintf("condition type %s is invalid", kind))
 	}
 }
 
-func EvaluateRule(rule *RuleEntry, data Data, opts *Options) bool {
+func EvaluateRule(rule *RuleEntry, dataMap Data, opts *Options) bool {
 	options = opts
 	any, all := false, false
 
 	if len(rule.Condition.Any) == 0 {
 		any = true
 	} else {
-		any = EvaluateCondition(&rule.Condition.Any, "any", data)
+		any = EvaluateCondition(&rule.Condition.Any, "any", dataMap)
 	}
 	if len(rule.Condition.All) == 0 {
 		all = true
 	} else {
-		all = EvaluateCondition(&rule.Condition.All, "all", data)
+		all = EvaluateCondition(&rule.Condition.All, "all", dataMap)
 	}
 
 	return any && all

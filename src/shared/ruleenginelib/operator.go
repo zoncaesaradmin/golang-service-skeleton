@@ -4,12 +4,12 @@ import (
 	"fmt"
 )
 
-func EvaluateOperator(identifier, value interface{}, operator string) (bool, error) {
+func EvaluateOperator(dataValue, value interface{}, operator string) (bool, error) {
 	switch operator {
 	case "anyof":
 		switch valSlice := value.(type) {
 		case []interface{}:
-			factNum, err := assertIsNumber(identifier)
+			factNum, err := assertIsNumber(dataValue)
 			if err == nil {
 				for _, val := range valSlice {
 					valueNum, err := assertIsNumber(val)
@@ -19,14 +19,14 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 				}
 			} else {
 				for _, val := range valSlice {
-					if identifier == val {
+					if dataValue == val {
 						return true, nil
 					}
 				}
 			}
 			return false, nil
 		default:
-			factNum, err := assertIsNumber(identifier)
+			factNum, err := assertIsNumber(dataValue)
 			if err == nil {
 				valueNum, err := assertIsNumber(value)
 				if err != nil {
@@ -34,12 +34,12 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 				}
 				return factNum == valueNum, nil
 			}
-			return identifier == value, nil
+			return dataValue == value, nil
 		}
 	case "noneof":
 		switch valSlice := value.(type) {
 		case []interface{}:
-			factNum, err := assertIsNumber(identifier)
+			factNum, err := assertIsNumber(dataValue)
 			if err == nil {
 				for _, val := range valSlice {
 					valueNum, err := assertIsNumber(val)
@@ -49,14 +49,14 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 				}
 			} else {
 				for _, val := range valSlice {
-					if identifier == val {
+					if dataValue == val {
 						return false, nil
 					}
 				}
 			}
 			return true, nil
 		default:
-			factNum, err := assertIsNumber(identifier)
+			factNum, err := assertIsNumber(dataValue)
 			if err == nil {
 				valueNum, err := assertIsNumber(value)
 				if err != nil {
@@ -64,12 +64,12 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 				}
 				return factNum != valueNum, nil
 			}
-			return identifier != value, nil
+			return dataValue != value, nil
 		}
 	case "=":
 		fallthrough
 	case "eq":
-		factNum, err := assertIsNumber(identifier)
+		factNum, err := assertIsNumber(dataValue)
 		if err == nil {
 			valueNum, err := assertIsNumber(value)
 			if err != nil {
@@ -78,11 +78,11 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 			return factNum == valueNum, nil
 		}
 
-		return identifier == value, nil
+		return dataValue == value, nil
 	case "!=":
 		fallthrough
 	case "neq":
-		factNum, err := assertIsNumber(identifier)
+		factNum, err := assertIsNumber(dataValue)
 		if err == nil {
 			valueNum, err := assertIsNumber(value)
 			if err != nil {
@@ -91,12 +91,12 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 			return factNum != valueNum, nil
 		}
 
-		return identifier != value, nil
+		return dataValue != value, nil
 
 	case "<":
 		fallthrough
 	case "lt":
-		factNum, err := assertIsNumber(identifier)
+		factNum, err := assertIsNumber(dataValue)
 		if err != nil {
 			return false, err
 		}
@@ -110,7 +110,7 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 	case ">":
 		fallthrough
 	case "gt":
-		factNum, err := assertIsNumber(identifier)
+		factNum, err := assertIsNumber(dataValue)
 		if err != nil {
 			return false, err
 		}
@@ -124,7 +124,7 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 	case ">=":
 		fallthrough
 	case "gte":
-		factNum, err := assertIsNumber(identifier)
+		factNum, err := assertIsNumber(dataValue)
 		if err != nil {
 			return false, err
 		}
@@ -138,7 +138,7 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 	case "<=":
 		fallthrough
 	case "lte":
-		factNum, err := assertIsNumber(identifier)
+		factNum, err := assertIsNumber(dataValue)
 		if err != nil {
 			return false, err
 		}
@@ -152,7 +152,6 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 	default:
 		return false, fmt.Errorf("unrecognised operator %s", operator)
 	}
-	return false, fmt.Errorf("unrecognised condition kind %T", value)
 }
 
 func assertIsNumber(v interface{}) (float64, error) {

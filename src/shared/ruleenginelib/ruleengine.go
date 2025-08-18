@@ -12,7 +12,7 @@ type EvaluatorOptions struct {
 }
 
 var defaultOptions = &EvaluatorOptions{
-	AllowUndefinedVars: false,
+	AllowUndefinedVars: true,
 	FirstMatch:         true,
 }
 
@@ -23,12 +23,12 @@ type RuleEngine struct {
 	Results MatchedResults
 	Mutex   sync.Mutex
 	//Logger *Logger
-	RuleTypess []string
+	RuleTypes []string
 }
 
 // EvaluateStruct evaluates a single rule against the provided data
-func (re *RuleEngine) EvaluateStruct(jsonText *RuleEntry, identifier Data) bool {
-	return EvaluateRule(jsonText, identifier, &Options{
+func (re *RuleEngine) EvaluateStruct(rule *RuleEntry, dataMap Data) bool {
+	return EvaluateRule(rule, dataMap, &Options{
 		AllowUndefinedVars: re.AllowUndefinedVars,
 	})
 }
@@ -42,7 +42,7 @@ func (re *RuleEngine) AddRule(rule string) *RuleEngine {
 	return re
 }
 
-// DeleteRule removes a rule from the engine
+// DeleteRule removes a rule from the engine by its UUID
 func (re *RuleEngine) DeleteRule(rule string) {
 	ruleBlock := ParseJSON(rule)
 	re.Mutex.Lock()
@@ -76,5 +76,6 @@ func NewRuleEngineInstance(options *EvaluatorOptions) *RuleEngine {
 
 	return &RuleEngine{
 		EvaluatorOptions: *opts,
+		RuleMap:          make(map[string]RuleBlock, 0),
 	}
 }
