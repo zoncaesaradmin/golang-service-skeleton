@@ -54,7 +54,6 @@ func (re *RuleEngine) DeleteRule(rule string) {
 func (re *RuleEngine) EvaluateRules(data Data) (bool, string, *RuleEntry) {
 	re.Mutex.Lock()
 	defer re.Mutex.Unlock()
-
 	for _, ruleBlock := range re.RuleMap {
 		for _, rule := range ruleBlock.RuleEntries {
 			if re.EvaluateStruct(rule, data) {
@@ -67,7 +66,7 @@ func (re *RuleEngine) EvaluateRules(data Data) (bool, string, *RuleEntry) {
 	return false, "", nil
 }
 
-// NewRuleEngineInstance creates a new instance of the RuleEngine with the given options
+// NewRuleEngineInstance creates a new instance of RuleEngine with the given options
 func NewRuleEngineInstance(options *EvaluatorOptions) *RuleEngine {
 	opts := options
 	if opts == nil {
