@@ -11,7 +11,10 @@ type Options struct {
 
 var options *Options
 
-func EvaluateConditional(conditional *Conditional, identifier interface{}) bool {
+func EvaluateConditional(conditional *AstConditional, identifier interface{}) bool {
+	if len(conditional.Value) == 0 {
+		panic(fmt.Sprintf("conditional %s has no value", conditional.Fact))
+	}
 	ok, err := EvaluateOperator(identifier, conditional.Value, conditional.Operator)
 	if err != nil {
 		panic(err)
@@ -19,7 +22,7 @@ func EvaluateConditional(conditional *Conditional, identifier interface{}) bool 
 	return ok
 }
 
-func GetFactValue(condition *Conditional, data Data) interface{} {
+func GetFactValue(condition *AstConditional, data Data) interface{} {
 	value := data[condition.Fact]
 
 	if value == nil {
@@ -32,7 +35,7 @@ func GetFactValue(condition *Conditional, data Data) interface{} {
 	return value
 }
 
-func EvaluateAllCondition(conditions *[]Conditional, data Data) bool {
+func EvaluateAllCondition(conditions *[]AstConditional, data Data) bool {
 	isFalse := false
 
 	for _, condition := range *conditions {
@@ -49,7 +52,7 @@ func EvaluateAllCondition(conditions *[]Conditional, data Data) bool {
 	return true
 }
 
-func EvaluateAnyCondition(conditions *[]Conditional, data Data) bool {
+func EvaluateAnyCondition(conditions *[]AstConditional, data Data) bool {
 	for _, condition := range *conditions {
 		value := GetFactValue(&condition, data)
 		if EvaluateConditional(&condition, value) {
@@ -60,7 +63,7 @@ func EvaluateAnyCondition(conditions *[]Conditional, data Data) bool {
 	return false
 }
 
-func EvaluateCondition(condition *[]Conditional, kind string, data Data) bool {
+func EvaluateCondition(condition *[]AstConditional, kind string, data Data) bool {
 	switch kind {
 	case "all":
 		return EvaluateAllCondition(condition, data)
@@ -71,7 +74,7 @@ func EvaluateCondition(condition *[]Conditional, kind string, data Data) bool {
 	}
 }
 
-func EvaluateRule(rule *Rule, data Data, opts *Options) bool {
+func EvaluateRule(rule *RuleEntry, data Data, opts *Options) bool {
 	options = opts
 	any, all := false, false
 

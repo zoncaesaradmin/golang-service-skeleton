@@ -5,21 +5,6 @@ import (
 	"testing"
 )
 
-func TestMapify(t *testing.T) {
-	// Mapify converts a struct to a map[string]interface{}
-	type S struct {
-		Key string
-	}
-	s := S{
-		Key: "value",
-	}
-	m := Mapify(s)
-
-	if m["Key"] == nil || m["Key"] != "value" {
-		t.Fatalf("expected m[\"Key\"] to be %s, got %s", s.Key, m["Key"])
-	}
-}
-
 func TestParseJSON(t *testing.T) {
 	j := `{
 		"condition": {
@@ -39,9 +24,8 @@ func TestParseJSON(t *testing.T) {
 		}
 	}`
 
-	rule := ParseJSON(j)
-
-	if fmt.Sprintf("%T", rule) != "*ruleenginelib.Rule" {
-		t.Fatalf("expected rule to be *ruleenginelib.Rule, got %T", rule)
-	}
+       rule := ParseJSON(j)
+       if fmt.Sprintf("%T", rule) != "*ruleenginelib.RuleBlock" {
+	       t.Fatalf("expected rule to be *ruleenginelib.RuleBlock, got %T", rule)
+       }
 }

@@ -6,6 +6,65 @@ import (
 
 func EvaluateOperator(identifier, value interface{}, operator string) (bool, error) {
 	switch operator {
+	case "anyof":
+		switch valSlice := value.(type) {
+		case []interface{}:
+			factNum, err := assertIsNumber(identifier)
+			if err == nil {
+				for _, val := range valSlice {
+					valueNum, err := assertIsNumber(val)
+					if err == nil && valueNum == factNum {
+						return true, nil
+					}
+				}
+			} else {
+				for _, val := range valSlice {
+					if identifier == val {
+						return true, nil
+					}
+				}
+			}
+			return false, nil
+		default:
+			factNum, err := assertIsNumber(identifier)
+			if err == nil {
+				valueNum, err := assertIsNumber(value)
+				if err != nil {
+					return false, err
+				}
+				return factNum == valueNum, nil
+			}
+		}
+	case "noneof":
+		switch valSlice := value.(type) {
+		case []interface{}:
+			factNum, err := assertIsNumber(identifier)
+			if err == nil {
+				for _, val := range valSlice {
+					valueNum, err := assertIsNumber(val)
+					if err == nil && valueNum == factNum {
+						return false, nil
+					}
+				}
+			} else {
+				for _, val := range valSlice {
+					if identifier == val {
+						return false, nil
+					}
+				}
+			}
+			return true, nil
+		default:
+			factNum, err := assertIsNumber(identifier)
+			if err == nil {
+				valueNum, err := assertIsNumber(value)
+				if err != nil {
+					return false, err
+				}
+				return factNum != valueNum, nil
+			}
+			return identifier != value, nil
+		}
 	case "=":
 		fallthrough
 	case "eq":
@@ -19,7 +78,6 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 		}
 
 		return identifier == value, nil
-
 	case "!=":
 		fallthrough
 	case "neq":
@@ -93,6 +151,7 @@ func EvaluateOperator(identifier, value interface{}, operator string) (bool, err
 	default:
 		return false, fmt.Errorf("unrecognised operator %s", operator)
 	}
+	return false, fmt.Errorf("unrecognised condition kind %T", value)
 }
 
 func assertIsNumber(v interface{}) (float64, error) {

@@ -6,11 +6,11 @@ import (
 
 func TestEvaluateConditional(t *testing.T) {
 	tests := []struct {
-		conditional *Conditional
+		conditional *AstConditional
 		identifier  interface{}
 		expected    bool
 	}{
-		{&Conditional{
+		{&AstConditional{
 			Fact:     "name",
 			Operator: "eq",
 			Value:    "Icheka",
@@ -18,7 +18,7 @@ func TestEvaluateConditional(t *testing.T) {
 			"Icheka",
 			true,
 		},
-		{&Conditional{
+		{&AstConditional{
 			Fact:     "name",
 			Operator: "eq",
 			Value:    "Icheka",
@@ -38,17 +38,17 @@ func TestEvaluateConditional(t *testing.T) {
 func TestEvaluateAllCondition(t *testing.T) {
 	tests := []struct {
 		payload struct {
-			conditions []Conditional
+			conditions []AstConditional
 			identifier Data
 		}
 		expected bool
 	}{
 		{
 			payload: struct {
-				conditions []Conditional
+				conditions []AstConditional
 				identifier Data
 			}{
-				conditions: []Conditional{
+				conditions: []AstConditional{
 					{
 						Fact:     "planet",
 						Operator: "eq",
@@ -69,10 +69,10 @@ func TestEvaluateAllCondition(t *testing.T) {
 		},
 		{
 			payload: struct {
-				conditions []Conditional
+				conditions []AstConditional
 				identifier Data
 			}{
-				conditions: []Conditional{
+				conditions: []AstConditional{
 					{
 						Fact:     "planet",
 						Operator: "eq",
@@ -103,17 +103,17 @@ func TestEvaluateAllCondition(t *testing.T) {
 func TestEvaluateAnyCondition(t *testing.T) {
 	tests := []struct {
 		payload struct {
-			conditions []Conditional
+			conditions []AstConditional
 			identifier Data
 		}
 		expected bool
 	}{
 		{
 			payload: struct {
-				conditions []Conditional
+				conditions []AstConditional
 				identifier Data
 			}{
-				conditions: []Conditional{
+				conditions: []AstConditional{
 					{
 						Fact:     "planet",
 						Operator: "eq",
@@ -134,10 +134,10 @@ func TestEvaluateAnyCondition(t *testing.T) {
 		},
 		{
 			payload: struct {
-				conditions []Conditional
+				conditions []AstConditional
 				identifier Data
 			}{
-				conditions: []Conditional{
+				conditions: []AstConditional{
 					{
 						Fact:     "planet",
 						Operator: "eq",
@@ -158,10 +158,10 @@ func TestEvaluateAnyCondition(t *testing.T) {
 		},
 		{
 			payload: struct {
-				conditions []Conditional
+				conditions []AstConditional
 				identifier Data
 			}{
-				conditions: []Conditional{
+				conditions: []AstConditional{
 					{
 						Fact:     "planet",
 						Operator: "eq",
