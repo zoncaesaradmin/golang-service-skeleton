@@ -12,7 +12,7 @@ type Options struct {
 var options *Options
 
 func EvaluateConditional(conditional *AstConditional, dataValue interface{}) bool {
-	if len(conditional.Value) == 0 {
+	if conditional.Value == nil {
 		panic(fmt.Sprintf("conditional %s has no value", conditional.Fact))
 	}
 	ok, err := EvaluateOperator(dataValue, conditional.Value, conditional.Operator)

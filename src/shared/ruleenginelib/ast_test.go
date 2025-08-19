@@ -1,3 +1,4 @@
+// ...existing code...
 package ruleenginelib
 
 import (
@@ -24,8 +25,8 @@ func TestParseJSON(t *testing.T) {
 		}
 	}`
 
-       rule := ParseJSON(j)
-       if fmt.Sprintf("%T", rule) != "*ruleenginelib.RuleBlock" {
-	       t.Fatalf("expected rule to be *ruleenginelib.RuleBlock, got %T", rule)
-       }
+	rule := ParseJSON(j)
+	if fmt.Sprintf("%T", rule) != "*ruleenginelib.RuleBlock" {
+		t.Fatalf("expected rule to be *ruleenginelib.RuleBlock, got %T", rule)
+	}
 }

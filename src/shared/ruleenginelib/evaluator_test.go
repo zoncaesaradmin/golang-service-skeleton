@@ -1,3 +1,4 @@
+// ...existing code...
 package ruleenginelib
 
 import (
@@ -5,6 +6,7 @@ import (
 )
 
 func TestEvaluateConditional(t *testing.T) {
+	options = &Options{AllowUndefinedVars: true}
 	tests := []struct {
 		conditional *AstConditional
 		identifier  interface{}
@@ -36,6 +38,7 @@ func TestEvaluateConditional(t *testing.T) {
 }
 
 func TestEvaluateAllCondition(t *testing.T) {
+	options = &Options{AllowUndefinedVars: true}
 	tests := []struct {
 		payload struct {
 			conditions []AstConditional
@@ -101,6 +104,7 @@ func TestEvaluateAllCondition(t *testing.T) {
 }
 
 func TestEvaluateAnyCondition(t *testing.T) {
+	options = &Options{AllowUndefinedVars: true}
 	tests := []struct {
 		payload struct {
 			conditions []AstConditional

@@ -66,32 +66,52 @@ func EvaluateOperator(dataValue, value interface{}, operator string) (bool, erro
 			}
 			return dataValue != value, nil
 		}
-	case "=":
-		fallthrough
-	case "eq":
-		factNum, err := assertIsNumber(dataValue)
-		if err == nil {
-			valueNum, err := assertIsNumber(value)
-			if err != nil {
-				return false, err
-			}
-			return factNum == valueNum, nil
-		}
-
-		return dataValue == value, nil
-	case "!=":
-		fallthrough
-	case "neq":
-		factNum, err := assertIsNumber(dataValue)
-		if err == nil {
-			valueNum, err := assertIsNumber(value)
-			if err != nil {
-				return false, err
-			}
-			return factNum != valueNum, nil
-		}
-
-		return dataValue != value, nil
+       case "=":
+	       fallthrough
+       case "eq":
+	       factNum, err := assertIsNumber(dataValue)
+	       if err == nil {
+		       valueNum, err := assertIsNumber(value)
+		       if err != nil {
+			       return false, err
+		       }
+		       return factNum == valueNum, nil
+	       }
+	       // If not numbers, check if types are comparable
+	       switch dataValue.(type) {
+	       case int, float64, string, bool:
+		       switch value.(type) {
+		       case int, float64, string, bool:
+			       return dataValue == value, nil
+		       default:
+			       return false, fmt.Errorf("eq: value type %T not comparable", value)
+		       }
+	       default:
+		       return false, fmt.Errorf("eq: dataValue type %T not comparable", dataValue)
+	       }
+       case "!=":
+	       fallthrough
+       case "neq":
+	       factNum, err := assertIsNumber(dataValue)
+	       if err == nil {
+		       valueNum, err := assertIsNumber(value)
+		       if err != nil {
+			       return false, err
+		       }
+		       return factNum != valueNum, nil
+	       }
+	       // If not numbers, check if types are comparable
+	       switch dataValue.(type) {
+	       case int, float64, string, bool:
+		       switch value.(type) {
+		       case int, float64, string, bool:
+			       return dataValue != value, nil
+		       default:
+			       return false, fmt.Errorf("neq: value type %T not comparable", value)
+		       }
+	       default:
+		       return false, fmt.Errorf("neq: dataValue type %T not comparable", dataValue)
+	       }
 
 	case "<":
 		fallthrough

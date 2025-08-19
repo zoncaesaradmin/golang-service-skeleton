@@ -1,3 +1,4 @@
+// ...existing code...
 package ruleenginelib
 
 import "testing"

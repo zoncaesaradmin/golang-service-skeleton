@@ -6,9 +6,9 @@ import (
 
 // Conditionals are the basic units of rules
 type AstConditional struct {
-	Fact     string        `json:"identifier"`
-	Operator string        `json:"operator"`
-	Value    []interface{} `json:"value"`
+	Fact     string      `json:"identifier"`
+	Operator string      `json:"operator"`
+	Value    interface{} `json:"value"`
 }
 
 // A Condition is a group of conditionals within a binding context
