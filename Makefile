@@ -180,9 +180,12 @@ clean:
 	@rm -rf /tmp/cratos-messagebus* 2>/dev/null || true
 	@echo "✅ All artifacts cleaned"
 
+
 # Copy env.example to .env and set SERVICE_HOME to current root directory
 devenv:
 	@echo "Setting up .env from env.example..."
-	cp env.example .env
-	sed -i '' "s|^SERVICE_HOME=.*$|SERVICE_HOME=$(shell pwd)|" .env
+	cp test/env.example .env
+	@echo "Updating .env with current SERVICE_HOME..."
+	sed -i.bak "s|^SERVICE_HOME=.*$$|SERVICE_HOME=$(shell pwd)|g" .env
+	@rm .env.bak
 	@echo ".env created with SERVICE_HOME=$(shell pwd)"

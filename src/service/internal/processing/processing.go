@@ -24,8 +24,8 @@ type ChannelConfig struct {
 
 type Pipeline struct {
 	config        ProcConfig
-	logger        logging.Logger
-	plogger       logging.Logger
+	logger        logging.Logger // application logger
+	plogger       logging.Logger // logger for all processing pipeline components
 	inputHandler  *InputHandler
 	processor     *Processor
 	outputHandler *OutputHandler
