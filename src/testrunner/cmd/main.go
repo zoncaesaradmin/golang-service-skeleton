@@ -241,7 +241,7 @@ func executeScenarioViaMessageBus(scenario testdata.TestScenario) types.TestResu
 	consumer := messagebus.NewConsumer("kafka-consumer.yaml", "")
 
 	// Subscribe to output topic
-	if err := consumer.Subscribe([]string{"test_output"}); err != nil {
+	if err := consumer.Subscribe([]string{"output-topic"}); err != nil {
 		result.Error = fmt.Sprintf("failed to subscribe: %v", err)
 		result.Duration = time.Since(start)
 		return result
@@ -258,7 +258,7 @@ func executeScenarioViaMessageBus(scenario testdata.TestScenario) types.TestResu
 
 	// Send message to test_input topic
 	message := &messagebus.Message{
-		Topic: "test_input",
+		Topic: "input-topic",
 		Key:   "test",
 		Value: inputData,
 	}

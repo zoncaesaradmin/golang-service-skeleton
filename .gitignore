@@ -126,3 +126,5 @@ config.local.yml
 
 # Test results and coverage
 test/results/
+test/coverage/
+test/service.pid

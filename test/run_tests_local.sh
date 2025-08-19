@@ -30,18 +30,6 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-    log_info "Repository root: $ROOT_DIR"
-
-    # Load environment variables from .env file (if present)
-    if [ -f "$ROOT_DIR/.env" ]; then
-        log_info "Loading environment variables from $ROOT_DIR/.env"
-        set -a
-        source "$ROOT_DIR/.env"
-        set +a
-    else
-        log_warning ".env file not found at $ROOT_DIR/.env; using default environment."
-    fi
-    
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -67,6 +55,19 @@ else
     LOGS_DIR="$ROOT_DIR/test/results/logs"
     COVERAGE_DIR="$ROOT_DIR/test/coverage"
 fi
+
+    log_info "Repository root: $ROOT_DIR"
+
+    # Load environment variables from .env file (if present)
+    if [ -f "$ROOT_DIR/.env" ]; then
+        log_info "Loading environment variables from $ROOT_DIR/.env"
+        set -a
+        source "$ROOT_DIR/.env"
+        set +a
+    else
+        log_warning ".env file not found at $ROOT_DIR/.env; using default environment."
+    fi
+    
 BUILD_MODE="${1:-build}"
 
 # Function to print colored output
@@ -149,7 +150,7 @@ run_service() {
     
     # Set coverage directory and log file path (using absolute paths)
     export GOCOVERDIR="$COVERAGE_DIR"
-    export LOG_FILE_NAME="$LOGS_DIR/service.log"
+    export SERVICE_LOG_DIR="$SERVICE_HOME/test/results/logs"
     
         # All other environment variables should be set via .env file
     
@@ -184,7 +185,7 @@ run_testrunner() {
     set -e
     
     # Also capture combined output for backward compatibility
-    cat "$LOGS_DIR/testrunner_stdout.log" "$LOGS_DIR/testrunner_stderr.log" > "$RESULTS_DIR/testrunner_output.log"
+    cat "$LOGS_DIR/testrunner_stdout.log" "$LOGS_DIR/testrunner_stderr.log" > "$LOGS_DIR/testrunner_output.log"
     
     cd - > /dev/null
     
@@ -396,12 +397,19 @@ main() {
 
     # Ensure local bus topic directories exist for tests
     LOCAL_BUS_BASE="/tmp/cratos-messagebus"
-    for topic in test_input test_output; do
+    for topic in input-topic output-topic rules-topic; do
         if [ ! -d "$LOCAL_BUS_BASE/$topic" ]; then
             mkdir -p "$LOCAL_BUS_BASE/$topic"
             log_info "Created local bus topic directory: $LOCAL_BUS_BASE/$topic"
         fi
     done
+
+    # Ensure at least one dummy message file exists for input-topic
+    #DUMMY_MSG="$LOCAL_BUS_BASE/input-topic/0000000000.json"
+    #if [ ! -f "$DUMMY_MSG" ]; then
+    #    echo '{"dummy":"message"}' > "$DUMMY_MSG"
+    #    log_info "Created dummy message file: $DUMMY_MSG"
+    #fi
     
     if [ "$BUILD_MODE" = "build" ] || [ "$BUILD_MODE" = "all" ]; then
         # Build phase
