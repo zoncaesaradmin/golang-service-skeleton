@@ -31,18 +31,12 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
 # Configuration - Updated paths to work from both root and test directories
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ "$(basename "$SCRIPT_DIR")" == "test" ]]; then
     # Running from test directory or script in test directory
     ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-    COMPONENT_DIR="$ROOT_DIR/src/service"
+    SERVICE_DIR="$ROOT_DIR/src/service"
     TESTRUNNER_DIR="$ROOT_DIR/src/testrunner"
     RESULTS_DIR="$SCRIPT_DIR/results"
     LOGS_DIR="$SCRIPT_DIR/results/logs"
@@ -50,7 +44,7 @@ if [[ "$(basename "$SCRIPT_DIR")" == "test" ]]; then
 else
     # Fallback: assume we're in root and test is a subdirectory
     ROOT_DIR="$(pwd)"
-    COMPONENT_DIR="$ROOT_DIR/src/service"
+    SERVICE_DIR="$ROOT_DIR/src/service"
     TESTRUNNER_DIR="$ROOT_DIR/src/testrunner"
     RESULTS_DIR="$ROOT_DIR/test/results"
     LOGS_DIR="$ROOT_DIR/test/results/logs"
@@ -118,8 +112,8 @@ build_service() {
     log_info "Service will be built by make run-local-coverage with coverage instrumentation and local tags..."
     
     # Verify service directory exists and has Makefile
-    if [ ! -f "$COMPONENT_DIR/Makefile" ]; then
-        log_error "Service Makefile not found at $COMPONENT_DIR/Makefile"
+    if [ ! -f "$SERVICE_DIR/Makefile" ]; then
+        log_error "Service Makefile not found at $SERVICE_DIR/Makefile"
         exit 1
     fi
     
@@ -147,7 +141,7 @@ build_testrunner() {
 # Function to run service
 run_service() {
     log_info "Starting service using make run-local-coverage..."
-    cd "$COMPONENT_DIR"
+    cd "$SERVICE_DIR"
     
     # Set coverage directory and log file path (using absolute paths)
     export GOCOVERDIR="$COVERAGE_DIR"
@@ -157,12 +151,12 @@ run_service() {
     
     # Use make run-local-coverage which automatically sets SERVICE_HOME and builds with local tags + coverage
     # Run in background and capture stdout/stderr
-    make run-local-coverage > "$LOGS_DIR/service_stdout.log" 2> "$LOGS_DIR/service_stderr.log" &
+    make run-local-coverage > "$LOGS_DIR/service_stdouterr.log" 2> "$LOGS_DIR/service_stdouterr.log" &
     COMPONENT_PID=$!
     echo $COMPONENT_PID > "$ROOT_DIR/test/service.pid"
     
     log_success "Service started with PID $COMPONENT_PID using make run-local-coverage (SERVICE_HOME=$ROOT_DIR)"
-    log_info "Service logs: $LOGS_DIR/service.log, $LOGS_DIR/service_stdout.log, $LOGS_DIR/service_stderr.log"
+    log_info "Service logs: $LOGS_DIR/service_stdouterr.log"
     cd - > /dev/null
     
     # Wait a moment for service to start
@@ -176,17 +170,13 @@ run_testrunner() {
     
     # Set SERVICE_HOME and testrunner log file path (using absolute paths)
     export SERVICE_HOME="$ROOT_DIR"
-    export LOG_FILE_NAME="$LOGS_DIR/testrunner.log"
     
     # Temporarily disable strict error handling for testrunner execution
     set +e
     # Run testrunner and capture output
-    ./bin/testrunner.bin > "$LOGS_DIR/testrunner_stdout.log" 2> "$LOGS_DIR/testrunner_stderr.log"
+    ./bin/testrunner.bin > "$LOGS_DIR/testrunner_stdouterr.log" 2> "$LOGS_DIR/testrunner_stdouterr.log"
     TEST_RESULT=$?
     set -e
-    
-    # Also capture combined output for backward compatibility
-    cat "$LOGS_DIR/testrunner_stdout.log" "$LOGS_DIR/testrunner_stderr.log" > "$LOGS_DIR/testrunner_output.log"
     
     cd - > /dev/null
     
@@ -229,50 +219,20 @@ collect_logs() {
         echo
         
         echo "=== COMPONENT APPLICATION LOGS ==="
-        if [ -f "$LOGS_DIR/service.log" ]; then
-            cat "$LOGS_DIR/service.log"
+        
+        echo "=== COMPONENT STDOUT & STDERR ==="
+        if [ -f "$LOGS_DIR/service_stdouterr.log" ]; then
+            cat "$LOGS_DIR/service_stdouterr.log"
         else
-            echo "No service application logs found"
+            echo "No service stdout/stderr logs found"
         fi
         echo
         
-        echo "=== COMPONENT STDOUT ==="
-        if [ -f "$LOGS_DIR/service_stdout.log" ]; then
-            cat "$LOGS_DIR/service_stdout.log"
+        echo "=== TESTRUNNER STDOUT & STDERR ==="
+        if [ -f "$LOGS_DIR/testrunner_stdouterr.log.log" ]; then
+            cat "$LOGS_DIR/testrunner_stdouterr.log.log"
         else
-            echo "No service stdout logs found"
-        fi
-        echo
-        
-        echo "=== COMPONENT STDERR ==="
-        if [ -f "$LOGS_DIR/service_stderr.log" ]; then
-            cat "$LOGS_DIR/service_stderr.log"
-        else
-            echo "No service stderr logs found"
-        fi
-        echo
-        
-        echo "=== TESTRUNNER APPLICATION LOGS ==="
-        if [ -f "$LOGS_DIR/testrunner.log" ]; then
-            cat "$LOGS_DIR/testrunner.log"
-        else
-            echo "No testrunner application logs found"
-        fi
-        echo
-        
-        echo "=== TESTRUNNER STDOUT ==="
-        if [ -f "$LOGS_DIR/testrunner_stdout.log" ]; then
-            cat "$LOGS_DIR/testrunner_stdout.log"
-        else
-            echo "No testrunner stdout logs found"
-        fi
-        echo
-        
-        echo "=== TESTRUNNER STDERR ==="
-        if [ -f "$LOGS_DIR/testrunner_stderr.log" ]; then
-            cat "$LOGS_DIR/testrunner_stderr.log"
-        else
-            echo "No testrunner stderr logs found"
+            echo "No testrunner combined logs found"
         fi
         echo
         
@@ -298,7 +258,7 @@ generate_coverage_report() {
     if [ -d "$COVERAGE_DIR" ] && [ "$(ls -A "$COVERAGE_DIR")" ]; then
         # Convert binary coverage data to text format
         # Use the service's working directory for proper module resolution
-        cd "$COMPONENT_DIR"
+        cd "$SERVICE_DIR"
         go tool covdata textfmt -i="$COVERAGE_DIR" -o="$RESULTS_DIR/coverage.out"
         
         # Generate HTML coverage report
@@ -356,17 +316,13 @@ generate_report() {
         echo
         
         echo "Log Files:"
-        echo "- Service application logs: $LOGS_DIR/service.log"
-        echo "- Service stdout: $LOGS_DIR/service_stdout.log"
-        echo "- Service stderr: $LOGS_DIR/service_stderr.log"
-        echo "- Testrunner application logs: $LOGS_DIR/testrunner.log"
-        echo "- Testrunner stdout: $LOGS_DIR/testrunner_stdout.log"
-        echo "- Testrunner stderr: $LOGS_DIR/testrunner_stderr.log"
+        echo "- Service & Testrunner logs are at: $LOGS_DIR/"
+        echo "- Service stdout & stderr logs: $LOGS_DIR/service_stdouterr.log"
+        echo "- Testrunner stdout & stderr logs: $LOGS_DIR/testrunner_stdouterr.log.log"
         echo "- Consolidated logs: $RESULTS_DIR/all_logs.txt"
         echo
         
         echo "Output Files:"
-        echo "- Test logs (legacy): $RESULTS_DIR/testrunner_output.log"
         echo "- Coverage report: $RESULTS_DIR/coverage.html"
         echo "- Coverage summary: $RESULTS_DIR/coverage_summary.txt"
         echo "- This report: $REPORT_FILE"
@@ -386,7 +342,7 @@ main() {
     log_info "Starting Local Development Test Runner (mode: $BUILD_MODE)"
     log_info "Script directory: $SCRIPT_DIR"
     log_info "Repository root: $ROOT_DIR"
-    log_info "Service directory: $COMPONENT_DIR"
+    log_info "Service directory: $SERVICE_DIR"
     log_info "Results directory: $RESULTS_DIR"
     echo
     
