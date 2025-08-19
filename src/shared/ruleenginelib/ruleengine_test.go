@@ -42,14 +42,14 @@ func TestEvaluateStructAndRule(t *testing.T) {
 }
 
 func TestEvaluateRules(t *testing.T) {
-       re := NewRuleEngineInstance(nil)
-       ruleJSON := `{"uuid":"test-uuid","payload":[{"condition":{"any":[],"all":[{"identifier":"planet","operator":"eq","value":"Earth"}]},"actions":[]}],"state":true}`
-       re.AddRule(ruleJSON)
-       data := Data{"planet": "Earth"}
-       matched, uuid, entry := re.EvaluateRules(data)
-       if !matched || uuid != "test-uuid" || entry == nil {
-	       t.Errorf("EvaluateRules should match and return correct uuid and entry, got matched=%v uuid=%v entry=%v", matched, uuid, entry)
-       }
+	re := NewRuleEngineInstance(nil)
+	ruleJSON := `{"uuid":"test-uuid","payload":[{"condition":{"any":[],"all":[{"identifier":"planet","operator":"eq","value":"Earth"}]},"actions":[]}],"state":true}`
+	re.AddRule(ruleJSON)
+	data := Data{"planet": "Earth"}
+	matched, uuid, entry := re.EvaluateRules(data)
+	if !matched || uuid != "test-uuid" || entry == nil {
+		t.Errorf("EvaluateRules should match and return correct uuid and entry, got matched=%v uuid=%v entry=%v", matched, uuid, entry)
+	}
 }
 
 func TestEvaluateConditionSwitch(t *testing.T) {
