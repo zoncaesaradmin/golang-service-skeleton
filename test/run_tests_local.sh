@@ -7,7 +7,41 @@
 set -e
 # Note: We handle test failures gracefully to ensure log collection
 
-# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+    log_info "Repository root: $ROOT_DIR"
+
+    # Load environment variables from .env file (if present)
+    if [ -f "$ROOT_DIR/.env" ]; then
+        log_info "Loading environment variables from $ROOT_DIR/.env"
+        set -a
+        source "$ROOT_DIR/.env"
+        set +a
+    else
+        log_warning ".env file not found at $ROOT_DIR/.env; using default environment."
+    fi
+    
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -117,9 +151,7 @@ run_service() {
     export GOCOVERDIR="$COVERAGE_DIR"
     export LOG_FILE_NAME="$LOGS_DIR/service.log"
     
-    # Set test-specific topics for integration testing
-    export PROCESSING_INPUT_TOPICS="test_input"
-    export PROCESSING_OUTPUT_TOPIC="test_output"
+        # All other environment variables should be set via .env file
     
     # Use make run-local-coverage which automatically sets SERVICE_HOME and builds with local tags + coverage
     # Run in background and capture stdout/stderr
@@ -361,6 +393,15 @@ main() {
     
     # Setup directories
     setup_directories
+
+    # Ensure local bus topic directories exist for tests
+    LOCAL_BUS_BASE="/tmp/cratos-messagebus"
+    for topic in test_input test_output; do
+        if [ ! -d "$LOCAL_BUS_BASE/$topic" ]; then
+            mkdir -p "$LOCAL_BUS_BASE/$topic"
+            log_info "Created local bus topic directory: $LOCAL_BUS_BASE/$topic"
+        fi
+    done
     
     if [ "$BUILD_MODE" = "build" ] || [ "$BUILD_MODE" = "all" ]; then
         # Build phase
